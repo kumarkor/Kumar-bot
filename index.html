@@ -11,25 +11,40 @@
         input { padding: 10px; font-size: 16px; text-align: center; border: 1px solid #ccc; border-radius: 5px; margin-bottom: 10px; width: 85%; }
         .box { background: #e9ecef; padding: 15px; border-radius: 8px; margin-bottom: 15px; }
         .admin-box { background: #ffebee; border: 2px solid #ffcdd2; }
+        
+        /* Banned Screen Style */
+        .banned-box { background: #ffebee; border: 3px solid #d32f2f; color: #d32f2f; padding: 30px; border-radius: 10px; margin: 50px auto; max-width: 350px; font-weight: bold; }
     </style>
 </head>
 <body>
 
-    <div class="container" id="verificationScreen">
+    <!-- Loading Screen -->
+    <div class="container" id="loadingScreen">
+        <h2>⏳ Loading...</h2>
+        <p>Checking security...</p>
+    </div>
+
+    <!-- 🚫 Banned Screen -->
+    <div class="banned-box" id="bannedScreen" style="display:none;">
+        <h1 style="font-size: 40px; margin:0;">🚫</h1>
+        <h2>ACCOUNT BANNED</h2>
+        <p>You have been permanently banned for violating our <b>1 Device = 1 User</b> policy.</p>
+        <p>Multiple accounts are strictly prohibited.</p>
+    </div>
+
+    <!-- Verification Screen -->
+    <div class="container" id="verificationScreen" style="display:none;">
         <h2>🔐 Device Verification</h2>
-        <div id="statusMessage">Loading...</div>
-        
-        <div id="verificationSection" style="display:none;">
-            <p>Telegram ID: <b id="displayId"></b></p>
-            <button id="sendOtpBtn">Send OTP to Bot</button>
-            <div id="otpSection" style="display:none;">
-                <input type="text" id="otpInput" placeholder="Enter 4-digit OTP">
-                <br>
-                <button id="verifyBtn">Verify Device</button>
-            </div>
+        <p>Telegram ID: <b id="displayId"></b></p>
+        <button id="sendOtpBtn">Send OTP to Bot</button>
+        <div id="otpSection" style="display:none;">
+            <input type="text" id="otpInput" placeholder="Enter 4-digit OTP">
+            <br>
+            <button id="verifyBtn">Verify Device</button>
         </div>
     </div>
 
+    <!-- Dashboard Screen -->
     <div class="container" id="dashboardScreen" style="display:none;">
         <h2>🚀 Kumar Wallet</h2>
         
@@ -48,7 +63,6 @@
             <button onclick="redeemGift()" style="background:#28a745;">🎁 Redeem Gift</button>
         </div>
 
-        <!-- 👑 Admin Only Section -->
         <div class="box admin-box" id="adminSection" style="display:none;">
             <h3 style="color: #d32f2f;">👑 Admin Panel</h3>
             <input type="text" id="newGiftCode" placeholder="Code Name (e.g. VIP50)">
@@ -80,35 +94,49 @@
         const userId = urlParams.get('userid');
         const botToken = "8990895848:AAHc2cZJ948c1yKWAoXUoFU3WE-7-zR6_tU";
         
+        const loadingScreen = document.getElementById("loadingScreen");
         const verificationScreen = document.getElementById("verificationScreen");
         const dashboardScreen = document.getElementById("dashboardScreen");
-        const statusMessage = document.getElementById("statusMessage");
-        const verificationSection = document.getElementById("verificationSection");
+        const bannedScreen = document.getElementById("bannedScreen");
 
-        // 1 Device = 1 User Logic
-        let registeredDeviceUserId = localStorage.getItem("registered_device_userid_v3");
+        // सिक्रेट डिव्हाइस लॉक (नवीन नाव जेणेकरून जुना कॅशे रिसेट होईल)
+        let deviceLockId = localStorage.getItem("ultimate_device_lock_v1");
 
         if(!userId) {
-            statusMessage.innerHTML = "❌ Please open this app from the Telegram Bot.";
+            loadingScreen.innerHTML = "<h2>❌ Please open this app from the Telegram Bot.</h2>";
         } else {
-            // Check Device Registration First
-            if (registeredDeviceUserId && registeredDeviceUserId !== userId) {
-                statusMessage.innerHTML = "🚫 <b>Access Denied!</b><br>This device is already registered to another Telegram account.<br>(1 Device = 1 User)";
-            } else {
+            // 1. सर्वात आधी तपासणे की हा युझर Firebase मध्ये आधीच Banned आहे का?
+            get(ref(db, 'verified_users/' + userId)).then((snapshot) => {
+                let data = snapshot.exists() ? snapshot.val() : null;
+
+                if (data && data.isBanned === true) {
+                    // जर बॅन असेल, तर थेट बॅन स्क्रीन दाखवणे
+                    loadingScreen.style.display = "none";
+                    bannedScreen.style.display = "block";
+                    return;
+                }
+
+                // 2. ट्रॅप: जर मोबाईलवर आधीपासून आयडी असेल आणि आता नवीन आयडी आला असेल
+                if (deviceLockId && deviceLockId !== userId) {
+                    // 🚨 VIOLATION DETECTED! नवीन आयडीला बॅन करा!
+                    update(ref(db, 'verified_users/' + userId), { isBanned: true }).then(() => {
+                        loadingScreen.style.display = "none";
+                        bannedScreen.style.display = "block";
+                    });
+                    return;
+                }
+
+                // 3. जर सर्व ठीक असेल
                 document.getElementById("displayId").innerText = userId;
                 
-                // Check if already verified in Firebase
-                get(ref(db, 'verified_users/' + userId)).then((snapshot) => {
-                    if (snapshot.exists() && snapshot.val().isVerified) {
-                        // If verified in Firebase, ensure device is also locked to this ID
-                        localStorage.setItem("registered_device_userid_v3", userId);
-                        showDashboard();
-                    } else {
-                        statusMessage.style.display = "none";
-                        verificationSection.style.display = "block";
-                    }
-                });
-            }
+                if (data && data.isVerified) {
+                    localStorage.setItem("ultimate_device_lock_v1", userId); // पुन्हा लॉक लावणे
+                    showDashboard();
+                } else {
+                    loadingScreen.style.display = "none";
+                    verificationScreen.style.display = "block";
+                }
+            });
         }
 
         let generatedOTP = "";
@@ -126,22 +154,21 @@
 
         document.getElementById("verifyBtn").onclick = () => {
             if(document.getElementById("otpInput").value.trim() === generatedOTP) {
-                // Save to Firebase
-                update(ref(db, 'verified_users/' + userId), { isVerified: true, coins: 0, rupees: 0 })
+                // Firebase मध्ये नोंदणी करणे आणि लॉक लावणे
+                update(ref(db, 'verified_users/' + userId), { isVerified: true, coins: 0, rupees: 0, isBanned: false })
                     .then(() => { 
-                        // Lock Device to this User ID
-                        localStorage.setItem("registered_device_userid_v3", userId);
-                        alert("🎉 Verified!"); 
+                        localStorage.setItem("ultimate_device_lock_v1", userId);
+                        alert("🎉 Verified Successfully!"); 
                         showDashboard(); 
                     });
             } else { alert("❌ Incorrect OTP"); }
         };
 
         function showDashboard() {
+            loadingScreen.style.display = "none";
             verificationScreen.style.display = "none";
             dashboardScreen.style.display = "block";
 
-            // फक्त 7335163273 ला ॲडमिन पॅनेल दिसेल
             if(userId === "7335163273") {
                 document.getElementById("adminSection").style.display = "block";
             }
@@ -149,16 +176,24 @@
             onValue(ref(db, 'verified_users/' + userId), (snapshot) => {
                 if(snapshot.exists()) {
                     let data = snapshot.val();
+                    // जर डॅशबोर्डवर असताना त्याला कोणी बॅन केलं तर लगेच बाहेर काढणे
+                    if(data.isBanned) {
+                        dashboardScreen.style.display = "none";
+                        bannedScreen.style.display = "block";
+                        return;
+                    }
                     document.getElementById("coinBal").innerText = data.coins || 0;
                     document.getElementById("rupeeBal").innerText = data.rupees || 0;
                 }
             });
         }
 
+        // --- Features ---
         window.playDice = function() {
             let userRef = ref(db, 'verified_users/' + userId);
             get(userRef).then((snap) => {
                 let data = snap.val();
+                if(data.isBanned) return;
                 let today = new Date().toDateString();
                 if(data.last_dice_play === today) {
                     alert("🚫 You already played today! Come back tomorrow.");
@@ -166,10 +201,7 @@
                 }
                 let roll = Math.floor(Math.random() * 6) + 1;
                 let winCoins = roll * 10;
-                update(userRef, {
-                    coins: (data.coins || 0) + winCoins,
-                    last_dice_play: today
-                });
+                update(userRef, { coins: (data.coins || 0) + winCoins, last_dice_play: today });
                 alert(`🎲 You rolled a ${roll}!\n🎉 You won ${winCoins} Coins!`);
             });
         };
@@ -178,16 +210,13 @@
             let userRef = ref(db, 'verified_users/' + userId);
             get(userRef).then((snap) => {
                 let data = snap.val();
+                if(data.isBanned) return;
                 let currentCoins = data.coins || 0;
                 let currentRupees = data.rupees || 0;
-                
                 if(currentCoins >= 100) {
                     let rupeesToAdd = Math.floor(currentCoins / 100);
                     let coinsToDeduct = rupeesToAdd * 100;
-                    update(userRef, {
-                        coins: currentCoins - coinsToDeduct,
-                        rupees: currentRupees + rupeesToAdd
-                    });
+                    update(userRef, { coins: currentCoins - coinsToDeduct, rupees: currentRupees + rupeesToAdd });
                     alert(`✅ Converted ${coinsToDeduct} Coins into ₹${rupeesToAdd}!`);
                 } else {
                     alert("❌ Not enough coins! Need at least 100.");
@@ -199,7 +228,6 @@
             let code = document.getElementById("newGiftCode").value.trim();
             let reward = parseInt(document.getElementById("newGiftReward").value);
             if(!code || !reward) { alert("⚠️ Enter Code and Reward!"); return; }
-            
             set(ref(db, 'gift_codes/' + code), reward).then(() => {
                 alert(`✅ Gift Code [ ${code} ] created for ${reward} coins!`);
             });
@@ -208,20 +236,18 @@
         window.redeemGift = function() {
             let code = document.getElementById("giftInput").value.trim();
             if(!code) return;
-
             get(ref(db, 'gift_codes/' + code)).then((snap) => {
                 if(!snap.exists()) { alert("❌ Invalid Code!"); return; }
-                
                 let reward = snap.val();
                 let usedRef = ref(db, 'verified_users/' + userId + '/used_gifts/' + code);
-                
                 get(usedRef).then((usedSnap) => {
                     if(usedSnap.exists()) {
                         alert("❌ You already used this code!");
                     } else {
                         get(ref(db, 'verified_users/' + userId)).then((uSnap) => {
-                            let curCoins = uSnap.val().coins || 0;
-                            update(ref(db, 'verified_users/' + userId), { coins: curCoins + reward });
+                            let data = uSnap.val();
+                            if(data.isBanned) return;
+                            update(ref(db, 'verified_users/' + userId), { coins: (data.coins || 0) + reward });
                             set(usedRef, true);
                             alert(`🎉 Success! You got ${reward} Coins!`);
                         });
