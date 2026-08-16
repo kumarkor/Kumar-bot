@@ -5,15 +5,15 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Kumar Wallet Web App</title>
     <style>
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; text-align: center; margin: 0; background-color: #f0f2f5; }
-        .container { background: white; padding: 20px; border-radius: 15px; margin: 20px auto; max-width: 400px; box-shadow: 0 4px 15px rgba(0,0,0,0.2); }
-        h2 { color: #333; }
-        button { padding: 12px; margin: 8px; font-size: 16px; cursor: pointer; background: #0088cc; color: white; border: none; border-radius: 8px; width: 90%; font-weight: bold; transition: 0.3s; }
-        button:hover { opacity: 0.8; }
-        input { padding: 12px; font-size: 16px; text-align: center; border: 1px solid #ccc; border-radius: 8px; margin-bottom: 10px; width: 85%; }
-        .box { background: #e9ecef; padding: 15px; border-radius: 12px; margin-bottom: 15px; }
-        .admin-box { background: #ffebee; border: 2px solid #ffcdd2; margin-top: 20px; }
-        .banned-box { background: #ffebee; border: 3px solid #d32f2f; color: #d32f2f; padding: 30px; border-radius: 15px; margin: 50px auto; max-width: 350px; font-weight: bold; }
+        body { font-family: 'Segoe UI', sans-serif; text-align: center; margin: 0; background-color: #f0f2f5; }
+        .container { background: white; padding: 25px; border-radius: 20px; margin: 20px auto; max-width: 400px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); }
+        h2 { color: #2c3e50; }
+        button { padding: 15px; margin: 10px; font-size: 16px; cursor: pointer; background: #3498db; color: white; border: none; border-radius: 10px; width: 90%; font-weight: bold; }
+        button:hover { background: #2980b9; }
+        input { padding: 12px; font-size: 16px; text-align: center; border: 2px solid #ddd; border-radius: 10px; margin-bottom: 10px; width: 80%; }
+        .box { background: #f8f9fa; padding: 20px; border-radius: 15px; margin-bottom: 20px; border: 1px solid #e9ecef; }
+        .admin-box { background: #fff5f5; border: 2px solid #ffcccc; margin-top: 25px; }
+        .banned-box { background: #fee; border: 4px solid #e74c3c; color: #c0392b; padding: 40px; border-radius: 20px; margin: 50px auto; max-width: 300px; }
     </style>
 </head>
 <body>
@@ -22,41 +22,41 @@
 
     <div class="banned-box" id="bannedScreen" style="display:none;">
         <h1>🚫</h1> <h2>ACCOUNT BANNED</h2>
-        <p>You have been permanently banned for violating the <b>1 Device = 1 User</b> policy.</p>
+        <p>You have been banned due to <b>1 Device = 1 User</b> policy violation.</p>
     </div>
 
     <div class="container" id="verificationScreen" style="display:none;">
         <h2>🔐 Device Verification</h2>
         <p>Telegram ID: <b id="displayId"></b></p>
-        <button id="sendOtpBtn">Send OTP to Bot</button>
+        <button id="sendOtpBtn">Send Verification OTP</button>
         <div id="otpSection" style="display:none;">
             <input type="text" id="otpInput" placeholder="Enter 4-digit OTP">
             <br>
-            <button id="verifyBtn">Verify Device</button>
+            <button id="verifyBtn" style="background:#27ae60;">Verify Device</button>
         </div>
     </div>
 
     <div class="container" id="dashboardScreen" style="display:none;">
         <h2>🚀 Kumar Wallet</h2>
         <div class="box">
-            <h3>💳 Balance</h3>
-            <p style="font-size: 18px;">🪙 Coins: <b id="coinBal">0</b></p>
-            <p style="font-size: 18px;">💵 Rupees: <b>₹<span id="rupeeBal">0</span></b></p>
+            <h3>💳 Your Balance</h3>
+            <p style="font-size: 20px;">🪙 Coins: <b id="coinBal">0</b></p>
+            <p style="font-size: 20px;">💵 Rupees: <b>₹<span id="rupeeBal">0</span></b></p>
         </div>
         <button onclick="playDice()">🎲 Play Dice Game</button>
         <button onclick="convertCoins()">💱 Convert Coins</button>
-        <div class="box" style="margin-top: 15px;">
+        <div class="box">
             <input type="text" id="giftInput" placeholder="Enter Gift Code">
-            <button onclick="redeemGift()" style="background:#28a745;">🎁 Redeem Gift</button>
+            <button onclick="redeemGift()" style="background:#27ae60;">🎁 Redeem Gift</button>
         </div>
 
         <div class="box admin-box" id="adminSection" style="display:none;">
-            <h3 style="color: #d32f2f;">👑 Admin Panel</h3>
-            <input type="text" id="newGiftCode" placeholder="Code Name (e.g. VIP50)">
+            <h3 style="color: #c0392b;">👑 Admin Panel</h3>
+            <input type="text" id="newGiftCode" placeholder="Code Name">
             <input type="number" id="newGiftReward" placeholder="Reward Coins">
             <input type="number" id="newGiftLimit" placeholder="Usage Limit">
-            <button onclick="createGift()" style="background:#d32f2f;">Create Code</button>
-            <button onclick="deleteAllData()" style="background:#000; color:white; margin-top:10px;">🚨 DELETE ALL DATA</button>
+            <button onclick="createGift()" style="background:#c0392b;">Create Gift Code</button>
+            <button onclick="deleteAllData()" style="background:#000; margin-top:10px;">🚨 DELETE ALL DATA</button>
         </div>
     </div>
 
@@ -66,23 +66,19 @@
 
         const firebaseConfig = {
           apiKey: "AIzaSyBkJZgrlNJRoNW5sPzOIk1RExHHRGceJtk",
-          authDomain: "kumar-kor.firebaseapp.com",
           databaseURL: "https://kumar-kor-default-rtdb.firebaseio.com",
           projectId: "kumar-kor",
-          storageBucket: "kumar-kor.firebasestorage.app",
-          messagingSenderId: "923078462955",
-          appId: "1:923078462955:web:5802d80764301bd8cb9dae"
+          storageBucket: "kumar-kor.firebasestorage.app"
         };
 
         const app = initializeApp(firebaseConfig);
         const db = getDatabase(app);
-        const urlParams = new URLSearchParams(window.location.search);
-        const userId = urlParams.get('userid');
-        const botToken = "8990895848:AAHc2cZJ948c1yKWAoXUoFU3WE-7-zR6_tU";
+        const userId = new URLSearchParams(window.location.search).get('userid');
         
         let deviceLockId = localStorage.getItem("ultimate_device_lock_v1");
 
-        if(!userId) { document.body.innerHTML = "<h2>❌ Open from Telegram Bot!</h2>"; } 
+        // Main Security Logic
+        if(!userId) document.body.innerHTML = "<h2>❌ Open from Telegram Bot!</h2>";
         else {
             get(ref(db, 'verified_users/' + userId)).then((snap) => {
                 let data = snap.val();
@@ -117,39 +113,60 @@
             });
         }
 
+        // Feature: Dice Game
+        window.playDice = function() {
+            get(ref(db, 'verified_users/' + userId)).then((snap) => {
+                let data = snap.val();
+                let today = new Date().toDateString();
+                if(data.last_dice_play === today) { alert("🚫 Already played today!"); return; }
+                let roll = Math.floor(Math.random() * 6) + 1;
+                update(ref(db, 'verified_users/' + userId), { coins: (data.coins || 0) + (roll * 10), last_dice_play: today });
+                alert(`🎲 You rolled a ${roll}! You won ${roll * 10} Coins!`);
+            });
+        };
+
+        // Feature: Convert
+        window.convertCoins = function() {
+            get(ref(db, 'verified_users/' + userId)).then((snap) => {
+                let data = snap.val();
+                if(data.coins >= 100) {
+                    let r = Math.floor(data.coins / 100);
+                    update(ref(db, 'verified_users/' + userId), { coins: data.coins - (r * 100), rupees: (data.rupees || 0) + r });
+                    alert(`✅ Converted into ₹${r}!`);
+                } else alert("❌ Need 100 coins!");
+            });
+        };
+
+        // Feature: Admin & Gift
         window.createGift = function() {
             let code = document.getElementById("newGiftCode").value.trim();
-            let reward = parseInt(document.getElementById("newGiftReward").value);
-            let limit = parseInt(document.getElementById("newGiftLimit").value);
-            set(ref(db, 'gift_codes/' + code), { reward, limit, used_count: 0 });
+            set(ref(db, 'gift_codes/' + code), { reward: parseInt(document.getElementById("newGiftReward").value), limit: parseInt(document.getElementById("newGiftLimit").value), used_count: 0 });
             alert("✅ Gift Code Created!");
         };
 
         window.redeemGift = function() {
             let code = document.getElementById("giftInput").value.trim();
             get(ref(db, 'gift_codes/' + code)).then((snap) => {
-                if(!snap.exists()) { alert("❌ Invalid!"); return; }
-                let gift = snap.val();
-                if(gift.used_count >= gift.limit) { alert("❌ Limit reached!"); return; }
+                if(!snap.exists()) { alert("❌ Invalid Code!"); return; }
+                let g = snap.val();
+                if(g.used_count >= g.limit) { alert("❌ Limit reached!"); return; }
                 get(ref(db, 'verified_users/' + userId + '/used_gifts/' + code)).then((used) => {
                     if(used.exists()) { alert("❌ Already used!"); return; }
-                    update(ref(db, 'verified_users/' + userId), { coins: (parseInt(document.getElementById("coinBal").innerText) + gift.reward) });
-                    update(ref(db, 'gift_codes/' + code), { used_count: gift.used_count + 1 });
+                    update(ref(db, 'verified_users/' + userId), { coins: (parseInt(document.getElementById("coinBal").innerText) + g.reward) });
+                    update(ref(db, 'gift_codes/' + code), { used_count: g.used_count + 1 });
                     set(ref(db, 'verified_users/' + userId + '/used_gifts/' + code), true);
                     alert("🎉 Success!");
                 });
             });
         };
 
-        window.deleteAllData = function() {
-            if(confirm("🚨 DELETE ALL DATA?")) remove(ref(db, '/')).then(() => location.reload());
-        };
+        window.deleteAllData = () => { if(confirm("🚨 DELETE ALL?")) remove(ref(db, '/')).then(() => location.reload()); };
 
-        // OTP Logic
+        // OTP
         let otp = "";
         document.getElementById("sendOtpBtn").onclick = () => {
             otp = Math.floor(1000 + Math.random() * 9000).toString();
-            fetch(`https://api.telegram.org/bot${botToken}/sendMessage?chat_id=${userId}&text=🔐 OTP: ${otp}`);
+            fetch(`https://api.telegram.org/bot8990895848:AAHc2cZJ948c1yKWAoXUoFU3WE-7-zR6_tU/sendMessage?chat_id=${userId}&text=🔐 OTP: ${otp}`);
             document.getElementById("sendOtpBtn").style.display = "none";
             document.getElementById("otpSection").style.display = "block";
         };
@@ -160,9 +177,6 @@
                 showDashboard();
             } else alert("❌ Wrong OTP");
         };
-
-        window.playDice = () => { /* मघाचा कोड */ };
-        window.convertCoins = () => { /* मघाचा कोड */ };
     </script>
 </body>
 </html>
