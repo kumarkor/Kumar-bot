@@ -3,8 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Train Rush 2.0 | Mega Edition</title>
+    <title>Train Rush Mega | Installable</title>
     
+    <!-- Dynamic Manifest Link (Magic) -->
+    <link id="manifest-link" rel="manifest" href="">
     <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
     
     <style>
@@ -43,7 +45,7 @@
         }
 
         .controls-hint { 
-            font-size: 10px; color: #00d2ff; margin-top: 20px; text-align: center; 
+            font-size: 10px; color: #00d2ff; margin-top: 15px; text-align: center; 
             line-height: 1.8; background: rgba(0, 0, 0, 0.4); padding: 10px; border-radius: 10px; width: 90%;
         }
 
@@ -57,22 +59,29 @@
 
         .btn-play {
             background: linear-gradient(90deg, #e94560, #ff2e63); color: white; border: none; 
-            padding: 18px 30px; font-family: 'Press Start 2P', monospace; font-size: 14px;
+            padding: 15px 30px; font-family: 'Press Start 2P', monospace; font-size: 12px;
             border-radius: 12px; cursor: pointer; box-shadow: 0 6px 20px rgba(233, 69, 96, 0.6);
-            margin-top: 30px; transition: 0.2s; border: 2px solid #fff;
+            margin-top: 20px; transition: 0.2s; border: 2px solid #fff;
         }
         .btn-play:hover { transform: scale(1.1); box-shadow: 0 8px 25px rgba(233, 69, 96, 0.8); }
 
+        /* Install Button (Special) */
+        .btn-install {
+            background: linear-gradient(90deg, #27ae60, #2ecc71); color: white; border: none; 
+            padding: 15px 30px; font-family: 'Press Start 2P', monospace; font-size: 12px;
+            border-radius: 12px; cursor: pointer; box-shadow: 0 6px 20px rgba(46, 204, 113, 0.6);
+            margin-top: 15px; border: 2px solid #fff; display: none; /* सुरुवातीला लपवलेले असेल */
+        }
+
         .coin-icon { color: #f1c40f; }
         .danger-icon { color: #e74c3c; }
-
     </style>
 </head>
 <body>
 
     <div class="game-container">
         
-        <h2 class="title-text">🚂 TRAIN RUSH 2.0</h2>
+        <h2 class="title-text">🚂 TRAIN RUSH MEGA</h2>
 
         <div class="header">
             <div class="score-box">
@@ -91,50 +100,81 @@
         <div class="controls-hint">
             <p>👈 TAP LEFT to move Left</p>
             <p>👉 TAP RIGHT to move Right</p>
-            <p style="margin-top:5px; font-size:8px; color:#aaa;">Avoid <span class="danger-icon">🟥 Red Blocks</span> | Collect <span class="coin-icon">🟡 Coins</span></p>
         </div>
 
         <!-- START / GAME OVER SCREEN -->
         <div class="overlay" id="startScreen">
-            <h2 id="screenTitle" style="color: #00d2ff; margin-bottom: 20px; text-align:center; font-size:24px; line-height: 1.5;">MEGA<br>TRAIN RUSH</h2>
+            <h2 id="screenTitle" style="color: #00d2ff; margin-bottom: 20px; text-align:center; font-size:20px; line-height: 1.5;">MEGA<br>TRAIN RUSH</h2>
             <p id="finalScore" style="color: #fff; font-size: 14px; display: none; margin-bottom: 10px;">Score: <span id="fsVal">0</span></p>
             <p id="newHighScoreMsg" style="color: #f1c40f; font-size: 12px; display: none; animation: blink 1s infinite;">🏆 NEW HIGH SCORE! 🏆</p>
             
             <button class="btn-play" id="startBtn" onclick="startGame()">▶ PLAY NOW</button>
+            
+            <!-- INSTALL APP BUTTON -->
+            <button class="btn-install" id="installBtn" onclick="installApp()">📲 INSTALL GAME</button>
         </div>
     </div>
 
     <!-- =========================================
-         JAVASCRIPT LOGIC (THE BRAIN)
+         JAVASCRIPT LOGIC (Game + App Install Magic)
     ========================================= -->
     <script>
+        // ----------------------------------------------------
+        // 1. APP INSTALL MAGIC (Single File PWA Trick)
+        // ----------------------------------------------------
+        const manifest = {
+            "name": "Train Rush Mega",
+            "short_name": "TrainRush",
+            "start_url": window.location.href,
+            "display": "standalone",
+            "background_color": "#1a1a2e",
+            "theme_color": "#e94560",
+            "icons": [{ "src": "https://cdn-icons-png.flaticon.com/512/2766/2766324.png", "sizes": "512x512", "type": "image/png" }]
+        };
+        const manifestBlob = new Blob([JSON.stringify(manifest)], {type: 'application/json'});
+        const manifestUrl = URL.createObjectURL(manifestBlob);
+        document.getElementById('manifest-link').setAttribute('href', manifestUrl);
+
+        let deferredPrompt;
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
+            deferredPrompt = e;
+            // क्रोमने ॲप इन्स्टॉल सपोर्ट केला की हे हिरवं बटन दिसेल!
+            document.getElementById('installBtn').style.display = 'block'; 
+        });
+
+        function installApp() {
+            if (deferredPrompt) {
+                deferredPrompt.prompt();
+                deferredPrompt.userChoice.then((choiceResult) => {
+                    if (choiceResult.outcome === 'accepted') {
+                        document.getElementById('installBtn').style.display = 'none';
+                    }
+                    deferredPrompt = null;
+                });
+            } else {
+                alert("To install, click the 3 dots (⋮) in Chrome and select 'Add to Home screen' or 'Install app'.");
+            }
+        }
+
+        // ----------------------------------------------------
+        // 2. MAIN GAME LOGIC
+        // ----------------------------------------------------
         const canvas = document.getElementById("gameCanvas");
         const ctx = canvas.getContext("2d");
         
-        // Game Variables
         let score = 0;
         let highScore = localStorage.getItem("trainRushHighScore") || 0;
         document.getElementById("highScoreDisplay").innerText = highScore;
         
-        let gameLoop;
-        let isGameOver = false;
-        let speed = 5;
-        let frameCount = 0;
-        let trackOffset = 0;
-
-        // Tracks (3 Lanes)
+        let gameLoop, isGameOver = false, speed = 5, frameCount = 0, trackOffset = 0;
         const laneWidth = canvas.width / 3;
         const lanes = [laneWidth/2, laneWidth + laneWidth/2, laneWidth*2 + laneWidth/2]; 
         let trainLane = 1; 
+        const trainW = 46, trainH = 80;
+        let obstacles = [], coins = [];
 
-        // Train Size
-        const trainW = 46;
-        const trainH = 80;
-        
-        let obstacles = [];
-        let coins = [];
-
-        // Sound Context (Synthetic Beeps)
+        // Audio System
         const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
         function playSound(type) {
             if (audioCtx.state === 'suspended') audioCtx.resume();
@@ -144,15 +184,13 @@
             gainNode.connect(audioCtx.destination);
             
             if (type === 'coin') {
-                osc.type = 'sine';
-                osc.frequency.setValueAtTime(880, audioCtx.currentTime); // High pitch A5
+                osc.type = 'sine'; osc.frequency.setValueAtTime(880, audioCtx.currentTime);
                 osc.frequency.exponentialRampToValueAtTime(1760, audioCtx.currentTime + 0.1);
                 gainNode.gain.setValueAtTime(0.1, audioCtx.currentTime);
                 gainNode.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.1);
                 osc.start(); osc.stop(audioCtx.currentTime + 0.1);
             } else if (type === 'crash') {
-                osc.type = 'sawtooth';
-                osc.frequency.setValueAtTime(150, audioCtx.currentTime);
+                osc.type = 'sawtooth'; osc.frequency.setValueAtTime(150, audioCtx.currentTime);
                 osc.frequency.exponentialRampToValueAtTime(40, audioCtx.currentTime + 0.3);
                 gainNode.gain.setValueAtTime(0.2, audioCtx.currentTime);
                 gainNode.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.3);
@@ -160,189 +198,90 @@
             }
         }
 
-        // Draw Moving Tracks
         function drawTracks() {
-            ctx.strokeStyle = "#444";
-            ctx.lineWidth = 4;
-            trackOffset += speed;
-            if(trackOffset > 50) trackOffset = 0;
-
+            ctx.strokeStyle = "#444"; ctx.lineWidth = 4;
+            trackOffset += speed; if(trackOffset > 50) trackOffset = 0;
             for(let i=1; i<3; i++) {
-                ctx.beginPath();
-                ctx.moveTo(i * laneWidth, 0);
-                ctx.lineTo(i * laneWidth, canvas.height);
-                ctx.stroke();
+                ctx.beginPath(); ctx.moveTo(i * laneWidth, 0); ctx.lineTo(i * laneWidth, canvas.height); ctx.stroke();
             }
-
-            // Draw sleepers (horizontal lines)
-            ctx.strokeStyle = "#333";
-            ctx.lineWidth = 2;
+            ctx.strokeStyle = "#333"; ctx.lineWidth = 2;
             for(let y = trackOffset - 50; y < canvas.height; y += 50) {
-                ctx.beginPath();
-                ctx.moveTo(0, y);
-                ctx.lineTo(canvas.width, y);
-                ctx.stroke();
+                ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(canvas.width, y); ctx.stroke();
             }
         }
 
-        // Draw Player Train
         function drawTrain() {
-            let x = lanes[trainLane] - trainW / 2;
-            let y = canvas.height - trainH - 15;
-            
-            // Main Body
-            ctx.fillStyle = "#00d2ff";
-            ctx.fillRect(x, y, trainW, trainH);
-            ctx.fillStyle = "#3a86ff"; // Shadow
-            ctx.fillRect(x + trainW - 10, y, 10, trainH);
-            
-            // Window
-            ctx.fillStyle = "#fff";
-            ctx.fillRect(x + 8, y + 15, trainW - 16, 20);
-            
-            // Headlight
-            ctx.fillStyle = "#f1c40f";
-            ctx.beginPath();
-            ctx.arc(x + trainW/2, y + 5, 6, 0, Math.PI * 2);
-            ctx.fill();
+            let x = lanes[trainLane] - trainW / 2, y = canvas.height - trainH - 15;
+            ctx.fillStyle = "#00d2ff"; ctx.fillRect(x, y, trainW, trainH);
+            ctx.fillStyle = "#3a86ff"; ctx.fillRect(x + trainW - 10, y, 10, trainH);
+            ctx.fillStyle = "#fff"; ctx.fillRect(x + 8, y + 15, trainW - 16, 20);
+            ctx.fillStyle = "#f1c40f"; ctx.beginPath(); ctx.arc(x + trainW/2, y + 5, 6, 0, Math.PI * 2); ctx.fill();
         }
 
-        // Generate Objects
         function createObjects() {
             let lane = Math.floor(Math.random() * 3);
-            let type = Math.random() > 0.7 ? 'coin' : 'obstacle'; // 30% chance of coin
-            
-            if (type === 'obstacle') {
-                obstacles.push({ x: lanes[lane] - 25, y: -60, w: 50, h: 60, lane: lane });
-            } else {
-                coins.push({ x: lanes[lane], y: -30, r: 15, lane: lane });
-            }
+            if (Math.random() > 0.7) coins.push({ x: lanes[lane], y: -30, r: 15, lane: lane });
+            else obstacles.push({ x: lanes[lane] - 25, y: -60, w: 50, h: 60, lane: lane });
         }
 
         function updateObjects() {
-            // Obstacles (Red Blocks)
             for (let i = 0; i < obstacles.length; i++) {
-                let obs = obstacles[i];
-                obs.y += speed;
-                
-                ctx.fillStyle = "#e94560"; // Red color
-                ctx.fillRect(obs.x, obs.y, obs.w, obs.h);
-                // Striped pattern on obstacle
-                ctx.fillStyle = "#000";
-                ctx.fillRect(obs.x, obs.y + 20, obs.w, 10);
-
-                // Collision Detection
-                if (obs.lane === trainLane && obs.y + obs.h > canvas.height - trainH - 15 && obs.y < canvas.height - 15) {
-                    gameOver();
-                }
-
-                if (obs.y > canvas.height) {
-                    obstacles.splice(i, 1);
-                    score += 10;
-                    document.getElementById("scoreDisplay").innerText = score;
-                    if(score % 100 === 0) speed += 0.3; // Increase speed slightly
-                    i--;
-                }
+                let obs = obstacles[i]; obs.y += speed;
+                ctx.fillStyle = "#e94560"; ctx.fillRect(obs.x, obs.y, obs.w, obs.h);
+                ctx.fillStyle = "#000"; ctx.fillRect(obs.x, obs.y + 20, obs.w, 10);
+                if (obs.lane === trainLane && obs.y + obs.h > canvas.height - trainH - 15 && obs.y < canvas.height - 15) gameOver();
+                if (obs.y > canvas.height) { obstacles.splice(i, 1); score += 10; document.getElementById("scoreDisplay").innerText = score; if(score % 100 === 0) speed += 0.3; i--; }
             }
-
-            // Coins (Yellow Circles)
             for (let i = 0; i < coins.length; i++) {
-                let coin = coins[i];
-                coin.y += speed;
-                
-                ctx.fillStyle = "#f1c40f";
-                ctx.beginPath();
-                ctx.arc(coin.x, coin.y, coin.r, 0, Math.PI * 2);
-                ctx.fill();
-                ctx.fillStyle = "#d4ac0d";
-                ctx.beginPath();
-                ctx.arc(coin.x, coin.y, coin.r - 4, 0, Math.PI * 2);
-                ctx.fill();
-
-                // Coin Collection Logic
+                let coin = coins[i]; coin.y += speed;
+                ctx.fillStyle = "#f1c40f"; ctx.beginPath(); ctx.arc(coin.x, coin.y, coin.r, 0, Math.PI * 2); ctx.fill();
                 if (coin.lane === trainLane && coin.y + coin.r > canvas.height - trainH - 15 && coin.y - coin.r < canvas.height - 15) {
-                    coins.splice(i, 1);
-                    score += 50; // Bonus points
-                    document.getElementById("scoreDisplay").innerText = score;
-                    playSound('coin');
-                    i--;
-                } else if (coin.y > canvas.height) {
-                    coins.splice(i, 1);
-                    i--;
-                }
+                    coins.splice(i, 1); score += 50; document.getElementById("scoreDisplay").innerText = score; playSound('coin'); i--;
+                } else if (coin.y > canvas.height) { coins.splice(i, 1); i--; }
             }
         }
 
-        // Main Game Loop
         function loop() {
             if (isGameOver) return;
-            
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-            drawTracks();
-            drawTrain();
-            
+            ctx.clearRect(0, 0, canvas.width, canvas.height); drawTracks(); drawTrain();
             frameCount++;
-            // Generate objects faster as speed increases
-            let spawnRate = Math.max(30, 70 - Math.floor(speed * 2)); 
-            if (frameCount % spawnRate === 0) {
-                createObjects();
-            }
-            
+            if (frameCount % Math.max(30, 70 - Math.floor(speed * 2)) === 0) createObjects();
             updateObjects();
             gameLoop = requestAnimationFrame(loop);
         }
 
-        // Start Game
         function startGame() {
             if (audioCtx.state === 'suspended') audioCtx.resume();
             document.getElementById("startScreen").style.display = "none";
             document.getElementById("newHighScoreMsg").style.display = "none";
-            score = 0;
-            speed = 5;
-            obstacles = [];
-            coins = [];
-            trainLane = 1;
-            isGameOver = false;
-            frameCount = 0;
+            score = 0; speed = 5; obstacles = []; coins = []; trainLane = 1; isGameOver = false; frameCount = 0;
             document.getElementById("scoreDisplay").innerText = score;
             loop();
         }
 
-        // Game Over
         function gameOver() {
-            isGameOver = true;
-            cancelAnimationFrame(gameLoop);
-            playSound('crash');
-            
+            isGameOver = true; cancelAnimationFrame(gameLoop); playSound('crash');
             document.getElementById("startScreen").style.display = "flex";
             document.getElementById("screenTitle").innerText = "CRASHED! 💥";
-            document.getElementById("fsVal").innerText = score;
-            document.getElementById("finalScore").style.display = "block";
+            document.getElementById("fsVal").innerText = score; document.getElementById("finalScore").style.display = "block";
             document.getElementById("startBtn").innerText = "TRY AGAIN";
-
-            // Save High Score
             if (score > highScore) {
-                highScore = score;
-                localStorage.setItem("trainRushHighScore", highScore);
+                highScore = score; localStorage.setItem("trainRushHighScore", highScore);
                 document.getElementById("highScoreDisplay").innerText = highScore;
                 document.getElementById("newHighScoreMsg").style.display = "block";
             }
         }
 
-        // Controls (Touch for Mobile)
         window.addEventListener("touchstart", function(e) {
-            let touchX = e.touches[0].clientX;
-            let screenWidth = window.innerWidth;
+            let touchX = e.touches[0].clientX, screenWidth = window.innerWidth;
             if (touchX < screenWidth / 2 && trainLane > 0) trainLane--;
             else if (touchX > screenWidth / 2 && trainLane < 2) trainLane++;
         });
 
-        // Controls (Keyboard for PC)
         window.addEventListener("keydown", function(e) {
             if (e.key === "ArrowLeft" && trainLane > 0) trainLane--;
             if (e.key === "ArrowRight" && trainLane < 2) trainLane++;
         });
-
     </script>
 </body>
 </html>
