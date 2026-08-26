@@ -3,288 +3,621 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Ultra Gaming Hub</title>
+    <title>Ultra Gaming Hub Pro</title>
     
-    <!-- 🔗 ही लिंक ॲप डाऊनलोड करण्यासाठी महत्त्वाची आहे -->
     <link rel="manifest" href="manifest.json">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;800&family=Press+Start+2P&display=swap" rel="stylesheet">
     
     <style>
-        * { box-sizing: border-box; margin: 0; padding: 0; user-select: none; font-family: 'Poppins', sans-serif; }
-        body { background: #0f172a; color: #fff; display: flex; justify-content: center; height: 100vh; overflow: hidden; }
-        .app-container { width: 100%; max-width: 450px; background: #1e293b; display: flex; flex-direction: column; height: 100%; position: relative; }
+        /* =========================================
+           1. CORE UI & VARIABLES
+        ========================================= */
+        * { box-sizing: border-box; margin: 0; padding: 0; user-select: none; -webkit-tap-highlight-color: transparent; font-family: 'Poppins', sans-serif; }
+        body { background: #0f172a; color: #f8fafc; display: flex; justify-content: center; height: 100vh; overflow: hidden; }
+        .app-container { width: 100%; max-width: 450px; background: #1e293b; display: flex; flex-direction: column; height: 100%; position: relative; box-shadow: 0 0 50px rgba(0,0,0,0.8); }
         
-        .top-bar { display: flex; justify-content: space-between; align-items: center; padding: 15px 20px; background: #0f172a; border-bottom: 2px solid #334155; }
-        .logo { font-size: 18px; font-weight: 800; color: #38bdf8; }
-        .coin-box { background: linear-gradient(90deg, #f59e0b, #d97706); padding: 5px 15px; border-radius: 20px; font-weight: bold; font-size: 14px; }
-
-        .screen { display: none; flex: 1; overflow-y: auto; padding: 20px; }
-        .screen.active { display: block; }
-
-        /* Install App Button */
-        #installAppBtn { display: none; width: 100%; background: linear-gradient(90deg, #10b981, #059669); color: white; padding: 15px; border: none; border-radius: 12px; font-weight: bold; font-size: 16px; margin-bottom: 20px; cursor: pointer; box-shadow: 0 4px 15px rgba(16, 185, 129, 0.4); }
+        /* Headers & Navigation */
+        .top-bar { display: flex; justify-content: space-between; align-items: center; padding: 15px 20px; background: #0f172a; border-bottom: 2px solid #334155; z-index: 10; }
+        .logo { font-size: 16px; font-weight: 800; color: #38bdf8; text-transform: uppercase; }
+        .coin-box { background: linear-gradient(90deg, #f59e0b, #d97706); padding: 5px 12px; border-radius: 20px; font-weight: bold; font-size: 13px; display: flex; gap:5px; align-items: center;}
         
-        .section-title { font-size: 18px; font-weight: 800; margin-bottom: 15px; border-left: 4px solid #38bdf8; padding-left: 10px; }
-        .game-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
-        .game-card { background: #334155; border-radius: 16px; overflow: hidden; cursor: pointer; text-align: center; border: 1px solid #475569; position: relative; }
-        .game-thumb { height: 90px; display: flex; justify-content: center; align-items: center; font-size: 35px; }
-        .game-info { padding: 10px; }
-        .game-title { font-size: 13px; font-weight: bold; }
-        
-        /* High Score Badge */
-        .high-score-badge { position: absolute; top: 5px; right: 5px; background: rgba(0,0,0,0.6); font-size: 10px; padding: 2px 6px; border-radius: 8px; color: #f59e0b; font-weight: bold; }
-
-        .nav-bar { display: flex; justify-content: space-around; background: #0f172a; padding: 15px 0; border-top: 2px solid #334155; }
-        .nav-btn { color: #94a3b8; font-size: 12px; font-weight: bold; cursor: pointer; }
+        .nav-bar { display: flex; justify-content: space-around; background: #0f172a; padding: 12px 0; border-top: 2px solid #334155; z-index: 10; }
+        .nav-btn { color: #64748b; font-size: 11px; font-weight: bold; display: flex; flex-direction: column; align-items: center; gap: 4px; cursor: pointer; transition: 0.2s; }
         .nav-btn.active { color: #38bdf8; }
+        .nav-icon { font-size: 20px; }
 
-        /* Game Screen */
-        #gamePlayScreen { display: none; position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: #000; z-index: 100; flex-direction: column; }
-        .game-top { display: flex; justify-content: space-between; padding: 15px; background: rgba(0,0,0,0.8); }
-        canvas { flex: 1; width: 100%; }
+        /* Screens */
+        .screen { display: none; flex: 1; overflow-y: auto; padding: 20px; padding-bottom: 40px; animation: fadeIn 0.3s; }
+        .screen.active { display: block; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        .section-title { font-size: 18px; font-weight: 800; margin-bottom: 15px; border-left: 4px solid #38bdf8; padding-left: 10px; color: #e2e8f0; }
+
+        /* =========================================
+           2. GAMES HUB GRID
+        ========================================= */
+        .game-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
+        .game-card { background: #334155; border-radius: 16px; overflow: hidden; cursor: pointer; border: 1px solid #475569; position: relative; transition: 0.2s; }
+        .game-card:hover { border-color: #38bdf8; transform: translateY(-3px); box-shadow: 0 10px 20px rgba(56,189,248,0.2); }
+        .game-thumb { height: 90px; display: flex; justify-content: center; align-items: center; font-size: 40px; }
+        .game-info { padding: 10px; text-align: center; }
+        .game-title { font-size: 12px; font-weight: 800; }
+        .high-score-badge { position: absolute; top: 5px; right: 5px; background: rgba(0,0,0,0.7); font-size: 9px; padding: 3px 6px; border-radius: 8px; color: #fcd34d; font-weight: bold; }
+
+        /* =========================================
+           3. SHOP, HISTORY & TASKS UI
+        ========================================= */
+        /* Shop */
+        .shop-item { background: #334155; border-radius: 12px; padding: 15px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+        .btn-buy { background: #10b981; color: white; border: none; padding: 8px 12px; border-radius: 8px; font-weight: bold; font-size: 12px; cursor: pointer; }
+        .btn-buy:disabled { background: #475569; color: #94a3b8; }
         
-        #countdownOverlay { position: absolute; top:0; left:0; width:100%; height:100%; background: rgba(0,0,0,0.8); z-index: 200; display: none; justify-content: center; align-items: center; }
-        .count-text { font-family: 'Press Start 2P'; font-size: 60px; color: #38bdf8; }
+        /* Tasks */
+        .task-item { background: linear-gradient(135deg, #1e293b, #334155); border: 1px solid #475569; border-radius: 12px; padding: 15px; margin-bottom: 12px; }
+        .task-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+        .task-title { font-size: 14px; font-weight: bold; }
+        .task-reward { color: #f59e0b; font-size: 12px; font-weight: bold; }
+        .progress-bar { width: 100%; height: 8px; background: #0f172a; border-radius: 4px; overflow: hidden; margin-bottom: 10px; }
+        .progress-fill { height: 100%; background: #38bdf8; width: 0%; transition: 0.3s; }
+        .btn-claim { width: 100%; background: #f59e0b; color: #fff; border: none; padding: 8px; border-radius: 6px; font-weight: bold; display: none; }
+        .btn-claim.active { display: block; }
+        .task-done-msg { color: #10b981; font-size: 12px; font-weight: bold; text-align: center; display: none; }
 
-        #gameOverOverlay { position: absolute; top:0; left:0; width:100%; height:100%; background: rgba(0,0,0,0.9); z-index: 150; display: none; justify-content: center; align-items: center; flex-direction: column; }
-        .btn-action { background: #38bdf8; color: #fff; border: none; padding: 12px 25px; border-radius: 8px; font-weight: bold; font-size: 14px; margin-top: 10px; width: 200px; cursor: pointer; }
+        /* History */
+        .history-item { background: #334155; padding: 12px; border-radius: 10px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; border-left: 4px solid #38bdf8; }
+        .history-item.spent { border-left-color: #ef4444; }
+        .hist-date { font-size: 10px; color: #94a3b8; }
+
+        /* =========================================
+           4. GAME PLAY SCREEN
+        ========================================= */
+        #gamePlayScreen { display: none; position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: #000; z-index: 100; flex-direction: column; }
+        .game-top { display: flex; justify-content: space-between; align-items: center; padding: 10px 15px; background: rgba(0,0,0,0.9); z-index: 101; border-bottom: 1px solid #333; }
+        .btn-exit { background: #ef4444; color: #fff; border: none; padding: 6px 15px; border-radius: 8px; font-weight: bold; font-size: 12px; }
+        canvas { flex: 1; width: 100%; display: block; }
+
+        #countdownOverlay { position: absolute; top:0; left:0; width:100%; height:100%; background: rgba(0,0,0,0.85); z-index: 200; display: none; justify-content: center; align-items: center; flex-direction: column; }
+        .count-text { font-family: 'Press Start 2P', monospace; font-size: 80px; color: #38bdf8; animation: pulse 1s infinite; }
+        @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.2); } 100% { transform: scale(1); } }
+
+        #gameOverOverlay { position: absolute; top:0; left:0; width:100%; height:100%; background: rgba(0,0,0,0.95); z-index: 150; display: none; justify-content: center; align-items: center; flex-direction: column; }
+        .btn-action { background: #38bdf8; color: #fff; border: none; padding: 15px 30px; border-radius: 10px; font-weight: bold; font-size: 14px; margin-bottom: 12px; width: 220px; cursor: pointer; }
     </style>
 </head>
 <body>
+
     <div class="app-container">
+        <!-- TOP BAR -->
         <div class="top-bar">
             <div class="logo">⚡ ARCADE HUB</div>
             <div class="coin-box">🟡 <span id="userCoins">0</span></div>
         </div>
 
+        <!-- =========================================
+             SCREEN 1: GAMES HUB (10 Games)
+        ========================================= -->
         <div id="hubScreen" class="screen active">
-            <!-- 📲 INSTALL BUTTON -->
-            <button id="installAppBtn" onclick="installPWA()">📲 INSTALL APP TO DEVICE</button>
-            
-            <div class="section-title">Play & Earn</div>
+            <div class="section-title">All Games</div>
             <div class="game-grid">
                 <div class="game-card" onclick="initGame('train')">
                     <div class="high-score-badge">🏆 <span id="hs_train">0</span></div>
-                    <div class="game-thumb" style="background: #e94560;">🚂</div>
+                    <div class="game-thumb" style="background: linear-gradient(135deg, #e94560, #ff2e63);">🚂</div>
                     <div class="game-info"><div class="game-title">Train Rush</div></div>
                 </div>
                 <div class="game-card" onclick="initGame('rocket')">
                     <div class="high-score-badge">🏆 <span id="hs_rocket">0</span></div>
-                    <div class="game-thumb" style="background: #8e2de2;">🚀</div>
+                    <div class="game-thumb" style="background: linear-gradient(135deg, #8e2de2, #4a00e0);">🚀</div>
                     <div class="game-info"><div class="game-title">Galaxy Fly</div></div>
+                </div>
+                <div class="game-card" onclick="initGame('racer')">
+                    <div class="high-score-badge">🏆 <span id="hs_racer">0</span></div>
+                    <div class="game-thumb" style="background: linear-gradient(135deg, #f5af19, #f12711);">🏎️</div>
+                    <div class="game-info"><div class="game-title">Neon Racer</div></div>
+                </div>
+                <div class="game-card" onclick="initGame('catcher')">
+                    <div class="high-score-badge">🏆 <span id="hs_catcher">0</span></div>
+                    <div class="game-thumb" style="background: linear-gradient(135deg, #11998e, #38ef7d);">💰</div>
+                    <div class="game-info"><div class="game-title">Coin Catcher</div></div>
+                </div>
+                <div class="game-card" onclick="initGame('ninja')">
+                    <div class="high-score-badge">🏆 <span id="hs_ninja">0</span></div>
+                    <div class="game-thumb" style="background: linear-gradient(135deg, #00c6ff, #0072ff);">⚔️</div>
+                    <div class="game-info"><div class="game-title">Tap Ninja</div></div>
+                </div>
+                <div class="game-card" onclick="initGame('snake')">
+                    <div class="high-score-badge">🏆 <span id="hs_snake">0</span></div>
+                    <div class="game-thumb" style="background: linear-gradient(135deg, #43a047, #1b5e20);">🐍</div>
+                    <div class="game-info"><div class="game-title">Classic Snake</div></div>
+                </div>
+                <div class="game-card" onclick="initGame('pong')">
+                    <div class="high-score-badge">🏆 <span id="hs_pong">0</span></div>
+                    <div class="game-thumb" style="background: linear-gradient(135deg, #d32f2f, #9a0007);">🏓</div>
+                    <div class="game-info"><div class="game-title">Ping Pong</div></div>
+                </div>
+                <div class="game-card" onclick="initGame('dodge')">
+                    <div class="high-score-badge">🏆 <span id="hs_dodge">0</span></div>
+                    <div class="game-thumb" style="background: linear-gradient(135deg, #fbc02d, #f57f17);">☄️</div>
+                    <div class="game-info"><div class="game-title">Dodgeball</div></div>
+                </div>
+                <div class="game-card" onclick="initGame('jump')">
+                    <div class="high-score-badge">🏆 <span id="hs_jump">0</span></div>
+                    <div class="game-thumb" style="background: linear-gradient(135deg, #00bcd4, #006064);">🧊</div>
+                    <div class="game-info"><div class="game-title">Jump Cube</div></div>
+                </div>
+                <div class="game-card" onclick="initGame('shooter')">
+                    <div class="high-score-badge">🏆 <span id="hs_shooter">0</span></div>
+                    <div class="game-thumb" style="background: linear-gradient(135deg, #9c27b0, #4a148c);">👾</div>
+                    <div class="game-info"><div class="game-title">Space Shooter</div></div>
                 </div>
             </div>
         </div>
 
-        <div class="nav-bar">
-            <div class="nav-btn active">🎮 Games</div>
+        <!-- =========================================
+             SCREEN 2: DAILY TASKS
+        ========================================= -->
+        <div id="taskScreen" class="screen">
+            <div class="section-title">Daily Missions</div>
+            <p style="font-size:12px; color:#94a3b8; margin-bottom:15px;">Tasks reset every day at midnight!</p>
+            <div id="taskList"></div>
         </div>
 
-        <!-- GAME PLAY AREA -->
+        <!-- =========================================
+             SCREEN 3: SHOP
+        ========================================= -->
+        <div id="shopScreen" class="screen">
+            <div class="section-title">Premium Shop</div>
+            <div id="shopList"></div>
+        </div>
+
+        <!-- =========================================
+             SCREEN 4: HISTORY
+        ========================================= -->
+        <div id="historyScreen" class="screen">
+            <div class="section-title">Transaction Ledger</div>
+            <div id="historyList"></div>
+        </div>
+
+        <!-- BOTTOM NAV BAR -->
+        <div class="nav-bar">
+            <div class="nav-btn active" onclick="switchTab('hubScreen', this)"><div class="nav-icon">🎮</div>Games</div>
+            <div class="nav-btn" onclick="switchTab('taskScreen', this)"><div class="nav-icon">📋</div>Tasks</div>
+            <div class="nav-btn" onclick="switchTab('shopScreen', this)"><div class="nav-icon">🛒</div>Shop</div>
+            <div class="nav-btn" onclick="switchTab('historyScreen', this)"><div class="nav-icon">🧾</div>History</div>
+        </div>
+
+        <!-- =========================================
+             GAME PLAY AREA
+        ========================================= -->
         <div id="gamePlayScreen">
             <div class="game-top">
-                <div style="font-family:'Press Start 2P'; font-size:12px; color:#f59e0b;">SCORE: <span id="liveScore">0</span></div>
-                <button style="background:#ef4444; color:#fff; border:none; padding:5px 15px; border-radius:10px;" onclick="exitGame()">EXIT</button>
+                <div style="font-family:'Press Start 2P'; font-size:10px; color:#f59e0b;">SCORE: <span id="liveScore">0</span></div>
+                <button class="btn-exit" onclick="exitGame()">EXIT</button>
             </div>
             <canvas id="mainCanvas"></canvas>
 
+            <!-- Overlays -->
             <div id="countdownOverlay"><div class="count-text" id="countText">3</div></div>
             
             <div id="gameOverOverlay">
-                <div style="font-family:'Press Start 2P'; font-size:20px; color:#ef4444; margin-bottom:15px;">CRASHED!</div>
-                <div style="font-size:18px; color:#fff; margin-bottom:5px;">Score: <span id="goScore">0</span></div>
-                <div style="font-size:14px; color:#f59e0b; margin-bottom:20px; font-weight:bold;">🏆 High Score: <span id="goHighScore">0</span></div>
-                <div style="font-size:16px; color:#10b981; margin-bottom:20px; font-weight:bold;">Earned +<span id="goCoins">0</span> Coins 🟡</div>
+                <div style="font-family:'Press Start 2P'; font-size:24px; color:#ef4444; margin-bottom:15px;">GAME OVER</div>
+                <div style="font-size:16px; margin-bottom:5px;">Score: <span id="goScore">0</span></div>
+                <div style="font-size:14px; color:#fcd34d; margin-bottom:20px; font-weight:bold;">🏆 High Score: <span id="goHighScore">0</span></div>
+                <div style="font-size:16px; color:#10b981; margin-bottom:25px; font-weight:bold;">Earned +<span id="goCoins">0</span> Coins 🟡</div>
                 
-                <button class="btn-action" onclick="restartCurrentGame()">Play Again</button>
-                <button class="btn-action" style="background:#475569;" onclick="exitGame()">Back to Hub</button>
+                <button class="btn-action" onclick="restartCurrentGame()">PLAY AGAIN</button>
+                <button class="btn-action" style="background:#475569;" onclick="exitGame()">BACK TO HUB</button>
             </div>
         </div>
+
     </div>
 
     <script>
-        // ==========================================
-        // 1. PWA INSTALL LOGIC (Download Button)
-        // ==========================================
-        if ('serviceWorker' in navigator) {
-            navigator.serviceWorker.register('sw.js').then(() => console.log("Service Worker Active"));
-        }
-
-        let deferredPrompt;
-        window.addEventListener('beforeinstallprompt', (e) => {
-            e.preventDefault();
-            deferredPrompt = e;
-            document.getElementById('installAppBtn').style.display = 'block'; // Show Install Button
-        });
-
-        function installPWA() {
-            if (deferredPrompt) {
-                deferredPrompt.prompt();
-                deferredPrompt.userChoice.then((choice) => {
-                    if (choice.outcome === 'accepted') {
-                        document.getElementById('installAppBtn').style.display = 'none';
-                    }
-                    deferredPrompt = null;
-                });
-            }
-        }
-
-        // ==========================================
-        // 2. STORAGE LOGIC (Coins & High Scores)
-        // ==========================================
+        /* =========================================
+           1. DATA STORAGE & INITIALIZATION
+        ========================================= */
         let myCoins = parseInt(localStorage.getItem('megaHubCoins')) || 0;
-        document.getElementById('userCoins').innerText = myCoins;
+        let myItems = JSON.parse(localStorage.getItem('megaHubItems')) || [];
+        let myHistory = JSON.parse(localStorage.getItem('megaHubHistory')) || [];
+        let highScores = JSON.parse(localStorage.getItem('megaHubScores')) || { train:0, rocket:0, racer:0, catcher:0, ninja:0, snake:0, pong:0, dodge:0, jump:0, shooter:0 };
         
-        let highScores = JSON.parse(localStorage.getItem('megaHubScores')) || { train: 0, rocket: 0 };
-        document.getElementById('hs_train').innerText = highScores.train;
-        document.getElementById('hs_rocket').innerText = highScores.rocket;
+        document.getElementById('userCoins').innerText = myCoins;
+        for (let game in highScores) { if(document.getElementById('hs_'+game)) document.getElementById('hs_'+game).innerText = highScores[game]; }
 
-        function updateCoins(amount) {
-            myCoins += amount;
-            localStorage.setItem('megaHubCoins', myCoins);
+        function updateCoins(amt, reason) {
+            myCoins += amt; localStorage.setItem('megaHubCoins', myCoins);
             document.getElementById('userCoins').innerText = myCoins;
+            
+            let dateStr = new Date().toLocaleString();
+            myHistory.unshift({ desc: reason, amt: amt, date: dateStr });
+            if(myHistory.length > 50) myHistory.pop();
+            localStorage.setItem('megaHubHistory', JSON.stringify(myHistory));
         }
 
-        function checkHighScore(gameId, currentScore) {
-            if(currentScore > highScores[gameId]) {
-                highScores[gameId] = currentScore;
-                localStorage.setItem('megaHubScores', JSON.stringify(highScores));
-                document.getElementById('hs_' + gameId).innerText = highScores[gameId];
+        /* =========================================
+           2. DAILY TASKS SYSTEM
+        ========================================= */
+        const todayStr = new Date().toDateString();
+        let savedTaskDate = localStorage.getItem('megaHubTaskDate');
+        let dailyTasks = JSON.parse(localStorage.getItem('megaHubTasks')) || [];
+
+        const defaultTasks = [
+            { id: 'play', title: 'Play Any 5 Games', goal: 5, progress: 0, reward: 100, claimed: false },
+            { id: 'score', title: 'Score 500 Total Points', goal: 500, progress: 0, reward: 150, claimed: false },
+            { id: 'earn', title: 'Earn 50 Coins in Games', goal: 50, progress: 0, reward: 50, claimed: false }
+        ];
+
+        if(savedTaskDate !== todayStr || dailyTasks.length === 0) {
+            dailyTasks = JSON.parse(JSON.stringify(defaultTasks));
+            localStorage.setItem('megaHubTasks', JSON.stringify(dailyTasks));
+            localStorage.setItem('megaHubTaskDate', todayStr);
+        }
+
+        function updateTaskProgress(type, amt) {
+            let updated = false;
+            dailyTasks.forEach(t => {
+                if(t.id === type && !t.claimed && t.progress < t.goal) {
+                    t.progress += amt;
+                    if(t.progress > t.goal) t.progress = t.goal;
+                    updated = true;
+                }
+            });
+            if(updated) localStorage.setItem('megaHubTasks', JSON.stringify(dailyTasks));
+        }
+
+        function claimTask(index) {
+            let t = dailyTasks[index];
+            if(t.progress >= t.goal && !t.claimed) {
+                t.claimed = true;
+                updateCoins(t.reward, `Task: ${t.title}`);
+                localStorage.setItem('megaHubTasks', JSON.stringify(dailyTasks));
+                renderTasks();
             }
-            return highScores[gameId];
         }
 
-        // ==========================================
-        // 3. GAME ENGINE
-        // ==========================================
+        function renderTasks() {
+            const list = document.getElementById('taskList'); list.innerHTML = "";
+            dailyTasks.forEach((t, i) => {
+                let pct = (t.progress / t.goal) * 100;
+                let isDone = t.progress >= t.goal;
+                list.innerHTML += `
+                    <div class="task-item">
+                        <div class="task-top">
+                            <div class="task-title">${t.title}</div>
+                            <div class="task-reward">🟡 ${t.reward}</div>
+                        </div>
+                        <div class="progress-bar" style="display:${t.claimed ? 'none' : 'block'}"><div class="progress-fill" style="width:${pct}%"></div></div>
+                        <div style="font-size:10px; color:#94a3b8; text-align:right; margin-bottom:5px; display:${t.claimed ? 'none' : 'block'}">${t.progress} / ${t.goal}</div>
+                        <button class="btn-claim ${isDone && !t.claimed ? 'active' : ''}" onclick="claimTask(${i})">CLAIM REWARD</button>
+                        <div class="task-done-msg" style="display:${t.claimed ? 'block' : 'none'}">✅ Completed</div>
+                    </div>
+                `;
+            });
+        }
+
+        /* =========================================
+           3. SHOP & HISTORY UI
+        ========================================= */
+        const shopData = [
+            { id: "vip", name: "VIP 2x Pass", desc: "Double coins in all games!", price: 1000, icon: "👑" },
+            { id: "gold_train", name: "Golden Train", desc: "Shiny train for Train Rush.", price: 300, icon: "🚅" },
+            { id: "neon_rocket", name: "Neon Rocket", desc: "Laser skin for Galaxy Fly.", price: 300, icon: "🛸" },
+            { id: "dark_racer", name: "Bat Mobile", desc: "Dark car for Neon Racer.", price: 400, icon: "🦇" }
+        ];
+
+        function renderShop() {
+            const list = document.getElementById('shopList'); list.innerHTML = "";
+            shopData.forEach(item => {
+                const owned = myItems.includes(item.id);
+                const canBuy = myCoins >= item.price;
+                list.innerHTML += `
+                    <div class="shop-item">
+                        <div style="font-size:28px; margin-right:15px;">${item.icon}</div>
+                        <div style="flex:1;">
+                            <div style="font-size:14px; font-weight:bold;">${item.name}</div>
+                            <div style="font-size:10px; color:#94a3b8;">${item.desc}</div>
+                            <div style="font-size:12px; color:#f59e0b; font-weight:bold; margin-top:5px;">🟡 ${item.price}</div>
+                        </div>
+                        <button class="btn-buy" ${owned || !canBuy ? 'disabled' : ''} onclick="buyItem('${item.id}', ${item.price}, '${item.name}')">${owned ? 'OWNED' : 'BUY'}</button>
+                    </div>
+                `;
+            });
+        }
+
+        function buyItem(id, price, name) {
+            if (myCoins >= price) {
+                updateCoins(-price, `Bought ${name}`);
+                myItems.push(id); localStorage.setItem('megaHubItems', JSON.stringify(myItems));
+                renderShop(); alert(`✅ Purchased ${name}!`);
+            }
+        }
+
+        function renderHistory() {
+            const list = document.getElementById('historyList'); list.innerHTML = "";
+            if (myHistory.length === 0) list.innerHTML = "<p style='text-align:center; color:#64748b; font-size:12px;'>No transactions yet.</p>";
+            myHistory.forEach(h => {
+                let isPlus = h.amt > 0;
+                list.innerHTML += `
+                    <div class="history-item ${isPlus ? '' : 'spent'}">
+                        <div><div style="font-size:12px; font-weight:bold;">${h.desc}</div><div class="hist-date">${h.date}</div></div>
+                        <div style="font-weight:bold; font-size:14px; color:${isPlus ? '#10b981' : '#ef4444'}">${isPlus ? '+' : ''}${h.amt}</div>
+                    </div>
+                `;
+            });
+        }
+
+        function switchTab(screenId, btnElement) {
+            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+            document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+            document.getElementById(screenId).classList.add('active');
+            btnElement.classList.add('active');
+            if(screenId === 'taskScreen') renderTasks();
+            if(screenId === 'shopScreen') renderShop();
+            if(screenId === 'historyScreen') renderHistory();
+        }
+
+        /* =========================================
+           4. MASTER GAME ENGINE (10 Games)
+        ========================================= */
         const canvas = document.getElementById("mainCanvas");
         const ctx = canvas.getContext("2d");
+        let cw, ch;
         
-        let currentGame = "", gameLoopReq, isGameRunning = false;
-        let gScore = 0, gFrames = 0, gSpeed = 5;
-        let player = {}, entities = [];
+        let cGame = "", loopReq, isRunning = false;
+        let score = 0, frames = 0, speed = 5;
+        let p = {}, ents = [], ents2 = [];
 
-        function resizeCanvas() { canvas.width = window.innerWidth; canvas.height = window.innerHeight - 60; }
-        window.addEventListener('resize', resizeCanvas);
+        function resize() { cw = window.innerWidth; ch = window.innerHeight - 50; canvas.width = cw; canvas.height = ch; }
+        window.addEventListener('resize', resize);
 
-        function initGame(gameId) {
-            currentGame = gameId;
-            document.getElementById('gamePlayScreen').style.display = 'flex';
+        function initGame(id) {
+            cGame = id; document.getElementById('gamePlayScreen').style.display = 'flex';
             document.getElementById('gameOverOverlay').style.display = 'none';
             document.getElementById('liveScore').innerText = "0";
-            resizeCanvas(); startCountdown();
+            resize(); startCountdown();
         }
 
         function startCountdown() {
-            const overlay = document.getElementById('countdownOverlay');
-            const txt = document.getElementById('countText');
-            overlay.style.display = 'flex';
-            let count = 3; txt.innerText = count;
+            let ov = document.getElementById('countdownOverlay'), txt = document.getElementById('countText');
+            ov.style.display = 'flex'; let cnt = 3; txt.innerText = cnt;
+            let timer = setInterval(() => { cnt--; if(cnt>0) txt.innerText = cnt; else if(cnt===0) txt.innerText = "GO!"; else { clearInterval(timer); ov.style.display = 'none'; startEngine(); } }, 1000);
+        }
+
+        function startEngine() {
+            isRunning = true; score = 0; frames = 0; ents = []; ents2 = []; speed = 5;
             
-            let timer = setInterval(() => {
-                count--;
-                if(count > 0) txt.innerText = count;
-                else if(count === 0) txt.innerText = "GO!";
-                else { clearInterval(timer); overlay.style.display = 'none'; startGameEngine(); }
-            }, 1000);
+            // Player Setups
+            if(cGame === 'train') { p = { l: 1, w: 40, h: 70, y: ch - 90 }; speed = 6; }
+            if(cGame === 'rocket') { p = { y: ch/2, v: 0, g: 0.6, j: -8, r: 15 }; }
+            if(cGame === 'racer') { p = { x: cw/2 - 25, y: ch - 100, w: 50, h: 80 }; speed = 8; }
+            if(cGame === 'catcher') { p = { x: cw/2 - 30, y: ch - 50, w: 60, h: 20 }; speed = 4; }
+            if(cGame === 'ninja') { speed = 1; score = 0; }
+            if(cGame === 'snake') { p = { body: [{x:10, y:10}], dir: 'R', size: 20 }; ents.push({x:5, y:5}); speed=1; } // simplified
+            if(cGame === 'pong') { p = { y: ch/2-40, w: 10, h: 80 }; ents = {x:cw/2, y:ch/2, vx:5, vy:5, r:8}; ents2 = {y: ch/2-40}; }
+            if(cGame === 'dodge') { p = { x: cw/2, y: ch/2, r: 15 }; speed = 4; }
+            if(cGame === 'jump') { p = { x: 50, y: ch-50, v:0, g:0.8, j:-12, s:30 }; speed = 6; }
+            if(cGame === 'shooter') { p = { x: cw/2-15, y: ch-60, w:30, h:40 }; }
+
+            updateTaskProgress('play', 1);
+            runLoop();
         }
 
-        function startGameEngine() {
-            isGameRunning = true; gScore = 0; gFrames = 0; entities = [];
-            if(currentGame === 'train') { player = { lane: 1, w: 40, h: 70, y: canvas.height - 90 }; gSpeed = 6; }
-            if(currentGame === 'rocket') { player = { y: canvas.height/2, v: 0, g: 0.6, jump: -8, r: 15 }; }
-            runGameLoop();
+        function runLoop() {
+            if(!isRunning) return;
+            ctx.clearRect(0,0,cw,ch); frames++;
+
+            if(cGame === 'train') runTrain();
+            else if(cGame === 'rocket') runRocket();
+            else if(cGame === 'racer') runRacer();
+            else if(cGame === 'catcher') runCatcher();
+            else if(cGame === 'ninja') runNinja();
+            else if(cGame === 'snake') runSnake();
+            else if(cGame === 'pong') runPong();
+            else if(cGame === 'dodge') runDodge();
+            else if(cGame === 'jump') runJump();
+            else if(cGame === 'shooter') runShooter();
+
+            document.getElementById('liveScore').innerText = score;
+            loopReq = requestAnimationFrame(runLoop);
         }
 
-        function runGameLoop() {
-            if(!isGameRunning) return;
-            ctx.clearRect(0,0,canvas.width, canvas.height);
-            gFrames++;
-
-            if(currentGame === 'train') loopTrain();
-            else if(currentGame === 'rocket') loopRocket();
-
-            document.getElementById('liveScore').innerText = gScore;
-            gameLoopReq = requestAnimationFrame(runGameLoop);
-        }
-
-        function gameOver() {
-            isGameRunning = false; cancelAnimationFrame(gameLoopReq);
+        function over() {
+            isRunning = false; cancelAnimationFrame(loopReq);
             
-            let coinsEarned = Math.floor(gScore / 10);
-            let bestScore = checkHighScore(currentGame, gScore); // Save High Score
+            let earned = Math.floor(score / 10);
+            if(myItems.includes("vip")) earned *= 2; // VIP pass
+            
+            if(score > highScores[cGame]) { highScores[cGame] = score; localStorage.setItem('megaHubScores', JSON.stringify(highScores)); document.getElementById('hs_'+cGame).innerText = score; }
+            
+            if(earned > 0) {
+                updateCoins(earned, `Reward: ${cGame.toUpperCase()}`);
+                updateTaskProgress('earn', earned);
+            }
+            updateTaskProgress('score', score);
 
-            document.getElementById('goScore').innerText = gScore;
-            document.getElementById('goHighScore').innerText = bestScore;
-            document.getElementById('goCoins').innerText = coinsEarned;
+            document.getElementById('goScore').innerText = score;
+            document.getElementById('goHighScore').innerText = highScores[cGame];
+            document.getElementById('goCoins').innerText = earned;
             document.getElementById('gameOverOverlay').style.display = 'flex';
-            
-            if(coinsEarned > 0) updateCoins(coinsEarned);
         }
 
-        function exitGame() { isGameRunning = false; cancelAnimationFrame(gameLoopReq); document.getElementById('gamePlayScreen').style.display = 'none'; }
+        function exitGame() { isRunning = false; cancelAnimationFrame(loopReq); document.getElementById('gamePlayScreen').style.display = 'none'; }
         function restartCurrentGame() { document.getElementById('gameOverOverlay').style.display = 'none'; startCountdown(); }
 
-        // --- TRAIN RUSH LOGIC ---
-        function loopTrain() {
-            const laneW = canvas.width/3; const lanes = [laneW/2, laneW + laneW/2, laneW*2 + laneW/2];
+        /* --- GAME LOGICS (10 Games Mini-Engines) --- */
+        
+        function runTrain() {
+            const lw = cw/3; const ls = [lw/2, lw+lw/2, lw*2+lw/2];
             ctx.strokeStyle = "#334155"; ctx.lineWidth = 2;
-            for(let i=1; i<3; i++) { ctx.beginPath(); ctx.moveTo(i*laneW, 0); ctx.lineTo(i*laneW, canvas.height); ctx.stroke(); }
+            for(let i=1; i<3; i++) { ctx.beginPath(); ctx.moveTo(i*lw, 0); ctx.lineTo(i*lw, ch); ctx.stroke(); }
             
-            let px = lanes[player.lane] - player.w/2;
-            ctx.fillStyle = "#38bdf8"; ctx.fillRect(px, player.y, player.w, player.h);
-
-            if(gFrames % 40 === 0) entities.push({ l: Math.floor(Math.random()*3), y: -50, type: Math.random()>0.7?'coin':'box', passed:false });
+            let px = ls[p.l] - p.w/2;
+            ctx.fillStyle = myItems.includes("gold_train") ? "#fcd34d" : "#38bdf8"; ctx.fillRect(px, p.y, p.w, p.h);
             
-            for(let i=0; i<entities.length; i++) {
-                let e = entities[i]; e.y += gSpeed; let ex = lanes[e.l] - 20;
-                
-                if(e.type === 'box') { ctx.fillStyle = "#ef4444"; ctx.fillRect(ex, e.y, 40, 50); }
-                else { ctx.fillStyle = "#f59e0b"; ctx.beginPath(); ctx.arc(ex+20, e.y+20, 15, 0, Math.PI*2); ctx.fill(); }
-
-                if(e.l === player.lane && e.y+40 > player.y && e.y < player.y+player.h) {
-                    if(e.type === 'box') gameOver(); else { gScore+=50; entities.splice(i,1); i--; }
-                }
-                else if(e.y > canvas.height) { 
-                    if(e.type==='box' && !e.passed) { e.passed=true; gScore+=10; gSpeed+=0.05; }
-                    if(e.y > canvas.height+50) { entities.splice(i,1); i--; }
-                }
+            if(frames%40===0) ents.push({ l: Math.floor(Math.random()*3), y: -50, type: Math.random()>0.7?'c':'b' });
+            for(let i=0; i<ents.length; i++) {
+                let e = ents[i]; e.y+=speed; let ex = ls[e.l] - 20;
+                if(e.type==='b') { ctx.fillStyle="#ef4444"; ctx.fillRect(ex, e.y, 40, 50); }
+                else { ctx.fillStyle="#f59e0b"; ctx.beginPath(); ctx.arc(ex+20, e.y+25, 15, 0, Math.PI*2); ctx.fill(); }
+                if(e.l===p.l && e.y+40>p.y && e.y<p.y+p.h) { if(e.type==='b') over(); else { score+=20; ents.splice(i,1); i--; } }
+                else if(e.y>ch) { if(e.type==='b') { score+=10; speed+=0.05; } ents.splice(i,1); i--; }
             }
         }
 
-        // --- GALAXY ROCKET LOGIC ---
-        function loopRocket() {
-            player.v += player.g; player.y += player.v;
-            ctx.fillStyle = "#f43f5e"; ctx.beginPath(); ctx.arc(canvas.width/3, player.y, player.r, 0, Math.PI*2); ctx.fill();
-
-            if(gFrames % 80 === 0) {
-                let gap = 150; let topH = Math.random()*(canvas.height-gap-100) + 50;
-                entities.push({x: canvas.width, top: topH, bottom: topH+gap, passed:false});
-            }
-
+        function runRocket() {
+            p.v += p.g; p.y += p.v;
+            ctx.fillStyle = myItems.includes("neon_rocket") ? "#10b981" : "#f43f5e";
+            ctx.beginPath(); ctx.arc(cw/3, p.y, p.r, 0, Math.PI*2); ctx.fill();
+            if(frames%80===0) { let gap=140; let top = Math.random()*(ch-gap-100)+50; ents.push({x:cw, t:top, b:top+gap, p:false}); }
             ctx.fillStyle = "#3b82f6";
-            for(let i=0; i<entities.length; i++) {
-                let p = entities[i]; p.x -= 4;
-                ctx.fillRect(p.x, 0, 40, p.top); ctx.fillRect(p.x, p.bottom, 40, canvas.height - p.bottom);
-
-                if(canvas.width/3 + player.r > p.x && canvas.width/3 - player.r < p.x+40 && (player.y-player.r < p.top || player.y+player.r > p.bottom)) gameOver();
-                if(p.x+40 < canvas.width/3 && !p.passed) { p.passed = true; gScore+=10; }
-                if(p.x < -50) { entities.splice(i,1); i--; }
+            for(let i=0; i<ents.length; i++) {
+                let e = ents[i]; e.x-=4;
+                ctx.fillRect(e.x, 0, 40, e.t); ctx.fillRect(e.x, e.b, 40, ch-e.b);
+                if(cw/3+p.r>e.x && cw/3-p.r<e.x+40 && (p.y-p.r<e.t || p.y+p.r>e.b)) over();
+                if(e.x+40<cw/3 && !e.p) { e.p=true; score+=10; }
+                if(e.x<-50) { ents.splice(i,1); i--; }
             }
-            if(player.y > canvas.height || player.y < 0) gameOver();
+            if(p.y>ch || p.y<0) over();
         }
 
-        // --- CONTROLS ---
+        function runRacer() {
+            ctx.fillStyle = myItems.includes("dark_racer") ? "#333" : "#10b981"; ctx.fillRect(p.x, p.y, p.w, p.h);
+            if(frames%30===0) ents.push({x: Math.random()*(cw-50), y: -80, w:50, h:80});
+            ctx.fillStyle = "#94a3b8";
+            for(let i=0; i<ents.length; i++) {
+                let e = ents[i]; e.y+=speed; ctx.fillRect(e.x, e.y, e.w, e.h);
+                if(p.x<e.x+e.w && p.x+p.w>e.x && p.y<e.y+e.h && p.y+p.h>e.y) over();
+                if(e.y>ch) { score+=10; speed+=0.1; ents.splice(i,1); i--; }
+            }
+        }
+
+        function runCatcher() {
+            ctx.fillStyle = "#38bdf8"; ctx.fillRect(p.x, p.y, p.w, p.h);
+            if(frames%40===0) ents.push({x: Math.random()*(cw-20), y: -20, t: Math.random()>0.2?'c':'b'});
+            for(let i=0; i<ents.length; i++) {
+                let e = ents[i]; e.y+=speed;
+                ctx.fillStyle = e.t==='b' ? "#ef4444" : "#f59e0b"; ctx.beginPath(); ctx.arc(e.x+10, e.y, 10, 0, Math.PI*2); ctx.fill();
+                if(e.x+20>p.x && e.x<p.x+p.w && e.y+10>p.y) { if(e.t==='b') over(); else { score+=10; speed+=0.05; ents.splice(i,1); i--; continue; } }
+                if(e.y>ch) { ents.splice(i,1); i--; }
+            }
+        }
+
+        function runNinja() {
+            if(frames%40===0) ents.push({x: Math.random()*(cw-40)+20, y: Math.random()*(ch-100)+50, r: 25, a:0});
+            for(let i=0; i<ents.length; i++) {
+                let e = ents[i]; e.a++;
+                ctx.fillStyle = "#ef4444"; ctx.beginPath(); ctx.arc(e.x, e.y, e.r, 0, Math.PI*2); ctx.fill();
+                ctx.strokeStyle="#fff"; ctx.lineWidth=2; ctx.beginPath(); ctx.arc(e.x, e.y, e.r * (1 - e.a/100), 0, Math.PI*2); ctx.stroke();
+                if(e.a>100) over(); // Missed a dot
+            }
+        }
+
+        function runSnake() {
+            if(frames%10===0) {
+                let head = {x: p.body[0].x, y: p.body[0].y};
+                if(p.dir==='R') head.x++; if(p.dir==='L') head.x--; if(p.dir==='U') head.y--; if(p.dir==='D') head.y++;
+                p.body.unshift(head);
+                if(head.x === ents[0].x && head.y === ents[0].y) { score+=10; ents[0] = {x: Math.floor(Math.random()*(cw/p.size)), y: Math.floor(Math.random()*(ch/p.size))}; } 
+                else { p.body.pop(); }
+                if(head.x<0 || head.x>=cw/p.size || head.y<0 || head.y>=ch/p.size) over(); // wall
+                for(let i=1; i<p.body.length; i++) if(head.x===p.body[i].x && head.y===p.body[i].y) over(); // tail
+            }
+            ctx.fillStyle="#ef4444"; ctx.fillRect(ents[0].x*p.size, ents[0].y*p.size, p.size, p.size);
+            ctx.fillStyle="#10b981"; p.body.forEach(b => ctx.fillRect(b.x*p.size, b.y*p.size, p.size-1, p.size-1));
+        }
+
+        function runPong() {
+            let ball = ents; let cpu = ents2;
+            ctx.fillStyle="#fff"; ctx.fillRect(10, p.y, p.w, p.h); ctx.fillRect(cw-20, cpu.y, p.w, p.h);
+            ctx.beginPath(); ctx.arc(ball.x, ball.y, ball.r, 0, Math.PI*2); ctx.fill();
+            
+            ball.x+=ball.vx; ball.y+=ball.vy;
+            if(ball.y<0 || ball.y>ch) ball.vy *= -1;
+            // CPU move
+            if(cpu.y+p.h/2 < ball.y) cpu.y+=4; else cpu.y-=4;
+            // Paddle hit
+            if(ball.x<10+p.w && ball.y>p.y && ball.y<p.y+p.h) { ball.vx*=-1; score+=10; ball.x = 10+p.w; }
+            if(ball.x>cw-20 && ball.y>cpu.y && ball.y<cpu.y+p.h) { ball.vx*=-1; ball.x = cw-20; }
+            if(ball.x<0) over();
+        }
+
+        function runDodge() {
+            ctx.fillStyle="#38bdf8"; ctx.beginPath(); ctx.arc(p.x, p.y, p.r, 0, Math.PI*2); ctx.fill();
+            if(frames%30===0) {
+                let side = Math.floor(Math.random()*4); let bx, by, bvx=0, bvy=0;
+                if(side===0) { bx=Math.random()*cw; by=-10; bvy=speed; }
+                if(side===1) { bx=cw+10; by=Math.random()*ch; bvx=-speed; }
+                if(side===2) { bx=Math.random()*cw; by=ch+10; bvy=-speed; }
+                if(side===3) { bx=-10; by=Math.random()*ch; bvx=speed; }
+                ents.push({x:bx, y:by, vx:bvx, vy:bvy, r:10});
+            }
+            ctx.fillStyle="#ef4444";
+            for(let i=0; i<ents.length; i++) {
+                let e = ents[i]; e.x+=e.vx; e.y+=e.vy;
+                ctx.beginPath(); ctx.arc(e.x, e.y, e.r, 0, Math.PI*2); ctx.fill();
+                if(Math.hypot(p.x-e.x, p.y-e.y) < p.r+e.r) over();
+                if(e.x<-20 || e.x>cw+20 || e.y<-20 || e.y>ch+20) { ents.splice(i,1); i--; score+=5; speed+=0.02; }
+            }
+        }
+
+        function runJump() {
+            p.v+=p.g; p.y+=p.v; if(p.y>ch-p.s) { p.y=ch-p.s; p.v=0; }
+            ctx.fillStyle="#00bcd4"; ctx.fillRect(p.x, p.y, p.s, p.s);
+            if(frames%60===0) ents.push({x:cw, w:20, h:Math.random()*40+20});
+            ctx.fillStyle="#f44336";
+            for(let i=0; i<ents.length; i++) {
+                let e=ents[i]; e.x-=speed; ctx.fillRect(e.x, ch-e.h, e.w, e.h);
+                if(p.x<e.x+e.w && p.x+p.s>e.x && p.y+p.s>ch-e.h) over();
+                if(e.x<-30) { ents.splice(i,1); i--; score+=10; speed+=0.1; }
+            }
+        }
+
+        function runShooter() {
+            ctx.fillStyle="#9c27b0"; ctx.fillRect(p.x, p.y, p.w, p.h);
+            if(frames%40===0) ents.push({x:Math.random()*(cw-30), y:-30, w:30, h:30}); // enemy
+            // Move bullets
+            ctx.fillStyle="#ffeb3b";
+            for(let i=0; i<ents2.length; i++) {
+                let b = ents2[i]; b.y-=10; ctx.fillRect(b.x, b.y, 4, 10);
+                if(b.y<0) { ents2.splice(i,1); i--; }
+            }
+            // Move enemies & collide
+            ctx.fillStyle="#4caf50";
+            for(let i=0; i<ents.length; i++) {
+                let e = ents[i]; e.y+=3; ctx.fillRect(e.x, e.y, e.w, e.h);
+                if(e.y>ch) over(); // Alien reached bottom
+                // Bullet collision
+                for(let j=0; j<ents2.length; j++) {
+                    let b = ents2[j];
+                    if(b.x>e.x && b.x<e.x+e.w && b.y<e.y+e.h) {
+                        ents.splice(i,1); i--; ents2.splice(j,1); j--; score+=10; break;
+                    }
+                }
+            }
+        }
+
+        /* --- INPUT CONTROLS --- */
         canvas.addEventListener("touchstart", (e) => {
-            if(!isGameRunning) return;
-            let tx = e.touches[0].clientX;
-            if(currentGame === 'train') { if(tx < canvas.width/2 && player.lane > 0) player.lane--; else if(tx > canvas.width/2 && player.lane < 2) player.lane++; }
-            if(currentGame === 'rocket') { player.v = player.jump; }
+            if(!isRunning) return; let tx = e.touches[0].clientX, ty = e.touches[0].clientY;
+            if(cGame === 'train') { if(tx<cw/2 && p.l>0) p.l--; else if(tx>cw/2 && p.l<2) p.l++; }
+            if(cGame === 'rocket') { p.v = p.j; }
+            if(cGame === 'ninja') {
+                for(let i=0; i<ents.length; i++) { if(Math.hypot(tx-ents[i].x, ty-ents[i].y) < ents[i].r+20) { ents.splice(i,1); score+=10; break; } }
+            }
+            if(cGame === 'snake') {
+                let dx = tx - p.body[0].x*p.size, dy = ty - p.body[0].y*p.size;
+                if(Math.abs(dx)>Math.abs(dy)) { if(dx>0 && p.dir!=='L') p.dir='R'; else if(dx<0 && p.dir!=='R') p.dir='L'; }
+                else { if(dy>0 && p.dir!=='U') p.dir='D'; else if(dy<0 && p.dir!=='D') p.dir='U'; }
+            }
+            if(cGame === 'pong') { p.y = ty - p.h/2; }
+            if(cGame === 'jump' && p.y===ch-p.s) { p.v = p.j; }
+            if(cGame === 'shooter') { ents2.push({x:p.x+p.w/2-2, y:p.y}); } // Shoot
         });
-        window.addEventListener("keydown", (e) => {
-            if(!isGameRunning) return;
-            if(currentGame === 'train') { if(e.key==="ArrowLeft" && player.lane>0) player.lane--; if(e.key==="ArrowRight" && player.lane<2) player.lane++; }
-            if(currentGame === 'rocket' && e.code==="Space") player.v = player.jump;
+
+        canvas.addEventListener("touchmove", (e) => {
+            if(!isRunning) return; let tx = e.touches[0].clientX, ty = e.touches[0].clientY;
+            if(cGame === 'racer' || cGame === 'catcher' || cGame === 'shooter') { p.x = tx - p.w/2; if(p.x<0) p.x=0; if(p.x>cw-p.w) p.x=cw-p.w; }
+            if(cGame === 'dodge') { p.x=tx; p.y=ty; }
+            if(cGame === 'pong') { p.y = ty - p.h/2; }
         });
 
     </script>
