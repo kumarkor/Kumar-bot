@@ -3,290 +3,346 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ultra Wallet | Dashboard</title>
+    <title>Train Rush 2.0 | Mega Edition</title>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
     
     <style>
         /* =========================================
-           GLOBAL & ULTRA PAY THEME STYLES
+           GLOBAL STYLES & UI
         ========================================= */
-        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
-        body { background-color: #f4f7fa; color: #333; display: flex; justify-content: center; align-items: flex-start; min-height: 100vh; padding: 20px; }
-        .container { background: #ffffff; width: 100%; max-width: 450px; border-radius: 20px; padding: 25px; box-shadow: 0 10px 30px rgba(0,0,0,0.05); margin-bottom: 20px; animation: fadeIn 0.4s ease-in-out; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
-        
-        h2, h3 { color: #1a252f; margin-bottom: 10px; font-weight: 700; }
-        p { font-size: 14px; line-height: 1.5; color: #555; margin-bottom: 15px; }
-
-        /* =========================================
-           BALANCE CARD (Like Ultra Pay)
-        ========================================= */
-        .balance-card {
-            background: linear-gradient(135deg, #1e88e5, #1565c0);
-            color: white;
-            border-radius: 16px;
-            padding: 25px 20px;
-            margin-bottom: 25px;
-            box-shadow: 0 8px 20px rgba(30, 136, 229, 0.3);
-            position: relative;
-            overflow: hidden;
-        }
-        .balance-card::after {
-            content: ''; position: absolute; top: -50%; right: -20%; width: 200px; height: 200px;
-            background: rgba(255,255,255,0.1); border-radius: 50%;
-        }
-        .bal-title { font-size: 12px; text-transform: uppercase; letter-spacing: 1px; opacity: 0.9; margin-bottom: 5px; }
-        .bal-amount { font-size: 36px; font-weight: 800; display: flex; align-items: center; }
-        .bal-amount span { font-size: 24px; margin-right: 5px; }
-        
-        /* =========================================
-           API TOKEN SECTION
-        ========================================= */
-        .api-card {
-            background: #fff;
-            border: 1px solid #e0e6ed;
-            border-radius: 16px;
-            padding: 20px;
-            margin-bottom: 20px;
-        }
-        .api-status { display: flex; align-items: center; font-size: 14px; font-weight: bold; color: #27ae60; margin-bottom: 15px; }
-        .api-status::before { content: ''; display: inline-block; width: 10px; height: 10px; background: #27ae60; border-radius: 50%; margin-right: 8px; }
-        
-        .token-box {
-            background: #f8f9fa;
-            border: 1px dashed #ced4da;
-            padding: 12px;
-            border-radius: 8px;
-            font-family: monospace;
-            font-size: 14px;
-            color: #495057;
-            text-align: center;
-            margin-bottom: 15px;
-            word-break: break-all;
+        * { box-sizing: border-box; margin: 0; padding: 0; user-select: none; }
+        body { 
+            background: radial-gradient(circle, #1a1a2e 0%, #0f0f1a 100%); 
+            color: #fff; font-family: 'Press Start 2P', monospace; 
+            display: flex; flex-direction: column; align-items: center; justify-content: center; 
+            height: 100vh; overflow: hidden; touch-action: none;
         }
 
-        /* =========================================
-           BUTTONS & INPUTS
-        ========================================= */
-        button { width: 100%; padding: 14px; margin: 8px 0; font-size: 15px; font-weight: bold; border: none; border-radius: 10px; cursor: pointer; transition: all 0.2s ease; }
-        .btn-primary { background: #e3f2fd; color: #1e88e5; }
-        .btn-primary:hover { background: #bbdefb; }
-        .btn-action { background: #1e88e5; color: white; box-shadow: 0 4px 15px rgba(30, 136, 229, 0.2); }
-        .btn-action:hover { background: #1565c0; }
-        
-        input { width: 100%; padding: 14px; font-size: 16px; text-align: center; border: 2px solid #e0e0e0; border-radius: 10px; margin-bottom: 15px; background: #fafafa; }
-        input:focus { border-color: #1e88e5; outline: none; background: #fff; }
+        .game-container {
+            width: 100%; max-width: 420px; height: 100%; max-height: 750px;
+            background: linear-gradient(180deg, #162447, #1f4068);
+            border: 5px solid #e94560; border-radius: 20px;
+            display: flex; flex-direction: column; align-items: center;
+            padding: 20px 10px; position: relative; 
+            box-shadow: 0 15px 40px rgba(233, 69, 96, 0.5), inset 0 0 20px rgba(0,0,0,0.5);
+        }
 
-        .hidden { display: none !important; }
+        .header { width: 100%; display: flex; justify-content: space-between; padding: 0 15px; margin-bottom: 10px; }
+        .score-box { text-align: left; }
+        .high-score-box { text-align: right; color: #f39c12; }
+        .score-title { font-size: 10px; color: #aaa; margin-bottom: 5px; }
+        .score-val { font-size: 18px; font-weight: bold; }
+
+        .title-text { font-size: 16px; color: #e94560; text-align: center; margin-bottom: 15px; text-shadow: 2px 2px 0px #000; }
+
+        canvas {
+            background: #222; border: 3px solid #fff; border-radius: 10px;
+            box-shadow: inset 0 0 20px rgba(0,0,0,0.9);
+            width: 100%; max-width: 360px; height: 450px;
+        }
+
+        .controls-hint { 
+            font-size: 10px; color: #00d2ff; margin-top: 20px; text-align: center; 
+            line-height: 1.8; background: rgba(0, 0, 0, 0.4); padding: 10px; border-radius: 10px; width: 90%;
+        }
+
+        /* OVERLAYS (Start / Game Over) */
+        .overlay {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(10, 10, 20, 0.9); display: flex; flex-direction: column;
+            align-items: center; justify-content: center; z-index: 10; border-radius: 15px;
+            backdrop-filter: blur(5px);
+        }
+
+        .btn-play {
+            background: linear-gradient(90deg, #e94560, #ff2e63); color: white; border: none; 
+            padding: 18px 30px; font-family: 'Press Start 2P', monospace; font-size: 14px;
+            border-radius: 12px; cursor: pointer; box-shadow: 0 6px 20px rgba(233, 69, 96, 0.6);
+            margin-top: 30px; transition: 0.2s; border: 2px solid #fff;
+        }
+        .btn-play:hover { transform: scale(1.1); box-shadow: 0 8px 25px rgba(233, 69, 96, 0.8); }
+
+        .coin-icon { color: #f1c40f; }
+        .danger-icon { color: #e74c3c; }
+
     </style>
 </head>
 <body>
 
-    <!-- 1. LOADING SCREEN -->
-    <div class="container" id="loadingScreen">
-        <h2>⏳ Loading Wallet...</h2>
-        <p>Connecting to secure server.</p>
-    </div>
-
-    <!-- 2. VERIFICATION SCREEN -->
-    <div class="container hidden" id="verificationScreen">
-        <h2>🔐 Secure Login</h2>
-        <p>Telegram ID: <b id="displayId"></b></p>
+    <div class="game-container">
         
-        <button id="sendOtpBtn" class="btn-action">Send OTP to Bot</button>
-        
-        <div id="otpSection" class="hidden">
-            <input type="number" id="otpInput" placeholder="Enter 4-digit OTP" autocomplete="off">
-            <button id="verifyBtn" class="btn-action">Verify Account</button>
-        </div>
-    </div>
+        <h2 class="title-text">🚂 TRAIN RUSH 2.0</h2>
 
-    <!-- 3. MAIN WALLET DASHBOARD -->
-    <div class="container hidden" id="dashboardScreen">
-        
-        <!-- Ultra Pay Style Balance Card -->
-        <div class="balance-card">
-            <div class="bal-title">Available Balance</div>
-            <div class="bal-amount"><span>₹</span><div id="rupeeBal">0.00</div></div>
-            <div style="font-size: 12px; margin-top: 10px; opacity: 0.8;">Sufficient for API payments</div>
-        </div>
-
-        <!-- API Integration Section -->
-        <div class="api-card">
-            <h3>🔌 API Integration</h3>
-            <div class="api-status" id="apiStatusText">API is Active</div>
-            
-            <p style="font-size: 12px; color: #777;">Use this Token in your other bots to automatically deduct balance from this wallet.</p>
-            
-            <div class="token-box" id="apiTokenDisplay">
-                ********************************
+        <div class="header">
+            <div class="score-box">
+                <div class="score-title">SCORE</div>
+                <div class="score-val" id="scoreDisplay">0</div>
             </div>
+            <div class="high-score-box">
+                <div class="score-title">HIGH SCORE</div>
+                <div class="score-val" id="highScoreDisplay">0</div>
+            </div>
+        </div>
+
+        <!-- THE GAME CANVAS -->
+        <canvas id="gameCanvas" width="360" height="450"></canvas>
+
+        <div class="controls-hint">
+            <p>👈 TAP LEFT to move Left</p>
+            <p>👉 TAP RIGHT to move Right</p>
+            <p style="margin-top:5px; font-size:8px; color:#aaa;">Avoid <span class="danger-icon">🟥 Red Blocks</span> | Collect <span class="coin-icon">🟡 Coins</span></p>
+        </div>
+
+        <!-- START / GAME OVER SCREEN -->
+        <div class="overlay" id="startScreen">
+            <h2 id="screenTitle" style="color: #00d2ff; margin-bottom: 20px; text-align:center; font-size:24px; line-height: 1.5;">MEGA<br>TRAIN RUSH</h2>
+            <p id="finalScore" style="color: #fff; font-size: 14px; display: none; margin-bottom: 10px;">Score: <span id="fsVal">0</span></p>
+            <p id="newHighScoreMsg" style="color: #f1c40f; font-size: 12px; display: none; animation: blink 1s infinite;">🏆 NEW HIGH SCORE! 🏆</p>
             
-            <button onclick="generateApiToken()" class="btn-primary">🔑 Generate New API Token</button>
-            <button onclick="copyApiToken()" class="btn-action hidden" id="copyTokenBtn">📋 Copy Token</button>
+            <button class="btn-play" id="startBtn" onclick="startGame()">▶ PLAY NOW</button>
         </div>
-        
-        <!-- Admin Section (Only visible to Admin) -->
-        <div id="adminSection" class="api-card hidden" style="border-color: #ffc107;">
-            <h3 style="color: #d35400;">👑 Admin Control</h3>
-            <p style="font-size: 12px;">Add money to a user's wallet.</p>
-            <input type="number" id="addMoneyId" placeholder="User Telegram ID">
-            <input type="number" id="addMoneyAmount" placeholder="Amount (₹)">
-            <button onclick="addMoneyToUser()" class="btn-action" style="background: #27ae60;">💰 Add Funds</button>
-        </div>
-        
     </div>
 
     <!-- =========================================
-         FIREBASE & LOGIC SCRIPT
+         JAVASCRIPT LOGIC (THE BRAIN)
     ========================================= -->
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
-        import { getDatabase, ref, set, get, update, onValue } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-database.js";
-
-        const firebaseConfig = {
-          apiKey: "AIzaSyBkJZgrlNJRoNW5sPzOIk1RExHHRGceJtk",
-          authDomain: "kumar-kor.firebaseapp.com",
-          databaseURL: "https://kumar-kor-default-rtdb.firebaseio.com",
-          projectId: "kumar-kor",
-          storageBucket: "kumar-kor.firebasestorage.app",
-          messagingSenderId: "923078462955",
-          appId: "1:923078462955:web:5802d80764301bd8cb9dae"
-        };
-
-        const app = initializeApp(firebaseConfig);
-        const db = getDatabase(app);
+    <script>
+        const canvas = document.getElementById("gameCanvas");
+        const ctx = canvas.getContext("2d");
         
-        const urlParams = new URLSearchParams(window.location.search);
-        const userId = urlParams.get('userid');
-        const adminId = "7335163273"; 
-        const botToken = "8990895848:AAHc2cZJ948c1yKWAoXUoFU3WE-7-zR6_tU";
+        // Game Variables
+        let score = 0;
+        let highScore = localStorage.getItem("trainRushHighScore") || 0;
+        document.getElementById("highScoreDisplay").innerText = highScore;
+        
+        let gameLoop;
+        let isGameOver = false;
+        let speed = 5;
+        let frameCount = 0;
+        let trackOffset = 0;
 
-        let currentOtp = "";
-        let myApiToken = "";
+        // Tracks (3 Lanes)
+        const laneWidth = canvas.width / 3;
+        const lanes = [laneWidth/2, laneWidth + laneWidth/2, laneWidth*2 + laneWidth/2]; 
+        let trainLane = 1; 
 
-        function showScreen(screenId) {
-            document.getElementById('loadingScreen').classList.add('hidden');
-            document.getElementById('verificationScreen').classList.add('hidden');
-            document.getElementById('dashboardScreen').classList.add('hidden');
-            document.getElementById(screenId).classList.remove('hidden');
+        // Train Size
+        const trainW = 46;
+        const trainH = 80;
+        
+        let obstacles = [];
+        let coins = [];
+
+        // Sound Context (Synthetic Beeps)
+        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        function playSound(type) {
+            if (audioCtx.state === 'suspended') audioCtx.resume();
+            const osc = audioCtx.createOscillator();
+            const gainNode = audioCtx.createGain();
+            osc.connect(gainNode);
+            gainNode.connect(audioCtx.destination);
+            
+            if (type === 'coin') {
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(880, audioCtx.currentTime); // High pitch A5
+                osc.frequency.exponentialRampToValueAtTime(1760, audioCtx.currentTime + 0.1);
+                gainNode.gain.setValueAtTime(0.1, audioCtx.currentTime);
+                gainNode.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.1);
+                osc.start(); osc.stop(audioCtx.currentTime + 0.1);
+            } else if (type === 'crash') {
+                osc.type = 'sawtooth';
+                osc.frequency.setValueAtTime(150, audioCtx.currentTime);
+                osc.frequency.exponentialRampToValueAtTime(40, audioCtx.currentTime + 0.3);
+                gainNode.gain.setValueAtTime(0.2, audioCtx.currentTime);
+                gainNode.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.3);
+                osc.start(); osc.stop(audioCtx.currentTime + 0.3);
+            }
         }
 
-        async function initializeAppSecurity() {
-            if (!userId) {
-                document.getElementById("loadingScreen").innerHTML = "<h2>❌ Invalid Access!</h2><p>Please open this from the Telegram Bot.</p>";
-                return;
+        // Draw Moving Tracks
+        function drawTracks() {
+            ctx.strokeStyle = "#444";
+            ctx.lineWidth = 4;
+            trackOffset += speed;
+            if(trackOffset > 50) trackOffset = 0;
+
+            for(let i=1; i<3; i++) {
+                ctx.beginPath();
+                ctx.moveTo(i * laneWidth, 0);
+                ctx.lineTo(i * laneWidth, canvas.height);
+                ctx.stroke();
             }
 
-            document.getElementById("displayId").innerText = userId;
-            
-            get(ref(db, 'verified_users/' + userId)).then((snap) => {
-                let userData = snap.val();
-                if (userData && userData.isVerified) {
-                    showDashboard();
-                } else {
-                    showScreen('verificationScreen');
-                }
-            });
+            // Draw sleepers (horizontal lines)
+            ctx.strokeStyle = "#333";
+            ctx.lineWidth = 2;
+            for(let y = trackOffset - 50; y < canvas.height; y += 50) {
+                ctx.beginPath();
+                ctx.moveTo(0, y);
+                ctx.lineTo(canvas.width, y);
+                ctx.stroke();
+            }
         }
 
-        initializeAppSecurity();
-
-        // --- OTP SYSTEM ---
-        document.getElementById("sendOtpBtn").onclick = () => {
-            currentOtp = Math.floor(1000 + Math.random() * 9000).toString();
-            document.getElementById("sendOtpBtn").innerText = "Sending Secure OTP...";
+        // Draw Player Train
+        function drawTrain() {
+            let x = lanes[trainLane] - trainW / 2;
+            let y = canvas.height - trainH - 15;
             
-            const apiUrl = `https://api.telegram.org/bot${botToken}/sendMessage?chat_id=${userId}&text=🔐 *Ultra Wallet Login*\nYour OTP is: *${currentOtp}*&parse_mode=Markdown`;
+            // Main Body
+            ctx.fillStyle = "#00d2ff";
+            ctx.fillRect(x, y, trainW, trainH);
+            ctx.fillStyle = "#3a86ff"; // Shadow
+            ctx.fillRect(x + trainW - 10, y, 10, trainH);
+            
+            // Window
+            ctx.fillStyle = "#fff";
+            ctx.fillRect(x + 8, y + 15, trainW - 16, 20);
+            
+            // Headlight
+            ctx.fillStyle = "#f1c40f";
+            ctx.beginPath();
+            ctx.arc(x + trainW/2, y + 5, 6, 0, Math.PI * 2);
+            ctx.fill();
+        }
 
-            fetch(apiUrl).then(r => r.json()).then(data => {
-                if(data.ok) {
-                    document.getElementById("sendOtpBtn").classList.add("hidden");
-                    document.getElementById("otpSection").classList.remove("hidden");
-                } else {
-                    alert("❌ Failed to send OTP.");
-                    document.getElementById("sendOtpBtn").innerText = "Send OTP to Bot";
-                }
-            });
-        };
-
-        document.getElementById("verifyBtn").onclick = () => {
-            let entered = document.getElementById("otpInput").value.trim();
-            if(entered === currentOtp) {
-                update(ref(db, 'verified_users/' + userId), { 
-                    isVerified: true, 
-                    rupees: 0 
-                }).then(() => {
-                    showDashboard();
-                });
+        // Generate Objects
+        function createObjects() {
+            let lane = Math.floor(Math.random() * 3);
+            let type = Math.random() > 0.7 ? 'coin' : 'obstacle'; // 30% chance of coin
+            
+            if (type === 'obstacle') {
+                obstacles.push({ x: lanes[lane] - 25, y: -60, w: 50, h: 60, lane: lane });
             } else {
-                alert("❌ Incorrect OTP.");
+                coins.push({ x: lanes[lane], y: -30, r: 15, lane: lane });
             }
-        };
-
-        // --- DASHBOARD LOGIC ---
-        function showDashboard() {
-            showScreen('dashboardScreen');
-            
-            if(userId === adminId) {
-                document.getElementById("adminSection").classList.remove("hidden");
-            }
-
-            // Live Balance Update
-            onValue(ref(db, 'verified_users/' + userId), (snap) => {
-                if(snap.exists()) {
-                    let d = snap.val();
-                    document.getElementById("rupeeBal").innerText = parseFloat(d.rupees || 0).toFixed(2);
-                    
-                    if(d.api_token) {
-                        myApiToken = d.api_token;
-                        document.getElementById("apiTokenDisplay").innerText = myApiToken;
-                        document.getElementById("copyTokenBtn").classList.remove("hidden");
-                    } else {
-                        document.getElementById("apiTokenDisplay").innerText = "No Token Generated";
-                    }
-                }
-            });
         }
 
-        // --- API TOKEN GENERATOR ---
-        window.generateApiToken = function() {
-            let confirmGen = confirm("This will generate a new API Token. Old bots using the previous token will stop working. Continue?");
-            if(confirmGen) {
-                // Generate a random 32 character hex string
-                let newToken = "ULTRA_" + [...Array(26)].map(() => Math.floor(Math.random() * 16).toString(16)).join('').toUpperCase();
+        function updateObjects() {
+            // Obstacles (Red Blocks)
+            for (let i = 0; i < obstacles.length; i++) {
+                let obs = obstacles[i];
+                obs.y += speed;
                 
-                update(ref(db, 'verified_users/' + userId), { api_token: newToken }).then(() => {
-                    alert("✅ New API Token Generated Successfully!");
-                });
-            }
-        };
+                ctx.fillStyle = "#e94560"; // Red color
+                ctx.fillRect(obs.x, obs.y, obs.w, obs.h);
+                // Striped pattern on obstacle
+                ctx.fillStyle = "#000";
+                ctx.fillRect(obs.x, obs.y + 20, obs.w, 10);
 
-        window.copyApiToken = function() {
-            navigator.clipboard.writeText(myApiToken).then(() => {
-                let btn = document.getElementById("copyTokenBtn");
-                btn.innerText = "✅ Copied!";
-                setTimeout(() => { btn.innerText = "📋 Copy Token"; }, 2000);
-            });
-        };
-
-        // --- ADMIN: ADD MONEY ---
-        window.addMoneyToUser = function() {
-            let targetId = document.getElementById("addMoneyId").value.trim();
-            let amount = parseFloat(document.getElementById("addMoneyAmount").value);
-            
-            if(!targetId || isNaN(amount) || amount <= 0) return alert("Enter valid details");
-            
-            get(ref(db, 'verified_users/' + targetId)).then((snap) => {
-                if(snap.exists()) {
-                    let currentBal = parseFloat(snap.val().rupees || 0);
-                    update(ref(db, 'verified_users/' + targetId), { rupees: currentBal + amount }).then(() => {
-                        alert(`✅ ₹${amount} added to ${targetId}'s wallet!`);
-                    });
-                } else {
-                    alert("❌ User not found!");
+                // Collision Detection
+                if (obs.lane === trainLane && obs.y + obs.h > canvas.height - trainH - 15 && obs.y < canvas.height - 15) {
+                    gameOver();
                 }
-            });
-        };
+
+                if (obs.y > canvas.height) {
+                    obstacles.splice(i, 1);
+                    score += 10;
+                    document.getElementById("scoreDisplay").innerText = score;
+                    if(score % 100 === 0) speed += 0.3; // Increase speed slightly
+                    i--;
+                }
+            }
+
+            // Coins (Yellow Circles)
+            for (let i = 0; i < coins.length; i++) {
+                let coin = coins[i];
+                coin.y += speed;
+                
+                ctx.fillStyle = "#f1c40f";
+                ctx.beginPath();
+                ctx.arc(coin.x, coin.y, coin.r, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.fillStyle = "#d4ac0d";
+                ctx.beginPath();
+                ctx.arc(coin.x, coin.y, coin.r - 4, 0, Math.PI * 2);
+                ctx.fill();
+
+                // Coin Collection Logic
+                if (coin.lane === trainLane && coin.y + coin.r > canvas.height - trainH - 15 && coin.y - coin.r < canvas.height - 15) {
+                    coins.splice(i, 1);
+                    score += 50; // Bonus points
+                    document.getElementById("scoreDisplay").innerText = score;
+                    playSound('coin');
+                    i--;
+                } else if (coin.y > canvas.height) {
+                    coins.splice(i, 1);
+                    i--;
+                }
+            }
+        }
+
+        // Main Game Loop
+        function loop() {
+            if (isGameOver) return;
+            
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            drawTracks();
+            drawTrain();
+            
+            frameCount++;
+            // Generate objects faster as speed increases
+            let spawnRate = Math.max(30, 70 - Math.floor(speed * 2)); 
+            if (frameCount % spawnRate === 0) {
+                createObjects();
+            }
+            
+            updateObjects();
+            gameLoop = requestAnimationFrame(loop);
+        }
+
+        // Start Game
+        function startGame() {
+            if (audioCtx.state === 'suspended') audioCtx.resume();
+            document.getElementById("startScreen").style.display = "none";
+            document.getElementById("newHighScoreMsg").style.display = "none";
+            score = 0;
+            speed = 5;
+            obstacles = [];
+            coins = [];
+            trainLane = 1;
+            isGameOver = false;
+            frameCount = 0;
+            document.getElementById("scoreDisplay").innerText = score;
+            loop();
+        }
+
+        // Game Over
+        function gameOver() {
+            isGameOver = true;
+            cancelAnimationFrame(gameLoop);
+            playSound('crash');
+            
+            document.getElementById("startScreen").style.display = "flex";
+            document.getElementById("screenTitle").innerText = "CRASHED! 💥";
+            document.getElementById("fsVal").innerText = score;
+            document.getElementById("finalScore").style.display = "block";
+            document.getElementById("startBtn").innerText = "TRY AGAIN";
+
+            // Save High Score
+            if (score > highScore) {
+                highScore = score;
+                localStorage.setItem("trainRushHighScore", highScore);
+                document.getElementById("highScoreDisplay").innerText = highScore;
+                document.getElementById("newHighScoreMsg").style.display = "block";
+            }
+        }
+
+        // Controls (Touch for Mobile)
+        window.addEventListener("touchstart", function(e) {
+            let touchX = e.touches[0].clientX;
+            let screenWidth = window.innerWidth;
+            if (touchX < screenWidth / 2 && trainLane > 0) trainLane--;
+            else if (touchX > screenWidth / 2 && trainLane < 2) trainLane++;
+        });
+
+        // Controls (Keyboard for PC)
+        window.addEventListener("keydown", function(e) {
+            if (e.key === "ArrowLeft" && trainLane > 0) trainLane--;
+            if (e.key === "ArrowRight" && trainLane < 2) trainLane++;
+        });
+
     </script>
 </body>
 </html>
