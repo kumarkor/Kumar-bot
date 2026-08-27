@@ -447,19 +447,39 @@
         
         function runTrain() {
             const lw = cw/3; const ls = [lw/2, lw+lw/2, lw*2+lw/2];
+            
+            // १. जर ट्रेनची सुरुवातीची जागा सेट नसेल, तर ती मधल्या ट्रॅकवर सेट करणे
+            if(p.x === undefined) p.x = ls[p.l] - p.w/2;
+
+            // २. रुळ (Tracks) काढणे
             ctx.strokeStyle = "#334155"; ctx.lineWidth = 2;
             for(let i=1; i<3; i++) { ctx.beginPath(); ctx.moveTo(i*lw, 0); ctx.lineTo(i*lw, ch); ctx.stroke(); }
             
-            let px = ls[p.l] - p.w/2;
-            ctx.fillStyle = myItems.includes("gold_train") ? "#fcd34d" : "#38bdf8"; ctx.fillRect(px, p.y, p.w, p.h);
+            // ✨ ३. जादू इथं आहे: स्मूथ ट्रॅक चेंज (Smooth Transition Animation)
+            let targetX = ls[p.l] - p.w/2;
+            p.x += (targetX - p.x) * 0.2; // 0.2 मुळे ट्रेन रिअल-लाईफ सारखी हळूवार सरकते
+
+            // ४. ट्रेन काढणे (p.x वापरून)
+            ctx.fillStyle = myItems.includes("gold_train") ? "#fcd34d" : "#38bdf8"; 
+            ctx.fillRect(p.x, p.y, p.w, p.h);
             
+            // ५. अडथळे आणि कॉइन्स बनवणे
             if(frames%40===0) ents.push({ l: Math.floor(Math.random()*3), y: -50, type: Math.random()>0.7?'c':'b' });
+            
             for(let i=0; i<ents.length; i++) {
                 let e = ents[i]; e.y+=speed; let ex = ls[e.l] - 20;
+                
                 if(e.type==='b') { ctx.fillStyle="#ef4444"; ctx.fillRect(ex, e.y, 40, 50); }
                 else { ctx.fillStyle="#f59e0b"; ctx.beginPath(); ctx.arc(ex+20, e.y+25, 15, 0, Math.PI*2); ctx.fill(); }
-                if(e.l===p.l && e.y+40>p.y && e.y<p.y+p.h) { if(e.type==='b') over(); else { score+=20; ents.splice(i,1); i--; } }
-                else if(e.y>ch) { if(e.type==='b') { score+=10; speed+=0.05; } ents.splice(i,1); i--; }
+                
+                // ६. कडक Collision Check (आता ट्रेनच्या ॲनिमेटेड जागेनुसार चेक होईल)
+                if(p.x < ex + 40 && p.x + p.w > ex && e.y + 40 > p.y && e.y < p.y + p.h) { 
+                    if(e.type==='b') over(); else { score+=20; ents.splice(i,1); i--; } 
+                }
+                else if(e.y>ch) { 
+                    if(e.type==='b') { score+=10; speed+=0.05; } 
+                    ents.splice(i,1); i--; 
+                }
             }
         }
 
