@@ -2,183 +2,339 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Railway Junction Map</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Mega Smart Railway Junction</title>
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
+        * { margin: 0; padding: 0; box-sizing: border-box; user-select: none; }
         body { 
-            background: #1e272e; /* नकाश्याचा डार्क रंग */
-            display: flex; justify-content: center; align-items: center; 
-            height: 100vh; overflow: hidden; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #11141a; 
+            overflow: hidden; 
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            touch-action: none; /* Disable browser scrolling */
         }
         
-        canvas { 
-            background: #2f3640; /* जमिनीचा रंग */
-            display: block; width: 100%; height: 100vh;
+        canvas { display: block; width: 100vw; height: 100vh; cursor: grab; }
+        canvas:active { cursor: grabbing; }
+
+        /* UI Overlay */
+        .ui-panel {
+            position: absolute; top: 15px; left: 15px;
+            background: rgba(15, 23, 42, 0.85); backdrop-filter: blur(5px);
+            color: #fff; padding: 15px 20px; border-radius: 12px; 
+            border: 1px solid #334155; pointer-events: none;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+        }
+        .ui-title { font-size: 18px; font-weight: 800; color: #38bdf8; margin-bottom: 5px; }
+        .ui-subtitle { font-size: 11px; color: #94a3b8; margin-bottom: 15px; }
+        
+        /* Game Clock */
+        .clock-box {
+            background: #000; border: 2px solid #10b981; color: #10b981;
+            padding: 8px 15px; border-radius: 8px; font-family: monospace;
+            font-size: 22px; font-weight: bold; text-align: center; letter-spacing: 2px;
+            margin-bottom: 15px;
         }
 
-        .map-ui {
-            position: absolute;
-            top: 20px; left: 20px;
-            background: rgba(0, 0, 0, 0.7);
-            color: #fff; padding: 15px 20px;
-            border-radius: 12px; border: 1px solid #7f8fa6;
-            pointer-events: none;
+        .legend { font-size: 11px; font-weight: 600; }
+        .legend-item { display: flex; align-items: center; margin-top: 8px; }
+        .box { width: 14px; height: 14px; margin-right: 10px; border-radius: 4px; border: 1px solid rgba(255,255,255,0.2); }
+
+        .hint {
+            position: absolute; bottom: 20px; left: 50%; transform: translateX(-50%);
+            background: rgba(0,0,0,0.7); color: #fcd34d; padding: 8px 15px;
+            border-radius: 20px; font-size: 12px; font-weight: bold; pointer-events: none;
         }
-        .map-ui h1 { font-size: 18px; color: #00a8ff; margin-bottom: 5px; }
-        .map-ui p { font-size: 12px; color: #dcdde1; }
-        
-        .legend { margin-top: 10px; font-size: 11px; }
-        .legend-item { display: flex; align-items: center; margin-top: 5px; }
-        .box { width: 12px; height: 12px; margin-right: 8px; border-radius: 3px; }
     </style>
 </head>
 <body>
 
-    <!-- नकाश्यावर दिसणारी माहिती -->
-    <div class="map-ui">
-        <h1>🛤️ Central Junction Map</h1>
-        <p>Live Train Tracking Simulation</p>
+    <div class="ui-panel">
+        <div class="ui-title">🚆 Smart City Railway</div>
+        <div class="ui-subtitle">Simulation: 1 Real Sec = 1 In-Game Min</div>
+        
+        <!-- Live Clock -->
+        <div class="clock-box" id="gameClock">08:00</div>
+
         <div class="legend">
-            <div class="legend-item"><div class="box" style="background: #e84118;"></div> Superfast Express</div>
-            <div class="legend-item"><div class="box" style="background: #00a8ff;"></div> City Local Train</div>
-            <div class="legend-item"><div class="box" style="background: #4cd137;"></div> Goods Train (मालगाडी)</div>
-            <div class="legend-item"><div class="box" style="background: #fbc531;"></div> Passenger Train</div>
+            <div class="legend-item"><div class="box" style="background: #ef4444;"></div> Express (Red)</div>
+            <div class="legend-item"><div class="box" style="background: #3b82f6;"></div> Local Train (Blue)</div>
+            <div class="legend-item"><div class="box" style="background: #10b981;"></div> Mal Gadi / Cargo (Green)</div>
         </div>
     </div>
 
-    <!-- मुख्य नकाशा -->
-    <canvas id="mapCanvas"></canvas>
+    <div class="hint">👈 Drag to explore the HUGE map 👉</div>
+
+    <canvas id="gameCanvas"></canvas>
 
     <script>
-        const canvas = document.getElementById("mapCanvas");
+        const canvas = document.getElementById("gameCanvas");
         const ctx = canvas.getContext("2d");
 
-        let cw, ch;
-        function resize() {
-            cw = window.innerWidth;
-            ch = window.innerHeight;
-            canvas.width = cw;
-            canvas.height = ch;
-        }
-        window.addEventListener('resize', resize);
-        resize();
+        // ==========================================
+        // 1. CAMERA & HUGE MAP LOGIC (Pan system)
+        // ==========================================
+        let camera = { x: -500, y: -500, zoom: 1 };
+        let isDragging = false, startX, startY, camStartX, camStartY;
+
+        function resize() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; }
+        window.addEventListener('resize', resize); resize();
+
+        // Mouse Events
+        canvas.addEventListener('mousedown', e => { isDragging = true; startX = e.clientX; startY = e.clientY; camStartX = camera.x; camStartY = camera.y; });
+        window.addEventListener('mouseup', () => isDragging = false);
+        window.addEventListener('mousemove', e => { if (isDragging) { camera.x = camStartX + (e.clientX - startX); camera.y = camStartY + (e.clientY - startY); } });
+
+        // Touch Events
+        canvas.addEventListener('touchstart', e => { isDragging = true; startX = e.touches[0].clientX; startY = e.touches[0].clientY; camStartX = camera.x; camStartY = camera.y; });
+        window.addEventListener('touchend', () => isDragging = false);
+        window.addEventListener('touchmove', e => { if (isDragging) { camera.x = camStartX + (e.touches[0].clientX - startX); camera.y = camStartY + (e.touches[0].clientY - startY); } });
 
         // ==========================================
-        // १. ट्रेन्सचा डेटा (४ वेगवेगळ्या ट्रेन्स)
+        // 2. TIME SYSTEM (1 Sec = 1 Min)
         // ==========================================
-        const trains = [
-            { id: 1, type: "Express", color: "#e84118", x: -200, y: 0, vx: 3, vy: 0, coaches: 6 }, // डावीकडून उजवीकडे (जलद)
-            { id: 2, type: "Local", color: "#00a8ff", x: cw + 300, y: 0, vx: -2, vy: 0, coaches: 4 }, // उजवीकडून डावीकडे (मध्यम)
-            { id: 3, type: "Goods", color: "#4cd137", x: 0, y: -400, vx: 0, vy: 1.5, coaches: 10 }, // वरून खाली (मालगाडी - संथ आणि मोठी)
-            { id: 4, type: "Passenger", color: "#fbc531", x: 0, y: ch + 200, vx: 0, vy: -2.5, coaches: 5 } // खालून वर
+        let gameTimeInMinutes = 8 * 60; // Starts at 08:00 AM
+        let lastFrameTime = performance.now();
+
+        function updateClock(deltaTimeMs) {
+            // 1000 ms (1 sec) = 1 minute game time
+            gameTimeInMinutes += (deltaTimeMs / 1000); 
+            if (gameTimeInMinutes >= 24 * 60) gameTimeInMinutes = 0; // Reset after 24 hrs
+            
+            let hours = Math.floor(gameTimeInMinutes / 60).toString().padStart(2, '0');
+            let mins = Math.floor(gameTimeInMinutes % 60).toString().padStart(2, '0');
+            document.getElementById("gameClock").innerText = `${hours}:${mins}`;
+        }
+
+        // ==========================================
+        // 3. MAP ROUTES & STATIONS (Waypoints)
+        // ==========================================
+        const stations = [
+            { id: "S1", name: "Central Junction", x: 2000, y: 1930, w: 200, h: 140, color: "#334155" },
+            { id: "S2", name: "West City", x: 500, y: 1980, w: 150, h: 80, color: "#334155" },
+            { id: "S3", name: "East Port", x: 3500, y: 1980, w: 150, h: 80, color: "#334155" },
+            { id: "S4", name: "North Valley", x: 1980, y: 500, w: 80, h: 150, color: "#334155" },
+            { id: "S5", name: "Cargo Hub", x: 3500, y: 2200, w: 250, h: 100, color: "#1e293b" }
         ];
 
-        // ==========================================
-        // २. नकाशा आणि रूळ काढणे (Draw Map & Tracks)
-        // ==========================================
-        function drawMap() {
-            // ट्रॅक्सची पोझिशन सेट करणे (स्क्रीनच्या मध्यभागी)
-            trains[0].trackY = ch * 0.35; // आडवा ट्रॅक १
-            trains[1].trackY = ch * 0.65; // आडवा ट्रॅक २
-            trains[2].trackX = cw * 0.30; // उभा ट्रॅक १
-            trains[3].trackX = cw * 0.70; // उभा ट्रॅक २
+        // Routes are array of connected coordinates. trains will follow these perfectly.
+        const routes = {
+            // Local (Blue) - East/West Loop
+            local: [
+                {x: 500, y: 2050, wait: 2}, {x: 1800, y: 2050}, {x: 2000, y: 2050, wait: 3}, // Stop at Central
+                {x: 3500, y: 2050, wait: 2}, {x: 3500, y: 1950}, // Loop around East
+                {x: 2000, y: 1950, wait: 3}, {x: 500, y: 1950}, {x: 500, y: 2050} // Loop back West
+            ],
+            // Express (Red) - North/South Loop
+            express: [
+                {x: 1950, y: 500, wait: 2}, {x: 1950, y: 1800}, {x: 1950, y: 2000, wait: 3}, // Stop Central
+                {x: 1950, y: 3500}, {x: 2050, y: 3500}, // Loop South
+                {x: 2050, y: 2000, wait: 3}, {x: 2050, y: 500}, {x: 1950, y: 500} // Loop North
+            ],
+            // Mal Gadi (Green) - Merges into local track, goes to cargo hub
+            cargo: [
+                {x: 500, y: 2120}, {x: 1700, y: 2120}, 
+                {x: 1800, y: 2050}, // Merge into Local Track!
+                {x: 2200, y: 2050}, // Leave Local Track
+                {x: 2300, y: 2120}, {x: 3500, y: 2120}, {x: 3500, y: 2250, wait: 5}, // Stop at Cargo Hub
+                {x: 3500, y: 2300}, {x: 500, y: 2300}, {x: 500, y: 2120} // Outer loop back
+            ]
+        };
 
-            ctx.lineWidth = 4;
-            
-            // आडवे रूळ काढणे
-            [trains[0].trackY, trains[1].trackY].forEach(y => {
-                // लाकडी पट्ट्या (Sleepers)
-                ctx.strokeStyle = "#718093"; ctx.lineWidth = 2;
-                for(let i=0; i<cw; i+=20) { ctx.beginPath(); ctx.moveTo(i, y-12); ctx.lineTo(i, y+12); ctx.stroke(); }
-                // लोखंडी रूळ
-                ctx.strokeStyle = "#dcdde1"; ctx.lineWidth = 3;
-                ctx.beginPath(); ctx.moveTo(0, y-8); ctx.lineTo(cw, y-8); ctx.stroke();
-                ctx.beginPath(); ctx.moveTo(0, y+8); ctx.lineTo(cw, y+8); ctx.stroke();
+        // ==========================================
+        // 4. TRAINS DATA
+        // ==========================================
+        let trains = [
+            { id: "T1", type: "Local", color: "#3b82f6", route: routes.local, rIdx: 0, x: 500, y: 2050, speed: 4, baseSpeed: 4, coaches: 4, state: "RUNNING", waitTime: 0, angle: 0, history: [] },
+            { id: "T2", type: "Express", color: "#ef4444", route: routes.express, rIdx: 0, x: 1950, y: 500, speed: 5, baseSpeed: 5, coaches: 6, state: "RUNNING", waitTime: 0, angle: 0, history: [] },
+            { id: "T3", type: "Cargo", color: "#10b981", route: routes.cargo, rIdx: 0, x: 500, y: 2120, speed: 3, baseSpeed: 3, coaches: 12, state: "RUNNING", waitTime: 0, angle: 0, history: [] }
+        ];
+
+        const COACH_LEN = 40;
+        const COACH_GAP = 5;
+
+        // ==========================================
+        // 5. DRAW ENVIRONMENT
+        // ==========================================
+        function drawTracksAndStations() {
+            // Draw Stations
+            stations.forEach(st => {
+                ctx.fillStyle = st.color;
+                ctx.fillRect(st.x - st.w/2, st.y - st.h/2, st.w, st.h);
+                ctx.strokeStyle = "#475569"; ctx.lineWidth = 4; ctx.strokeRect(st.x - st.w/2, st.y - st.h/2, st.w, st.h);
+                ctx.fillStyle = "#fff"; ctx.font = "bold 16px sans-serif"; ctx.textAlign = "center";
+                ctx.fillText(st.name, st.x, st.y - st.h/2 - 10);
             });
 
-            // उभे रूळ काढणे
-            [trains[2].trackX, trains[3].trackX].forEach(x => {
-                // लाकडी पट्ट्या (Sleepers)
-                ctx.strokeStyle = "#718093"; ctx.lineWidth = 2;
-                for(let i=0; i<ch; i+=20) { ctx.beginPath(); ctx.moveTo(x-12, i); ctx.lineTo(x+12, i); ctx.stroke(); }
-                // लोखंडी रूळ
-                ctx.strokeStyle = "#dcdde1"; ctx.lineWidth = 3;
-                ctx.beginPath(); ctx.moveTo(x-8, 0); ctx.lineTo(x-8, ch); ctx.stroke();
-                ctx.beginPath(); ctx.moveTo(x+8, 0); ctx.lineTo(x+8, ch); ctx.stroke();
+            // Draw Tracks based on routes
+            ctx.lineJoin = "round"; ctx.lineCap = "round";
+            Object.values(routes).forEach(route => {
+                // Sleepers (Dashed background)
+                ctx.beginPath(); ctx.strokeStyle = "#475569"; ctx.lineWidth = 14; ctx.setLineDash([4, 8]);
+                ctx.moveTo(route[0].x, route[0].y);
+                for(let i=1; i<route.length; i++) ctx.lineTo(route[i].x, route[i].y);
+                ctx.stroke();
+
+                // Steel Rails (Solid lines)
+                ctx.beginPath(); ctx.strokeStyle = "#cbd5e1"; ctx.lineWidth = 18; ctx.setLineDash([]);
+                ctx.moveTo(route[0].x, route[0].y);
+                for(let i=1; i<route.length; i++) ctx.lineTo(route[i].x, route[i].y);
+                
+                // Track inner fill to make two rails
+                ctx.stroke();
+                ctx.beginPath(); ctx.strokeStyle = "#11141a"; ctx.lineWidth = 12;
+                ctx.moveTo(route[0].x, route[0].y);
+                for(let i=1; i<route.length; i++) ctx.lineTo(route[i].x, route[i].y);
+                ctx.stroke();
             });
         }
 
         // ==========================================
-        // ३. ट्रेन्स आणि डबे काढणे (Draw Trains)
+        // 6. SMART ANTI-COLLISION & MOVEMENT LOGIC
         // ==========================================
-        function drawTrains() {
-            const coachLen = 35; // डब्याची लांबी
-            const coachWid = 14; // डब्याची रुंदी
-            const gap = 4; // डब्यांमधलं अंतर
+        function getDistance(x1, y1, x2, y2) { return Math.hypot(x2 - x1, y2 - y1); }
 
-            trains.forEach(t => {
-                // ट्रेनला पुढे सरकवणे
-                t.x += t.vx;
-                t.y += t.vy;
+        function checkCollisions() {
+            for (let i = 0; i < trains.length; i++) {
+                let t1 = trains[i];
+                let shouldStop = false;
 
-                // ट्रेन आडवी धावत आहे की उभी, ते चेक करणे
-                let isHorizontal = Math.abs(t.vx) > 0;
-                
-                // ट्रॅक सेट करणे
-                let currentX = isHorizontal ? t.x : t.trackX;
-                let currentY = isHorizontal ? t.trackY : t.y;
+                if (t1.state === "WAITING") continue; // Already stopped at station
 
-                // इंजिन आणि डबे काढणे
-                for (let i = 0; i <= t.coaches; i++) {
-                    let drawX = currentX;
-                    let drawY = currentY;
-
-                    // डबे इंजिनच्या मागे कसे लावायचे? (दिशेनुसार)
-                    if (t.vx > 0) drawX -= i * (coachLen + gap); // उजवीकडे जात असेल तर डबे डावीकडे
-                    else if (t.vx < 0) drawX += i * (coachLen + gap); // डावीकडे जात असेल तर डबे उजवीकडे
+                for (let j = 0; j < trains.length; j++) {
+                    if (i === j) continue;
+                    let t2 = trains[j];
                     
-                    if (t.vy > 0) drawY -= i * (coachLen + gap); // खाली जात असेल तर डबे वरती
-                    else if (t.vy < 0) drawY += i * (coachLen + gap); // वर जात असेल तर डबे खाली
-
-                    ctx.fillStyle = (i === 0) ? "#f5f6fa" : t.color; // पहिला डबा इंजिन (पांढरा)
+                    let dist = getDistance(t1.x, t1.y, t2.x, t2.y);
                     
-                    // डबा काढणे (आडवा किंवा उभा)
-                    if (isHorizontal) {
-                        ctx.fillRect(drawX - coachLen/2, drawY - coachWid/2, coachLen, coachWid);
-                        // खिडक्या (Windows)
-                        if(i !== 0) { ctx.fillStyle = "#2f3640"; ctx.fillRect(drawX - coachLen/4, drawY - 2, coachLen/2, 4); }
-                    } else {
-                        ctx.fillRect(drawX - coachWid/2, drawY - coachLen/2, coachWid, coachLen);
-                        // खिडक्या (Windows)
-                        if(i !== 0) { ctx.fillStyle = "#2f3640"; ctx.fillRect(drawX - 2, drawY - coachLen/4, 4, coachLen/2); }
+                    // जर दुसरी ट्रेन 250px च्या आत असेल, तर ती समोर आहे का ते तपासा (Angle Cone)
+                    if (dist < 250) {
+                        let angleToT2 = Math.atan2(t2.y - t1.y, t2.x - t1.x);
+                        let angleDiff = Math.abs(t1.angle - angleToT2);
+                        // Normalize angle to -PI to PI
+                        angleDiff = Math.atan2(Math.sin(angleDiff), Math.cos(angleDiff));
+
+                        // जर दुसरी ट्रेन समोरच्या 45-degree च्या Cone मध्ये असेल (म्हणजे समोर ट्रॅक क्रॉस करत असेल किंवा पुढे असेल)
+                        if (Math.abs(angleDiff) < Math.PI / 4) {
+                            shouldStop = true;
+                        }
                     }
                 }
+                
+                // ब्रेक मारणे किंवा पुढे जाणे
+                if (shouldStop) {
+                    t1.speed = Math.max(0, t1.speed - 0.2); // Smooth brake
+                } else {
+                    t1.speed = Math.min(t1.baseSpeed, t1.speed + 0.1); // Smooth acceleration
+                }
+            }
+        }
 
-                // ==========================================
-                // ४. स्क्रीनच्या बाहेर गेल्यावर ट्रेन पुन्हा आणणे
-                // ==========================================
-                let totalLength = (t.coaches + 1) * (coachLen + gap);
-                
-                if (t.vx > 0 && t.x - totalLength > cw) t.x = -100;
-                if (t.vx < 0 && t.x + totalLength < 0) t.x = cw + 100;
-                
-                if (t.vy > 0 && t.y - totalLength > ch) t.y = -100;
-                if (t.vy < 0 && t.y + totalLength < 0) t.y = ch + 100;
+        function updateTrains(deltaTimeMs) {
+            checkCollisions(); // अपघातापासून वाचवा!
+
+            trains.forEach(t => {
+                if (t.state === "WAITING") {
+                    t.waitTime -= (deltaTimeMs / 1000); // 1 sec = 1 min
+                    if (t.waitTime <= 0) {
+                        t.state = "RUNNING";
+                        t.rIdx = (t.rIdx + 1) % t.route.length; // Next waypoint
+                    }
+                    return;
+                }
+
+                if (t.speed <= 0) return; // Signal stop
+
+                // Save history for trailing coaches
+                t.history.unshift({ x: t.x, y: t.y, angle: t.angle });
+                if (t.history.length > 500) t.history.pop(); // Memory save
+
+                // Move towards next waypoint
+                let target = t.route[(t.rIdx + 1) % t.route.length];
+                let dx = target.x - t.x;
+                let dy = target.y - t.y;
+                let dist = Math.hypot(dx, dy);
+
+                if (dist < t.speed) {
+                    // Reached Waypoint!
+                    t.x = target.x; t.y = target.y;
+                    
+                    if (target.wait) {
+                        t.state = "WAITING";
+                        t.waitTime = target.wait; // Wait for 'X' game minutes
+                    } else {
+                        t.rIdx = (t.rIdx + 1) % t.route.length;
+                    }
+                } else {
+                    // Moving
+                    t.angle = Math.atan2(dy, dx);
+                    t.x += Math.cos(t.angle) * t.speed;
+                    t.y += Math.sin(t.angle) * t.speed;
+                }
             });
         }
 
+        function drawTrain(t) {
+            // Draw Engine
+            ctx.save();
+            ctx.translate(t.x, t.y);
+            ctx.rotate(t.angle);
+            ctx.fillStyle = "#f8fafc"; // White Engine head
+            ctx.fillRect(-COACH_LEN/2, -10, COACH_LEN, 20);
+            ctx.fillStyle = "#fbbf24"; ctx.fillRect(COACH_LEN/2 - 5, -5, 5, 10); // Headlight
+            ctx.restore();
+
+            // Draw Coaches (Snaking effect using History array)
+            for (let i = 1; i <= t.coaches; i++) {
+                // Calculate history index based on speed and distance
+                let histIdx = Math.floor((i * (COACH_LEN + COACH_GAP)) / Math.max(t.baseSpeed, 1));
+                
+                if (histIdx < t.history.length) {
+                    let pos = t.history[histIdx];
+                    ctx.save();
+                    ctx.translate(pos.x, pos.y);
+                    ctx.rotate(pos.angle);
+                    
+                    ctx.fillStyle = t.color;
+                    ctx.fillRect(-COACH_LEN/2, -10, COACH_LEN, 20);
+                    // Windows
+                    ctx.fillStyle = "#1e293b";
+                    ctx.fillRect(-COACH_LEN/2 + 5, -6, COACH_LEN - 10, 12);
+                    
+                    ctx.restore();
+                }
+            }
+
+            // Status Text (Waiting/Moving) above engine
+            if(t.state === "WAITING") {
+                ctx.fillStyle = "#fbbf24"; ctx.font = "bold 12px sans-serif"; ctx.textAlign = "center";
+                ctx.fillText(`Wait: ${Math.ceil(t.waitTime)}m`, t.x, t.y - 20);
+            }
+        }
+
         // ==========================================
-        // ५. ॲनिमेशन इंजिन (Loop)
+        // 7. MAIN ENGINE LOOP
         // ==========================================
-        function animate() {
-            ctx.clearRect(0, 0, cw, ch);
-            drawMap();    // आधी नकाशा आणि रूळ काढा
-            drawTrains(); // त्यावर ट्रेन्स पळवा
+        function animate(time) {
+            let deltaTime = time - lastFrameTime;
+            lastFrameTime = time;
+
+            // Update Logic
+            updateClock(deltaTime);
+            updateTrains(deltaTime);
+
+            // Draw Graphics
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            ctx.save();
+            ctx.translate(camera.x, camera.y); // Apply Pan Camera
+            
+            drawTracksAndStations(); // Background map
+            trains.forEach(drawTrain); // Trains on top
+
+            ctx.restore(); // Reset camera for UI overlay
             requestAnimationFrame(animate);
         }
 
-        animate(); // सिस्टीम चालू!
+        requestAnimationFrame(animate);
     </script>
 </body>
 </html>
