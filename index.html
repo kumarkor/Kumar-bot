@@ -3,69 +3,54 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Real Life City Simulator</title>
+    <title>Emoji City Life Simulator</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; user-select: none; font-family: 'Segoe UI', sans-serif; }
-        body { background: #000; overflow: hidden; touch-action: none; color: #fff; }
-        canvas { display: block; width: 100vw; height: 100vh; cursor: crosshair; }
+        body { background: #4ade80; /* हिरवीगार जमीन */ overflow: hidden; touch-action: none; color: #fff; }
+        canvas { display: block; width: 100vw; height: 100vh; cursor: grab; }
         canvas:active { cursor: grabbing; }
 
-        /* Clean Dashboard UI */
-        .dashboard { position: absolute; top: 15px; left: 15px; background: rgba(15, 23, 42, 0.8); backdrop-filter: blur(10px); padding: 15px; border-radius: 12px; border: 1px solid #38bdf8; z-index: 10; box-shadow: 0 5px 20px rgba(0,0,0,0.5); }
-        .dash-title { font-size: 16px; font-weight: 900; color: #38bdf8; margin-bottom: 5px; letter-spacing: 1px; }
-        .clock { background: #000; color: #10b981; font-family: monospace; font-size: 24px; font-weight: bold; padding: 5px 15px; border-radius: 8px; border: 1px solid #10b981; text-align: center; margin-bottom: 10px; cursor: pointer; }
+        /* UI Dashboard */
+        .dashboard { position: absolute; top: 15px; left: 15px; background: rgba(15, 23, 42, 0.85); backdrop-filter: blur(10px); padding: 15px; border-radius: 15px; border: 2px solid #f59e0b; z-index: 10; box-shadow: 0 4px 15px rgba(0,0,0,0.5); }
+        .dash-title { font-size: 18px; font-weight: 900; color: #fcd34d; margin-bottom: 8px; }
+        .clock { background: #000; color: #10b981; font-family: monospace; font-size: 28px; font-weight: bold; padding: 8px 15px; border-radius: 8px; border: 1px solid #10b981; text-align: center; margin-bottom: 10px; }
+        
+        .info-panel { font-size: 12px; color: #cbd5e1; margin-bottom: 10px; line-height: 1.5; }
+        
         .btn-group { display: flex; gap: 10px; }
-        .btn { flex: 1; background: #334155; color: white; border: none; padding: 8px; border-radius: 6px; font-size: 12px; font-weight: bold; cursor: pointer; transition: 0.2s; }
+        .btn { flex: 1; background: #334155; color: white; border: none; padding: 10px; border-radius: 8px; font-size: 12px; font-weight: bold; cursor: pointer; transition: 0.2s; border: 1px solid #475569; }
         .btn:hover { background: #38bdf8; color: #000; }
 
-        /* Follow Info */
-        #followInfo { display: none; position: absolute; bottom: 20px; left: 20px; background: rgba(0,0,0,0.8); border-left: 4px solid #f59e0b; padding: 15px; border-radius: 8px; z-index: 10; }
-        .speed-val { font-family: monospace; font-size: 24px; color: #f59e0b; font-weight: bold; }
+        #followInfo { display: none; position: absolute; bottom: 20px; left: 20px; background: rgba(0,0,0,0.85); border-left: 4px solid #38bdf8; padding: 15px; border-radius: 10px; z-index: 10; }
+        .target-name { font-size: 14px; color: #38bdf8; font-weight: bold; margin-bottom: 5px; }
+        .target-status { font-size: 12px; color: #10b981; }
 
+        .hint { position: absolute; bottom: 20px; left: 50%; transform: translateX(-50%); background: rgba(0,0,0,0.7); color: #fff; padding: 8px 20px; border-radius: 20px; font-size: 12px; pointer-events: none; z-index: 10; font-weight: bold; }
+        
         /* Minimap */
-        .minimap-container { position: absolute; bottom: 20px; right: 20px; width: 150px; height: 150px; background: rgba(0, 0, 0, 0.9); border: 2px solid #38bdf8; border-radius: 10px; z-index: 10; overflow: hidden; }
-        #minimap { width: 100%; height: 100%; }
-
-        /* Settings */
-        #settingsPanel { display: none; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); background: rgba(15, 23, 42, 0.95); padding: 20px; border-radius: 12px; border: 2px solid #f59e0b; z-index: 100; width: 280px; }
-        .set-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; font-size: 14px; }
-        .switch { position: relative; display: inline-block; width: 36px; height: 18px; }
-        .switch input { opacity: 0; width: 0; height: 0; }
-        .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #475569; transition: .4s; border-radius: 20px; }
-        .slider:before { position: absolute; content: ""; height: 14px; width: 14px; left: 2px; bottom: 2px; background-color: white; transition: .4s; border-radius: 50%; }
-        input:checked + .slider { background-color: #10b981; }
-        input:checked + .slider:before { transform: translateX(18px); }
-        .close-btn { width: 100%; background: #ef4444; color: white; border: none; padding: 8px; border-radius: 8px; font-weight: bold; cursor: pointer; margin-top: 10px; }
-
-        .hint { position: absolute; top: 15px; right: 15px; color: #94a3b8; font-size: 11px; background: rgba(0,0,0,0.6); padding: 5px 10px; border-radius: 20px; z-index: 10; pointer-events: none; }
+        .minimap-container { position: absolute; bottom: 20px; right: 20px; width: 140px; height: 140px; background: rgba(0, 0, 0, 0.8); border: 2px solid #fff; border-radius: 50%; z-index: 10; overflow: hidden; }
+        #minimap { width: 100%; height: 100%; border-radius: 50%; }
     </style>
 </head>
 <body>
 
     <div class="dashboard">
-        <div class="dash-title">🏡 Real Life City</div>
-        <div class="clock" id="gameClock">12:00</div>
+        <div class="dash-title">🏫 Emoji City Life</div>
+        <div class="clock" id="gameClock">08:00</div>
+        <div class="info-panel" id="busStatus">🚌 School Bus: Sleeping</div>
         <div class="btn-group">
-            <button class="btn" onclick="toggleSettings()">⚙️ Settings</button>
+            <button class="btn" onclick="timeSpeed = timeSpeed === 1 ? 10 : 1">⏩ Fast Time</button>
             <button class="btn" onclick="unfollow()">🌍 Free Cam</button>
         </div>
     </div>
 
     <div id="followInfo">
-        <div style="font-size:12px; color:#94a3b8; font-weight:bold; margin-bottom:5px;" id="fType">Target</div>
-        <div class="speed-val"><span id="fSpeed">0</span> <span style="font-size:12px; color:#fff;">km/h</span></div>
-        <div style="font-size:11px; color:#10b981; margin-top:5px;" id="fAction">Moving...</div>
+        <div class="target-name" id="fName">Target</div>
+        <div class="target-status" id="fStatus">Status</div>
     </div>
 
-    <div id="settingsPanel">
-        <div style="color:#f59e0b; font-size:16px; font-weight:bold; margin-bottom:15px;">World Settings</div>
-        <div class="set-row"><span>🌧️ Weather (Rain)</span><label class="switch"><input type="checkbox" id="rainToggle" onchange="toggleRain()"><span class="slider"></span></label></div>
-        <div class="set-row"><span>⏩ Fast Time (10x)</span><label class="switch"><input type="checkbox" id="fastTimeToggle" onchange="toggleFastTime()"><span class="slider"></span></label></div>
-        <button class="close-btn" onclick="toggleSettings()">Save & Close</button>
-    </div>
-
+    <div class="hint">👆 Click Bus/Train to Follow | 🔍 Pinch to Zoom</div>
     <div class="minimap-container"><canvas id="minimap"></canvas></div>
-    <div class="hint">🔍 Pinch/Scroll: Zoom | 👆 Click: Follow | 🌍 Drag: Pan</div>
 
     <canvas id="gameCanvas"></canvas>
 
@@ -75,393 +60,322 @@
         const mCanvas = document.getElementById("minimap");
         const mCtx = mCanvas.getContext("2d");
 
-        // ==========================================
-        // 1. ENGINE & CAMERA CONFIG
-        // ==========================================
-        const WORLD_SIZE = 6000;
-        let cam = { x: 3000, y: 3000, zoom: 0.6 };
+        const WORLD_SIZE = 4000;
+        let cam = { x: 2000, y: 2000, zoom: 0.8 };
         let isDragging = false, startX, startY, camStartX, camStartY;
         let followedTarget = null;
+        let timeSpeed = 1;
 
-        function resize() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; mCanvas.width = 150; mCanvas.height = 150; }
+        function resize() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; mCanvas.width = 140; mCanvas.height = 140; }
         window.addEventListener('resize', resize); resize();
 
-        // Cam Controls
+        // Controls
         canvas.addEventListener('mousedown', e => { isDragging = true; startX = e.clientX; startY = e.clientY; camStartX = cam.x; camStartY = cam.y; unfollow(); });
         window.addEventListener('mouseup', () => isDragging = false);
-        canvas.addEventListener('mousemove', e => { if(isDragging) { cam.x = camStartX - (e.clientX - startX)/cam.zoom; cam.y = camStartY - (e.clientY - startY)/cam.zoom; } });
-        canvas.addEventListener('wheel', e => { e.preventDefault(); cam.zoom = Math.min(Math.max(0.3, cam.zoom * (e.deltaY > 0 ? 0.9 : 1.1)), 3.0); });
+        window.addEventListener('mousemove', e => { if(isDragging) { cam.x = camStartX - (e.clientX - startX)/cam.zoom; cam.y = camStartY - (e.clientY - startY)/cam.zoom; } });
+        canvas.addEventListener('wheel', e => { e.preventDefault(); cam.zoom = Math.min(Math.max(0.3, cam.zoom * (e.deltaY > 0 ? 0.9 : 1.1)), 2.5); });
 
-        // Touch Controls
+        // Touch
         let initPinch = null, initZoom = null;
         canvas.addEventListener('touchstart', e => {
             if(e.touches.length === 1) { isDragging=true; startX=e.touches[0].clientX; startY=e.touches[0].clientY; camStartX=cam.x; camStartY=cam.y; unfollow(); }
             else if(e.touches.length === 2) { initPinch = Math.hypot(e.touches[0].clientX-e.touches[1].clientX, e.touches[0].clientY-e.touches[1].clientY); initZoom = cam.zoom; }
         });
         window.addEventListener('touchend', () => { isDragging = false; initPinch = null; });
-        canvas.addEventListener('touchmove', e => {
+        window.addEventListener('touchmove', e => {
             if(e.touches.length === 1 && isDragging && !initPinch) { cam.x = camStartX - (e.touches[0].clientX - startX)/cam.zoom; cam.y = camStartY - (e.touches[0].clientY - startY)/cam.zoom; }
-            else if(e.touches.length === 2 && initPinch) { let dist = Math.hypot(e.touches[0].clientX-e.touches[1].clientX, e.touches[0].clientY-e.touches[1].clientY); cam.zoom = Math.min(Math.max(0.3, initZoom * (dist/initPinch)), 3.0); }
+            else if(e.touches.length === 2 && initPinch) { let dist = Math.hypot(e.touches[0].clientX-e.touches[1].clientX, e.touches[0].clientY-e.touches[1].clientY); cam.zoom = Math.min(Math.max(0.3, initZoom * (dist/initPinch)), 2.5); }
         });
 
         // Click to follow
         canvas.addEventListener('click', e => {
             if(isDragging) return;
             let wx = (e.clientX - canvas.width/2)/cam.zoom + cam.x; let wy = (e.clientY - canvas.height/2)/cam.zoom + cam.y;
-            cars.forEach(c => { if(Math.hypot(c.x - wx, c.y - wy) < 60) setFollow(c, c.t); });
-            trains.forEach(t => { if(Math.hypot(t.x - wx, t.y - wy) < 100) setFollow(t, "City Train"); });
+            if(Math.hypot(schoolBus.x - wx, schoolBus.y - wy) < 80) setFollow(schoolBus, "🚌 School Bus");
+            trains.forEach(t => { if(Math.hypot(t.x - wx, t.y - wy) < 100) setFollow(t, t.icon + " " + t.name); });
+            cars.forEach(c => { if(Math.hypot(c.x - wx, c.y - wy) < 60) setFollow(c, "🚗 City Car"); });
         });
         
-        function setFollow(target, name) { followedTarget = target; document.getElementById('followInfo').style.display = 'block'; document.getElementById('fType').innerText = name; }
+        function setFollow(target, name) { followedTarget = target; followedTarget.displayName = name; document.getElementById('followInfo').style.display = 'block'; document.getElementById('fName').innerText = name; }
         function unfollow() { followedTarget = null; document.getElementById('followInfo').style.display = 'none'; }
-        function toggleSettings() { let p = document.getElementById("settingsPanel"); p.style.display = p.style.display === "block" ? "none" : "block"; }
-        
-        let isRainy = false, timeSpeed = 1;
-        function toggleRain() { isRainy = document.getElementById("rainToggle").checked; }
-        function toggleFastTime() { timeSpeed = document.getElementById("fastTimeToggle").checked ? 10 : 1; }
 
         // ==========================================
-        // 2. TIME, LIGHTS & DAY/NIGHT
+        // 2. TIME SYSTEM
         // ==========================================
-        let gameTime = 12 * 60; let isNight = false; let blinkTimer = 0;
+        let gameTimeMins = 8 * 60; // Start at 08:00
+        let lastTime = performance.now();
+        let isNight = false;
+
         function updateTime(dt) {
-            gameTime += (dt / 1000) * 2 * timeSpeed; if(gameTime >= 24 * 60) gameTime = 0;
-            let h = Math.floor(gameTime / 60).toString().padStart(2, '0'); let m = Math.floor(gameTime % 60).toString().padStart(2, '0');
+            gameTimeMins += (dt / 1000) * 2 * timeSpeed;
+            if (gameTimeMins >= 24 * 60) gameTimeMins = 0;
+            let h = Math.floor(gameTimeMins / 60).toString().padStart(2, '0');
+            let m = Math.floor(gameTimeMins % 60).toString().padStart(2, '0');
             document.getElementById("gameClock").innerText = `${h}:${m}`;
-            isNight = (gameTime > 18.5 * 60 || gameTime < 6 * 60);
-            blinkTimer += dt;
+            isNight = (gameTimeMins >= 18.5 * 60 || gameTimeMins <= 5.5 * 60);
         }
 
         // ==========================================
-        // 3. CLEAN ROAD NETWORK & HOMES 🏠
+        // 3. EMOJI ENVIRONMENT 🌲🏫🏨
         // ==========================================
-        const ROAD_W = 100;
-        const nodes = []; 
-        const homes = []; // House nodes
+        const places = [
+            { id: "School", emoji: "🏫", x: 1200, y: 1500, size: 80 },
+            { id: "Hospital", emoji: "🏨", x: 2800, y: 1500, size: 80 },
+            { id: "BusDepot", emoji: "🏢", x: 2800, y: 2500, size: 70 },
+            { id: "Station", emoji: "🚉", x: 2000, y: 3200, size: 90 }
+        ];
         
-        // Simple Grid for a Clean City (3x3 Main blocks)
-        for(let r=0; r<3; r++) {
-            for(let c=0; c<3; c++) {
-                nodes.push({ id: `N_${r}_${c}`, x: 1500 + c*1500, y: 1500 + r*1500, links: [], light: 'NS_G', timer: 0, isHome: false });
-            }
-        }
-        function link(n1, n2) { n1.links.push(n2); n2.links.push(n1); }
-        // Link main roads
-        for(let r=0; r<3; r++) { for(let c=0; c<3; c++) { let curr = nodes[r*3+c]; if(c<2) link(curr, nodes[r*3+c+1]); if(r<2) link(curr, nodes[(r+1)*3+c]); }}
+        const trees = [];
+        for(let i=0; i<150; i++) trees.push({ x: Math.random()*WORLD_SIZE, y: Math.random()*WORLD_SIZE, e: Math.random()>0.5?"🌲":"🌳", s: 40+Math.random()*20 });
+        
+        const people = [];
+        for(let i=0; i<50; i++) people.push({ x: 1000+Math.random()*2000, y: 1200+Math.random()*2000, e: "🚶", s: 20 });
 
-        // Add 🏠 Homes (Driveways) branching off main roads
-        let houseCount = 0;
-        for(let r=0; r<3; r++) {
-            for(let c=0; c<2; c++) {
-                // Add homes between horizontal nodes
-                let n1 = nodes[r*3+c], n2 = nodes[r*3+c+1];
-                for(let i=1; i<=3; i++) {
-                    let hx = n1.x + i*375; let hy = n1.y - 120; // House slightly above road
-                    let hNode = { id: `H_${houseCount++}`, x: hx, y: hy, links: [], isHome: true, occupied: false };
-                    let roadNode = { id: `RN_${houseCount}`, x: hx, y: n1.y, links: [hNode], isHome: false, light: 'NONE' };
-                    hNode.links.push(roadNode);
-                    // Insert roadNode between n1 and n2
-                    link(n1, roadNode); link(roadNode, n2);
-                    homes.push(hNode); nodes.push(roadNode);
+        // Roads
+        const roads = [
+            { x1: 1000, y1: 1700, w: 2000, h: 80 }, // Horizontal Main
+            { x1: 1200, y1: 1700, w: 60, h: 1000 }, // Vertical to School
+            { x1: 2800, y1: 1700, w: 60, h: 1000 }  // Vertical to Hospital/Depot
+        ];
+
+        // ==========================================
+        // 4. SMART SCHOOL BUS AI 🚌
+        // ==========================================
+        const schoolBus = {
+            x: 2830, y: 2500, // Starts at Depot
+            targetX: 2830, targetY: 2500,
+            state: "SLEEPING", speed: 4, angle: -Math.PI/2
+        };
+
+        function updateSchoolBus() {
+            let hour = gameTimeMins / 60;
+            let statusText = "";
+
+            if (hour >= 9 && hour < 10 && schoolBus.state !== "GOING_TO_SCHOOL" && schoolBus.state !== "AT_SCHOOL") {
+                schoolBus.state = "GOING_TO_SCHOOL";
+                schoolBus.targetX = 1230; schoolBus.targetY = 1700; // Go to school
+            } 
+            else if (hour >= 10 && hour < 17 && schoolBus.state === "GOING_TO_SCHOOL") {
+                // If it reached school
+                if (Math.hypot(schoolBus.x - schoolBus.targetX, schoolBus.y - schoolBus.targetY) < 10) {
+                    schoolBus.state = "AT_SCHOOL";
                 }
             }
+            else if (hour >= 17 && schoolBus.state === "AT_SCHOOL") {
+                schoolBus.state = "GOING_HOME";
+                schoolBus.targetX = 2830; schoolBus.targetY = 2500; // Back to depot
+            }
+            else if (hour >= 18 && schoolBus.state === "GOING_HOME") {
+                if (Math.hypot(schoolBus.x - schoolBus.targetX, schoolBus.y - schoolBus.targetY) < 10) {
+                    schoolBus.state = "SLEEPING";
+                }
+            }
+
+            // Movement Logic for Bus
+            let dx = schoolBus.targetX - schoolBus.x;
+            let dy = schoolBus.targetY - schoolBus.y;
+            let dist = Math.hypot(dx, dy);
+            
+            if (dist > schoolBus.speed * timeSpeed) {
+                schoolBus.angle = Math.atan2(dy, dx);
+                schoolBus.x += Math.cos(schoolBus.angle) * schoolBus.speed * timeSpeed;
+                schoolBus.y += Math.sin(schoolBus.angle) * schoolBus.speed * timeSpeed;
+            }
+
+            // Update UI
+            if(schoolBus.state === "SLEEPING") statusText = "💤 Sleeping at Depot";
+            if(schoolBus.state === "GOING_TO_SCHOOL") statusText = "🚌 Picking up Kids -> School";
+            if(schoolBus.state === "AT_SCHOOL") statusText = "🏫 Parked at School (Classes on)";
+            if(schoolBus.state === "GOING_HOME") statusText = "🚌 Dropping Kids -> Home";
+            document.getElementById("busStatus").innerText = "Bus Status: " + statusText;
+            if(followedTarget === schoolBus) document.getElementById("fStatus").innerText = statusText;
         }
 
-        // Traffic Light Manager
-        function updateLights(dt) {
-            nodes.forEach(n => {
-                if(n.light === 'NONE') return;
-                n.timer += dt * (timeSpeed > 1 ? 0.5 : 1);
-                if(n.timer > 8000) { n.timer = 0; n.light = (n.light==='NS_G')?'NS_Y':(n.light==='NS_Y')?'EW_G':(n.light==='EW_G')?'EW_Y':'NS_G'; }
-            });
-        }
-
         // ==========================================
-        // 4. ENVIRONMENT (Parks, Lakes, Trees)
+        // 5. CARS (Only 5-6 Clean cars) 🚗
         // ==========================================
-        const lakes = [{x: 2200, y: 2200, r: 250}, {x: 3700, y: 3700, r: 300}];
-        const trees = [];
-        for(let i=0; i<300; i++) trees.push({ x: Math.random()*WORLD_SIZE, y: Math.random()*WORLD_SIZE, r: 15+Math.random()*15 });
-        const particles = [];
-        const rain = []; for(let i=0; i<300; i++) rain.push({ x: Math.random()*WORLD_SIZE, y: Math.random()*WORLD_SIZE, s: 15+Math.random()*20 });
-
-        // ==========================================
-        // 5. CARS & REAL LIFE LOGIC 🚗
-        // ==========================================
-        const carTypes = [ { t: "Family Car", c: "#e2e8f0", max: 10 }, { t: "SUV", c: "#ef4444", max: 12 }, { t: "Police", c: "#020617", max: 15, siren: true } ];
+        const carColors = ["#ef4444", "#3b82f6", "#f59e0b", "#fff", "#a855f7"];
         const cars = [];
-        
-        // ONLY 30 Cars for a Clean, uncluttered look
-        for(let i=0; i<30; i++) {
-            let type = carTypes[Math.floor(Math.random()*carTypes.length)];
-            let start = homes[Math.floor(Math.random()*homes.length)];
+        for(let i=0; i<6; i++) {
             cars.push({
-                ...type, w: 22, h: 48, x: start.x, y: start.y, angle: Math.PI/2, speed: 0,
-                target: start.links[0], last: start, state: "PARKED", wait: Math.random()*5000, 
-                blinker: 0, braking: false, stuckTimer: 0, ghost: false, homeNode: start
+                x: 1000 + Math.random()*1800, y: 1740, 
+                targetX: 1000 + Math.random()*1800, targetY: 1740,
+                speed: 3 + Math.random()*2, c: carColors[i], angle: 0, wait: 0
             });
-            start.occupied = true;
         }
 
         function updateCars(dt) {
-            cars.forEach((c, i) => {
-                c.braking = false; c.blinker = 0;
+            cars.forEach(c => {
+                if (c.wait > 0) { c.wait -= dt * timeSpeed; return; }
                 
-                if(c.state === "PARKED") {
-                    c.wait -= dt * timeSpeed;
-                    if(c.wait <= 0) { c.state = "DRIVING"; c.target = c.last.links[0]; } // Leave home
-                    return; // Don't move
-                }
-
-                let dx = c.target.x - c.x; let dy = c.target.y - c.y;
-                let dist = Math.hypot(dx, dy); let tAngle = Math.atan2(dy, dx);
+                let dx = c.targetX - c.x; let dy = c.targetY - c.y;
+                let dist = Math.hypot(dx, dy);
                 
-                // Turn smoothly
-                let aDiff = tAngle - c.angle; aDiff = Math.atan2(Math.sin(aDiff), Math.cos(aDiff));
-                c.angle += aDiff * 0.1;
-                if(Math.abs(aDiff) > 0.3 && dist < 150) c.blinker = aDiff > 0 ? 1 : -1;
-
-                // Anti-stuck
-                if(c.speed < 1) c.stuckTimer += dt; else c.stuckTimer = 0;
-                if(c.stuckTimer > 5000) c.ghost = true;
-                if(c.stuckTimer > 8000) c.stuckTimer = 0;
-                if(c.speed > 4) c.ghost = false;
-
-                // Stop logic (Lights, Cars, Train)
-                let mustStop = false;
+                // Stop for Train Crossing 🚧 (at x=2000)
+                let trainCrossing = trainGateClosed && Math.abs(c.x - 2000) < 100;
                 
-                // 1. Train Phatak Check (Horizontal track at Y=800)
-                if(Math.abs(c.y - 800) < 150 && trainGateClosed) mustStop = true;
-
-                // 2. Traffic Lights
-                if(dist < 100 && !c.ghost && c.target.light !== 'NONE' && !c.siren) {
-                    let isNS = Math.abs(Math.sin(tAngle)) > 0.5;
-                    let l = c.target.light;
-                    if(isNS && (l==='EW_G' || l==='EW_Y' || l==='NS_Y')) mustStop = true;
-                    if(!isNS && (l==='NS_G' || l==='NS_Y' || l==='EW_Y')) mustStop = true;
-                }
-
-                // 3. Cars ahead
-                if(!c.ghost) {
-                    cars.forEach((c2, j) => {
-                        if(i!==j && !c2.ghost && c2.state !== "PARKED") {
-                            if(Math.hypot(c.x-c2.x, c.y-c2.y) < 100) {
-                                let aToC2 = Math.atan2(c2.y-c.y, c2.x-c.x);
-                                let dAng = Math.abs(c.angle - aToC2);
-                                dAng = Math.atan2(Math.sin(dAng), Math.cos(dAng));
-                                if(Math.abs(dAng) < 0.8) mustStop = true;
-                            }
-                        }
-                    });
-                }
-
-                // Speed Control
-                if(mustStop) { c.speed = Math.max(0, c.speed - 0.5); c.braking = true; } 
-                else { c.speed = Math.min(c.max, c.speed + 0.2); }
-
-                let actSpeed = c.speed * (timeSpeed > 1 ? 2 : 1);
-                
-                if (dist < actSpeed + 10) {
-                    c.x = c.target.x; c.y = c.target.y;
-                    
-                    if(c.target.isHome) {
-                        c.state = "PARKED"; c.wait = 10000 + Math.random()*10000; // Sleep for 10-20s
-                        c.speed = 0; c.angle = Math.PI/2; // Park straight
-                    } else {
-                        // Pick next route. 20% chance to go Home if nearby home is free
-                        let nextNodes = c.target.links.filter(n => n.id !== c.last.id);
-                        if(nextNodes.length === 0) nextNodes = c.target.links;
-                        
-                        let chosen = nextNodes[Math.floor(Math.random() * nextNodes.length)];
-                        // Force go home logic occasionally
-                        let homeNodes = nextNodes.filter(n => n.isHome && !n.occupied);
-                        if(homeNodes.length > 0 && Math.random() < 0.2) chosen = homeNodes[0];
-                        
-                        c.last = c.target; c.target = chosen;
-                    }
+                if (trainCrossing) { /* Brake */ }
+                else if (dist < c.speed * timeSpeed + 5) {
+                    c.x = c.targetX; c.y = c.targetY;
+                    c.wait = 2000 + Math.random()*3000;
+                    c.targetX = 1000 + Math.random()*1800; // Pick new point on main road
                 } else {
-                    c.x += Math.cos(c.angle) * actSpeed;
-                    c.y += Math.sin(c.angle) * actSpeed;
-                    if(actSpeed > 3 && Math.random()>0.8) particles.push({ x: c.x, y: c.y, l: 1, s: 5 }); // Smoke
+                    c.angle = Math.atan2(dy, dx);
+                    c.x += Math.cos(c.angle) * c.speed * timeSpeed;
+                    c.y += Math.sin(c.angle) * c.speed * timeSpeed;
                 }
             });
-
-            // Particles
-            for(let i=0; i<particles.length; i++) {
-                let p = particles[i]; p.l-=0.03; p.s+=0.2;
-                if(p.l<=0) { particles.splice(i,1); i--; }
-            }
         }
 
         // ==========================================
-        // 6. TRAIN & PHATAK SYSTEM 🚂
+        // 6. CONNECTED TRAIN TRACKS & 3 TRAINS 🛤️🚃
         // ==========================================
-        // Train goes around the city (Rectangle loop)
-        const tRoute = [ {x: 500, y: 800}, {x: 5500, y: 800}, {x: 5500, y: 5500}, {x: 500, y: 5500} ];
-        const trains = [ { id: "City Express", x: 500, y: 800, rIdx: 0, s: 12, a: 0, hist: [] } ];
+        // To fix the "derail" bug, we use exact Waypoints and draw tracks strictly on them.
+        const trackWaypoints = [
+            {x: 800, y: 3200}, {x: 800, y: 800}, {x: 3200, y: 800}, {x: 3200, y: 3200} // Outer Loop
+        ];
+        
+        // Train Data
+        const trains = [
+            { name: "Superfast", icon: "🚄", wpIdx: 0, x: 800, y: 3200, speed: 8, angle: 0 },
+            { name: "Metro", icon: "🚇", wpIdx: 2, x: 3200, y: 800, speed: 6, angle: 0 },
+            { name: "Goods Train", icon: "🚂", wpIdx: 3, x: 3200, y: 3200, speed: 4, angle: 0 }
+        ];
+
         let trainGateClosed = false;
 
-        function updateTrain(dt) {
+        function updateTrains() {
             trainGateClosed = false;
             trains.forEach(t => {
-                // Phatak logic (If train is on top horizontal track near middle roads)
-                if(t.rIdx === 0 && t.x > 1000 && t.x < 5000) trainGateClosed = true;
+                // If train is near road crossing (y=1700)
+                if (t.x === 800 && Math.abs(t.y - 1700) < 300) trainGateClosed = true;
+                if (t.x === 3200 && Math.abs(t.y - 1700) < 300) trainGateClosed = true;
 
-                t.hist.unshift({x: t.x, y: t.y, a: t.a});
-                if(t.hist.length > 500) t.hist.pop();
-
-                let speed = t.s * (timeSpeed > 1 ? 2 : 1);
-                let target = tRoute[(t.rIdx + 1) % tRoute.length];
-                let dx = target.x - t.x, dy = target.y - t.y;
+                let targetWp = trackWaypoints[(t.wpIdx + 1) % trackWaypoints.length];
+                let dx = targetWp.x - t.x;
+                let dy = targetWp.y - t.y;
                 let dist = Math.hypot(dx, dy);
+                let actualSpeed = t.speed * timeSpeed;
 
-                if(dist < speed) { t.x = target.x; t.y = target.y; t.rIdx = (t.rIdx+1)%tRoute.length; }
-                else {
-                    let tAng = Math.atan2(dy, dx);
-                    // Smooth turn for train
-                    let aDiff = tAng - t.a; aDiff = Math.atan2(Math.sin(aDiff), Math.cos(aDiff));
-                    t.a += aDiff * 0.05;
-                    t.x += Math.cos(t.a) * speed; t.y += Math.sin(t.a) * speed;
+                if (dist < actualSpeed) {
+                    t.x = targetWp.x; t.y = targetWp.y;
+                    t.wpIdx = (t.wpIdx + 1) % trackWaypoints.length;
+                } else {
+                    t.angle = Math.atan2(dy, dx);
+                    t.x += Math.cos(t.angle) * actualSpeed;
+                    t.y += Math.sin(t.angle) * actualSpeed;
                 }
+
+                if(followedTarget === t) document.getElementById("fStatus").innerText = `Speed: ${Math.round(t.speed*10)} km/h`;
             });
         }
 
         // ==========================================
-        // 7. RENDER ENGINE (Clean Look)
+        // 7. RENDER ENGINE (Emojis & Clean Graphics)
         // ==========================================
-        function inView(x, y, pad=800) {
-            let hw = (canvas.width/2)/cam.zoom, hh = (canvas.height/2)/cam.zoom;
-            return (x > cam.x - hw - pad && x < cam.x + hw + pad && y > cam.y - hh - pad && y < cam.y + hh + pad);
-        }
-
         function drawWorld() {
-            // Grass
-            ctx.fillStyle = isNight ? "#064e3b" : "#22c55e"; ctx.fillRect(0,0,WORLD_SIZE,WORLD_SIZE);
+            // Base Grass
+            ctx.fillStyle = isNight ? "#064e3b" : "#4ade80"; ctx.fillRect(0,0,WORLD_SIZE,WORLD_SIZE);
+
+            // Trees 🌲
+            ctx.textAlign = "center"; ctx.textBaseline = "middle";
+            trees.forEach(t => { ctx.font = `${t.s}px sans-serif`; ctx.fillText(t.e, t.x, t.y); });
+
+            // Roads 🛣️
+            ctx.fillStyle = isNight ? "#1e293b" : "#64748b";
+            roads.forEach(r => { ctx.fillRect(r.x1, r.y1, r.w, r.h); });
+
+            // Perfect Connected Tracks 🛤️
+            ctx.beginPath(); ctx.strokeStyle = "#475569"; ctx.lineWidth = 12; ctx.setLineDash([8, 12]);
+            ctx.moveTo(trackWaypoints[0].x, trackWaypoints[0].y);
+            trackWaypoints.forEach(wp => ctx.lineTo(wp.x, wp.y)); ctx.closePath(); ctx.stroke();
             
-            // Lakes
-            ctx.fillStyle = isNight ? "#0f172a" : "#38bdf8";
-            lakes.forEach(l => { ctx.beginPath(); ctx.arc(l.x, l.y, l.r, 0, Math.PI*2); ctx.fill(); });
-
-            // Roads
-            ctx.fillStyle = "#334155";
-            for(let r=0; r<3; r++) ctx.fillRect(1500, 1500+r*1500-ROAD_W/2, 3000, ROAD_W);
-            for(let c=0; c<3; c++) ctx.fillRect(1500+c*1500-ROAD_W/2, 1500, ROAD_W, 3000);
+            ctx.beginPath(); ctx.strokeStyle = "#cbd5e1"; ctx.lineWidth = 16; ctx.setLineDash([]);
+            ctx.moveTo(trackWaypoints[0].x, trackWaypoints[0].y);
+            trackWaypoints.forEach(wp => ctx.lineTo(wp.x, wp.y)); ctx.closePath(); ctx.stroke();
             
-            // Driveways
-            homes.forEach(h => { ctx.fillRect(h.x-20, h.y, 40, 120); });
+            ctx.beginPath(); ctx.strokeStyle = isNight ? "#000" : "#1e293b"; ctx.lineWidth = 10;
+            ctx.moveTo(trackWaypoints[0].x, trackWaypoints[0].y);
+            trackWaypoints.forEach(wp => ctx.lineTo(wp.x, wp.y)); ctx.closePath(); ctx.stroke();
 
-            // Train Tracks
-            ctx.strokeStyle = "#475569"; ctx.lineWidth = 14; ctx.setLineDash([10, 10]);
-            ctx.strokeRect(500, 800, 5000, 4700);
-            ctx.strokeStyle = "#cbd5e1"; ctx.lineWidth = 18; ctx.setLineDash([]);
-            ctx.strokeRect(500, 800, 5000, 4700);
-            ctx.strokeStyle = isNight ? "#000" : "#1e293b"; ctx.lineWidth = 12;
-            ctx.strokeRect(500, 800, 5000, 4700);
+            // Phatak 🚧
+            if(trainGateClosed) {
+                ctx.fillStyle = "#ef4444"; ctx.fillRect(750, 1680, 100, 10); ctx.fillRect(3150, 1680, 100, 10);
+                ctx.font = "20px sans-serif"; ctx.fillText("🚧", 800, 1670); ctx.fillText("🚧", 3200, 1670);
+            }
 
-            // Homes 🏠 (Emoji + Base)
-            homes.forEach(h => {
-                if(!inView(h.x, h.y)) return;
-                ctx.fillStyle = isNight ? "#0f172a" : "#f8fafc";
-                ctx.fillRect(h.x-40, h.y-80, 80, 80); // Base House
-                ctx.font = "50px sans-serif"; ctx.textAlign = "center"; ctx.textBaseline="middle";
-                ctx.fillText("🏠", h.x, h.y-40);
-                if(isNight) { ctx.fillStyle="#fde047"; ctx.fillRect(h.x-15, h.y-30, 30, 20); } // Light
+            // Places (Buildings) 🏫🏨
+            places.forEach(p => {
+                ctx.font = `${p.size}px sans-serif`; ctx.fillText(p.emoji, p.x, p.y);
+                if(isNight) { ctx.fillStyle="rgba(253, 224, 71, 0.3)"; ctx.beginPath(); ctx.arc(p.x, p.y, p.size, 0, Math.PI*2); ctx.fill(); }
             });
 
-            // Trees
-            ctx.fillStyle = isNight ? "#022c22" : "#166534";
-            trees.forEach(t => { if(inView(t.x, t.y)) { ctx.beginPath(); ctx.arc(t.x, t.y, t.r, 0, Math.PI*2); ctx.fill(); }});
-        }
+            // People 🚶
+            people.forEach(p => { ctx.font = `${p.s}px sans-serif`; ctx.fillText(p.e, p.x, p.y); });
 
-        function drawCars() {
-            let blinkOn = (blinkTimer % 1000) > 500;
-            
+            // Cars 🚗
             cars.forEach(c => {
-                if(!inView(c.x, c.y)) return;
                 ctx.save(); ctx.translate(c.x, c.y); ctx.rotate(c.angle);
-                if(c.ghost) ctx.globalAlpha = 0.5;
-
-                // Car Body
-                ctx.fillStyle = c.c; ctx.beginPath(); ctx.roundRect(-c.h/2, -c.w/2, c.h, c.w, 4); ctx.fill();
-                ctx.fillStyle = "#000"; ctx.fillRect(-c.h/4, -c.w/2 + 2, c.h/2, c.w - 4); // Roof
-
-                // Siren
-                if(c.siren) { ctx.fillStyle = blinkOn ? "#ef4444" : "#3b82f6"; ctx.fillRect(-4, -c.w/2+2, 8, c.w-4); }
-                
-                // Headlights
-                if(isNight && c.state !== "PARKED") {
-                    let grad = ctx.createLinearGradient(c.h/2, 0, c.h/2+150, 0); grad.addColorStop(0, "rgba(255,255,200,0.5)"); grad.addColorStop(1, "rgba(255,255,200,0)");
-                    ctx.fillStyle = grad; ctx.beginPath(); ctx.moveTo(c.h/2, -c.w/2); ctx.lineTo(c.h/2+150, -60); ctx.lineTo(c.h/2+150, 60); ctx.lineTo(c.h/2, c.w/2); ctx.fill();
-                }
-
-                // Brake / Blinkers
-                if(c.braking) { ctx.fillStyle = "#ef4444"; ctx.fillRect(-c.h/2, -c.w/2, 4, 6); ctx.fillRect(-c.h/2, c.w/2-6, 4, 6); }
-                if(c.blinker !== 0 && blinkOn) { ctx.fillStyle = "#f59e0b"; if(c.blinker === 1) ctx.fillRect(c.h/2-4, c.w/2-4, 4, 4); else ctx.fillRect(c.h/2-4, -c.w/2, 4, 4); }
-
+                ctx.fillStyle = c.c; ctx.beginPath(); ctx.roundRect(-20, -10, 40, 20, 5); ctx.fill();
+                ctx.fillStyle = "#000"; ctx.fillRect(-10, -8, 20, 16); // Roof
+                if(isNight) { ctx.fillStyle="rgba(255,255,200,0.5)"; ctx.beginPath(); ctx.arc(30, 0, 40, -0.5, 0.5); ctx.fill(); }
                 ctx.restore();
             });
-        }
 
-        function drawTrains() {
-            const C_LEN = 55, C_GAP = 6;
+            // School Bus 🚌
+            ctx.save(); ctx.translate(schoolBus.x, schoolBus.y); ctx.rotate(schoolBus.angle);
+            ctx.font = "40px sans-serif"; ctx.fillText("🚌", 0, 0);
+            if(isNight && schoolBus.state !== "SLEEPING") { ctx.fillStyle="rgba(255,255,200,0.5)"; ctx.beginPath(); ctx.arc(30, 0, 50, -0.5, 0.5); ctx.fill(); }
+            ctx.restore();
+
+            // Trains 🚃
             trains.forEach(t => {
-                if(!inView(t.x, t.y)) return;
-                ctx.save(); ctx.translate(t.x, t.y); ctx.rotate(t.a);
-                ctx.fillStyle = "#ef4444"; ctx.fillRect(-C_LEN/2, -14, C_LEN, 28);
-                if(isNight) { let grad = ctx.createLinearGradient(C_LEN/2, 0, C_LEN/2+300, 0); grad.addColorStop(0, "rgba(255,255,200,0.8)"); grad.addColorStop(1, "rgba(255,255,200,0)"); ctx.fillStyle = grad; ctx.beginPath(); ctx.moveTo(C_LEN/2, -12); ctx.lineTo(C_LEN/2+300, -80); ctx.lineTo(C_LEN/2+300, 80); ctx.lineTo(C_LEN/2, 12); ctx.fill(); }
+                ctx.save(); ctx.translate(t.x, t.y); ctx.rotate(t.angle);
+                ctx.font = "45px sans-serif";
+                ctx.fillText(t.icon, 0, 0); // Engine
+                // Coaches (Drawing 3 coaches behind using rotation math simply)
+                for(let i=1; i<=3; i++) { ctx.fillText("🚃", -i*45, 0); }
                 ctx.restore();
-
-                // Snaking Coaches
-                for (let i = 1; i <= 6; i++) {
-                    let hIdx = Math.floor((i * (C_LEN + C_GAP)) / Math.max(t.s, 1));
-                    if (hIdx < t.hist.length) {
-                        let pos = t.hist[hIdx];
-                        ctx.save(); ctx.translate(pos.x, pos.y); ctx.rotate(pos.a);
-                        ctx.fillStyle = "#e2e8f0"; ctx.fillRect(-C_LEN/2, -14, C_LEN, 28);
-                        ctx.fillStyle = "#000"; ctx.fillRect(-C_LEN/2 + 5, -10, C_LEN-10, 20);
-                        ctx.restore();
-                    }
-                }
-                
-                // Horn at phatak
-                if(trainGateClosed) { ctx.fillStyle = "#f59e0b"; ctx.font="bold 16px sans-serif"; ctx.textAlign="center"; ctx.fillText("🔊 HORN!", t.x, t.y-30); }
             });
         }
-
-        function drawParticles() { particles.forEach(p => { ctx.fillStyle = `rgba(148, 163, 184, ${p.l})`; ctx.beginPath(); ctx.arc(p.x, p.y, p.s, 0, Math.PI*2); ctx.fill(); }); }
 
         function drawMinimap() {
-            mCtx.clearRect(0,0,150,150); let scale = 150/WORLD_SIZE;
-            mCtx.fillStyle="#334155"; for(let r=0; r<3; r++) mCtx.fillRect(0, (1500+r*1500)*scale, 150, ROAD_W*scale); for(let c=0; c<3; c++) mCtx.fillRect((1500+c*1500)*scale, 0, ROAD_W*scale, 150);
-            cars.forEach(c => { mCtx.fillStyle="#ef4444"; mCtx.fillRect(c.x*scale, c.y*scale, 3, 3); });
-            trains.forEach(t => { mCtx.fillStyle="#38bdf8"; mCtx.beginPath(); mCtx.arc(t.x*scale, t.y*scale, 4, 0, Math.PI*2); mCtx.fill(); });
-            mCtx.strokeStyle="#10b981"; let vW=(canvas.width/cam.zoom)*scale, vH=(canvas.height/cam.zoom)*scale; mCtx.strokeRect((cam.x*scale)-vW/2, (cam.y*scale)-vH/2, vW, vH);
+            mCtx.clearRect(0,0,140,140); let scale = 140/WORLD_SIZE;
+            
+            // Map bounds
+            mCtx.fillStyle = "#4ade80"; mCtx.fillRect(0,0,140,140);
+            
+            // Track loop
+            mCtx.strokeStyle = "#475569"; mCtx.strokeRect(800*scale, 800*scale, 2400*scale, 2400*scale);
+
+            // Bus & Trains
+            mCtx.fillStyle = "#f59e0b"; mCtx.beginPath(); mCtx.arc(schoolBus.x*scale, schoolBus.y*scale, 4, 0, Math.PI*2); mCtx.fill();
+            trains.forEach(t => { mCtx.fillStyle = "#ef4444"; mCtx.beginPath(); mCtx.arc(t.x*scale, t.y*scale, 3, 0, Math.PI*2); mCtx.fill(); });
+
+            // Camera View
+            mCtx.strokeStyle = "#fff"; mCtx.lineWidth = 1;
+            let vW = (canvas.width/cam.zoom)*scale, vH = (canvas.height/cam.zoom)*scale;
+            mCtx.strokeRect((cam.x*scale)-vW/2, (cam.y*scale)-vH/2, vW, vH);
         }
 
         // ==========================================
-        // 8. MAIN LOOP
+        // 8. MAIN ANIMATION LOOP
         // ==========================================
-        let lastTime = performance.now();
         function animate(time) {
             let dt = time - lastTime; lastTime = time;
             
-            updateTime(dt); updateLights(dt); updateTrain(dt); updateCars(dt);
+            updateTime(dt); updateSchoolBus(); updateCars(dt); updateTrains();
             
-            if(followedTarget) { 
-                cam.x = followedTarget.x; cam.y = followedTarget.y; 
-                document.getElementById('fSpeed').innerText = Math.round((followedTarget.speed||followedTarget.s) * 10);
-                document.getElementById('fAction').innerText = (followedTarget.state || followedTarget.id);
-            }
+            if(followedTarget) { cam.x = followedTarget.x; cam.y = followedTarget.y; }
 
             ctx.clearRect(0,0,canvas.width,canvas.height);
             ctx.save(); ctx.translate(canvas.width/2, canvas.height/2); ctx.scale(cam.zoom, cam.zoom); ctx.translate(-cam.x, -cam.y);
             
-            drawWorld(); drawParticles(); drawCars(); drawTrains();
+            drawWorld();
             
-            if(isRainy) { ctx.fillStyle="rgba(255,255,255,0.4)"; rain.forEach(r => { let rx = cam.x - (canvas.width/2)/cam.zoom + r.x/cam.zoom; let ry = cam.y - (canvas.height/2)/cam.zoom + r.y/cam.zoom; ctx.fillRect(rx, ry, 2, r.s); r.y += 30; if(r.y > canvas.height) { r.y = 0; r.x = Math.random()*canvas.width; } }); }
-            if(isNight) { ctx.fillStyle="rgba(0,5,20,0.6)"; ctx.fillRect(0,0,WORLD_SIZE,WORLD_SIZE); }
-            
+            if(isNight) { ctx.fillStyle = "rgba(0,10,30,0.7)"; ctx.fillRect(0,0,WORLD_SIZE,WORLD_SIZE); }
             ctx.restore(); drawMinimap();
+            
             requestAnimationFrame(animate);
         }
         requestAnimationFrame(animate);
