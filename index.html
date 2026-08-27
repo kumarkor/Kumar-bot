@@ -2,191 +2,183 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>Realistic Train Simulation</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Railway Junction Map</title>
     <style>
-        /* =========================================
-           UI & BACKGROUND
-        ========================================= */
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { 
-            background: #0f172a; 
-            display: flex; 
-            justify-content: center; 
-            align-items: center; 
-            height: 100vh; 
-            overflow: hidden; 
-            font-family: sans-serif;
+            background: #1e272e; /* नकाश्याचा डार्क रंग */
+            display: flex; justify-content: center; align-items: center; 
+            height: 100vh; overflow: hidden; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         }
         
         canvas { 
-            background: linear-gradient(to bottom, #111, #222); 
-            max-width: 450px; 
-            width: 100%; 
-            height: 100vh; 
-            box-shadow: 0 0 30px rgba(0,0,0,0.8);
+            background: #2f3640; /* जमिनीचा रंग */
+            display: block; width: 100%; height: 100vh;
         }
 
-        .hint-text {
+        .map-ui {
             position: absolute;
-            top: 40px;
-            color: rgba(255, 255, 255, 0.6);
-            font-size: 14px;
-            letter-spacing: 1px;
+            top: 20px; left: 20px;
+            background: rgba(0, 0, 0, 0.7);
+            color: #fff; padding: 15px 20px;
+            border-radius: 12px; border: 1px solid #7f8fa6;
             pointer-events: none;
-            text-align: center;
         }
+        .map-ui h1 { font-size: 18px; color: #00a8ff; margin-bottom: 5px; }
+        .map-ui p { font-size: 12px; color: #dcdde1; }
+        
+        .legend { margin-top: 10px; font-size: 11px; }
+        .legend-item { display: flex; align-items: center; margin-top: 5px; }
+        .box { width: 12px; height: 12px; margin-right: 8px; border-radius: 3px; }
     </style>
 </head>
 <body>
 
-    <div class="hint-text">👈 Tap Left &nbsp;|&nbsp; Tap Right 👉</div>
-    <canvas id="trainCanvas"></canvas>
+    <!-- नकाश्यावर दिसणारी माहिती -->
+    <div class="map-ui">
+        <h1>🛤️ Central Junction Map</h1>
+        <p>Live Train Tracking Simulation</p>
+        <div class="legend">
+            <div class="legend-item"><div class="box" style="background: #e84118;"></div> Superfast Express</div>
+            <div class="legend-item"><div class="box" style="background: #00a8ff;"></div> City Local Train</div>
+            <div class="legend-item"><div class="box" style="background: #4cd137;"></div> Goods Train (मालगाडी)</div>
+            <div class="legend-item"><div class="box" style="background: #fbc531;"></div> Passenger Train</div>
+        </div>
+    </div>
+
+    <!-- मुख्य नकाशा -->
+    <canvas id="mapCanvas"></canvas>
 
     <script>
-        const canvas = document.getElementById("trainCanvas");
+        const canvas = document.getElementById("mapCanvas");
         const ctx = canvas.getContext("2d");
 
-        // कॅन्व्हसची साईझ सेट करणे
+        let cw, ch;
         function resize() {
-            canvas.width = Math.min(window.innerWidth, 450);
-            canvas.height = window.innerHeight;
+            cw = window.innerWidth;
+            ch = window.innerHeight;
+            canvas.width = cw;
+            canvas.height = ch;
         }
         window.addEventListener('resize', resize);
         resize();
 
-        // ----------------------------------------
-        // Variables (ट्रेन आणि ट्रॅकची माहिती)
-        // ----------------------------------------
-        const lanes = 3; // ३ रुळ
-        let currentLane = 1; // ट्रेन सुरुवातीला मधल्या रुळावर (0, 1, 2)
-        let trackOffset = 0; // रुळ पळण्यासाठी
-        const trainSpeed = 12; // ट्रेनचा स्पीड (रुळ मागे जाण्याचा वेग)
-        
-        const trainW = 60; // ट्रेनची रुंदी
-        const trainH = 120; // ट्रेनची लांबी
-        let trainX = 0; // ट्रेनची जागा (X-axis)
+        // ==========================================
+        // १. ट्रेन्सचा डेटा (४ वेगवेगळ्या ट्रेन्स)
+        // ==========================================
+        const trains = [
+            { id: 1, type: "Express", color: "#e84118", x: -200, y: 0, vx: 3, vy: 0, coaches: 6 }, // डावीकडून उजवीकडे (जलद)
+            { id: 2, type: "Local", color: "#00a8ff", x: cw + 300, y: 0, vx: -2, vy: 0, coaches: 4 }, // उजवीकडून डावीकडे (मध्यम)
+            { id: 3, type: "Goods", color: "#4cd137", x: 0, y: -400, vx: 0, vy: 1.5, coaches: 10 }, // वरून खाली (मालगाडी - संथ आणि मोठी)
+            { id: 4, type: "Passenger", color: "#fbc531", x: 0, y: ch + 200, vx: 0, vy: -2.5, coaches: 5 } // खालून वर
+        ];
 
-        // रुळाचा मध्यभाग शोधणे
-        function getLaneCenter(laneIndex) {
-            const laneWidth = canvas.width / lanes;
-            return (laneIndex * laneWidth) + (laneWidth / 2);
-        }
+        // ==========================================
+        // २. नकाशा आणि रूळ काढणे (Draw Map & Tracks)
+        // ==========================================
+        function drawMap() {
+            // ट्रॅक्सची पोझिशन सेट करणे (स्क्रीनच्या मध्यभागी)
+            trains[0].trackY = ch * 0.35; // आडवा ट्रॅक १
+            trains[1].trackY = ch * 0.65; // आडवा ट्रॅक २
+            trains[2].trackX = cw * 0.30; // उभा ट्रॅक १
+            trains[3].trackX = cw * 0.70; // उभा ट्रॅक २
 
-        // ----------------------------------------
-        // १. पळणारे रुळ काढणे (Draw Tracks)
-        // ----------------------------------------
-        function drawTracks() {
-            const laneWidth = canvas.width / lanes;
-            
-            // उभ्या लाईन्स (Tracks)
-            ctx.strokeStyle = "#475569";
             ctx.lineWidth = 4;
-            for (let i = 1; i < lanes; i++) {
-                ctx.beginPath();
-                ctx.moveTo(i * laneWidth, 0);
-                ctx.lineTo(i * laneWidth, canvas.height);
-                ctx.stroke();
-            }
-
-            // आडव्या लाईन्स (Sleepers) ज्या मागे पळतात
-            trackOffset += trainSpeed;
-            if (trackOffset > 80) trackOffset = 0;
             
-            ctx.strokeStyle = "#334155";
-            ctx.lineWidth = 8;
-            for (let y = trackOffset - 80; y < canvas.height; y += 80) {
-                ctx.beginPath();
-                ctx.moveTo(0, y);
-                ctx.lineTo(canvas.width, y);
-                ctx.stroke();
-            }
+            // आडवे रूळ काढणे
+            [trains[0].trackY, trains[1].trackY].forEach(y => {
+                // लाकडी पट्ट्या (Sleepers)
+                ctx.strokeStyle = "#718093"; ctx.lineWidth = 2;
+                for(let i=0; i<cw; i+=20) { ctx.beginPath(); ctx.moveTo(i, y-12); ctx.lineTo(i, y+12); ctx.stroke(); }
+                // लोखंडी रूळ
+                ctx.strokeStyle = "#dcdde1"; ctx.lineWidth = 3;
+                ctx.beginPath(); ctx.moveTo(0, y-8); ctx.lineTo(cw, y-8); ctx.stroke();
+                ctx.beginPath(); ctx.moveTo(0, y+8); ctx.lineTo(cw, y+8); ctx.stroke();
+            });
+
+            // उभे रूळ काढणे
+            [trains[2].trackX, trains[3].trackX].forEach(x => {
+                // लाकडी पट्ट्या (Sleepers)
+                ctx.strokeStyle = "#718093"; ctx.lineWidth = 2;
+                for(let i=0; i<ch; i+=20) { ctx.beginPath(); ctx.moveTo(x-12, i); ctx.lineTo(x+12, i); ctx.stroke(); }
+                // लोखंडी रूळ
+                ctx.strokeStyle = "#dcdde1"; ctx.lineWidth = 3;
+                ctx.beginPath(); ctx.moveTo(x-8, 0); ctx.lineTo(x-8, ch); ctx.stroke();
+                ctx.beginPath(); ctx.moveTo(x+8, 0); ctx.lineTo(x+8, ch); ctx.stroke();
+            });
         }
 
-        // ----------------------------------------
-        // २. ट्रेन काढणे आणि स्मूथ सरकवणे
-        // ----------------------------------------
-        function drawTrain() {
-            // ✨ इथं आहे ती जादू: ट्रेनला एका रुळावरून दुसऱ्या रुळावर स्मूथली (Animation) सरकवणे
-            let targetX = getLaneCenter(currentLane) - (trainW / 2);
-            trainX += (targetX - trainX) * 0.15; // 0.15 मुळे ट्रेन हळूवार स्लाइड होते
-            
-            let trainY = canvas.height - trainH - 60; // ट्रेन स्क्रीनच्या खाली असेल
+        // ==========================================
+        // ३. ट्रेन्स आणि डबे काढणे (Draw Trains)
+        // ==========================================
+        function drawTrains() {
+            const coachLen = 35; // डब्याची लांबी
+            const coachWid = 14; // डब्याची रुंदी
+            const gap = 4; // डब्यांमधलं अंतर
 
-            // ट्रेनचा मुख्य डबा
-            ctx.fillStyle = "#38bdf8"; 
-            ctx.beginPath();
-            ctx.roundRect(trainX, trainY, trainW, trainH, 10);
-            ctx.fill();
-            
-            // ट्रेनचं छत (Roof effect)
-            ctx.fillStyle = "#0284c7";
-            ctx.fillRect(trainX + 8, trainY, trainW - 16, trainH);
-            
-            // ड्रायव्हरची काच (Window)
-            ctx.fillStyle = "#e0f2fe";
-            ctx.beginPath();
-            ctx.roundRect(trainX + 12, trainY + 25, trainW - 24, 35, 5);
-            ctx.fill();
-            
-            // पिवळा हेडलाईट (Headlight)
-            ctx.fillStyle = "#fbbf24";
-            ctx.beginPath();
-            ctx.arc(trainX + trainW / 2, trainY + 10, 8, 0, Math.PI * 2);
-            ctx.fill();
-            
-            // हेडलाईटचा प्रकाश (Glow Effect)
-            let gradient = ctx.createRadialGradient(trainX + trainW/2, trainY+10, 5, trainX + trainW/2, trainY - 80, 60);
-            gradient.addColorStop(0, "rgba(251, 191, 36, 0.6)");
-            gradient.addColorStop(1, "rgba(251, 191, 36, 0)");
-            ctx.fillStyle = gradient;
-            ctx.beginPath();
-            ctx.moveTo(trainX + trainW/2 - 10, trainY + 10);
-            ctx.lineTo(trainX + trainW/2 - 50, trainY - 80);
-            ctx.lineTo(trainX + trainW/2 + 50, trainY - 80);
-            ctx.lineTo(trainX + trainW/2 + 10, trainY + 10);
-            ctx.fill();
+            trains.forEach(t => {
+                // ट्रेनला पुढे सरकवणे
+                t.x += t.vx;
+                t.y += t.vy;
+
+                // ट्रेन आडवी धावत आहे की उभी, ते चेक करणे
+                let isHorizontal = Math.abs(t.vx) > 0;
+                
+                // ट्रॅक सेट करणे
+                let currentX = isHorizontal ? t.x : t.trackX;
+                let currentY = isHorizontal ? t.trackY : t.y;
+
+                // इंजिन आणि डबे काढणे
+                for (let i = 0; i <= t.coaches; i++) {
+                    let drawX = currentX;
+                    let drawY = currentY;
+
+                    // डबे इंजिनच्या मागे कसे लावायचे? (दिशेनुसार)
+                    if (t.vx > 0) drawX -= i * (coachLen + gap); // उजवीकडे जात असेल तर डबे डावीकडे
+                    else if (t.vx < 0) drawX += i * (coachLen + gap); // डावीकडे जात असेल तर डबे उजवीकडे
+                    
+                    if (t.vy > 0) drawY -= i * (coachLen + gap); // खाली जात असेल तर डबे वरती
+                    else if (t.vy < 0) drawY += i * (coachLen + gap); // वर जात असेल तर डबे खाली
+
+                    ctx.fillStyle = (i === 0) ? "#f5f6fa" : t.color; // पहिला डबा इंजिन (पांढरा)
+                    
+                    // डबा काढणे (आडवा किंवा उभा)
+                    if (isHorizontal) {
+                        ctx.fillRect(drawX - coachLen/2, drawY - coachWid/2, coachLen, coachWid);
+                        // खिडक्या (Windows)
+                        if(i !== 0) { ctx.fillStyle = "#2f3640"; ctx.fillRect(drawX - coachLen/4, drawY - 2, coachLen/2, 4); }
+                    } else {
+                        ctx.fillRect(drawX - coachWid/2, drawY - coachLen/2, coachWid, coachLen);
+                        // खिडक्या (Windows)
+                        if(i !== 0) { ctx.fillStyle = "#2f3640"; ctx.fillRect(drawX - 2, drawY - coachLen/4, 4, coachLen/2); }
+                    }
+                }
+
+                // ==========================================
+                // ४. स्क्रीनच्या बाहेर गेल्यावर ट्रेन पुन्हा आणणे
+                // ==========================================
+                let totalLength = (t.coaches + 1) * (coachLen + gap);
+                
+                if (t.vx > 0 && t.x - totalLength > cw) t.x = -100;
+                if (t.vx < 0 && t.x + totalLength < 0) t.x = cw + 100;
+                
+                if (t.vy > 0 && t.y - totalLength > ch) t.y = -100;
+                if (t.vy < 0 && t.y + totalLength < 0) t.y = ch + 100;
+            });
         }
 
-        // ----------------------------------------
-        // ३. मुख्य ॲनिमेशन लूप (Main Engine)
-        // ----------------------------------------
+        // ==========================================
+        // ५. ॲनिमेशन इंजिन (Loop)
+        // ==========================================
         function animate() {
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-            drawTracks();
-            drawTrain();
+            ctx.clearRect(0, 0, cw, ch);
+            drawMap();    // आधी नकाशा आणि रूळ काढा
+            drawTrains(); // त्यावर ट्रेन्स पळवा
             requestAnimationFrame(animate);
         }
 
-        // ----------------------------------------
-        // ४. कंट्रोल्स (स्क्रीनवर टॅप केल्यावर ट्रॅक बदलणे)
-        // ----------------------------------------
-        function changeTrack(clientX) {
-            let rect = canvas.getBoundingClientRect();
-            let clickX = clientX - rect.left;
-            
-            // डावीकडे दाबलं तर डावीकडे, उजवीकडे दाबलं तर उजवीकडे
-            if (clickX < canvas.width / 2 && currentLane > 0) {
-                currentLane--;
-            } else if (clickX >= canvas.width / 2 && currentLane < lanes - 1) {
-                currentLane++;
-            }
-        }
-
-        // मोबाईलसाठी (Touch)
-        window.addEventListener("touchstart", (e) => changeTrack(e.touches[0].clientX));
-        // कॉम्प्युटरसाठी (Mouse Click)
-        window.addEventListener("mousedown", (e) => changeTrack(e.clientX));
-        // कीबोर्डसाठी (Arrow Keys)
-        window.addEventListener("keydown", (e) => {
-            if (e.key === "ArrowLeft" && currentLane > 0) currentLane--;
-            if (e.key === "ArrowRight" && currentLane < lanes - 1) currentLane++;
-        });
-
-        // ट्रेनची सुरुवातीची जागा सेट करणे आणि इंजिन चालू करणे
-        trainX = getLaneCenter(currentLane) - (trainW / 2);
-        animate();
-
+        animate(); // सिस्टीम चालू!
     </script>
 </body>
 </html>
