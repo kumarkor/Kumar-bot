@@ -3,31 +3,24 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>80K Mega Cities - Real Junction Simulator</title>
+    <title>Mega Railway & City Simulator</title>
     <style>
-        /* =========================================================================
-           CLEAN, SMALL UI & BRIGHT STYLE
-        ========================================================================= */
         * { margin: 0; padding: 0; box-sizing: border-box; user-select: none; font-family: 'Segoe UI', Tahoma, sans-serif; }
         body { background: #4ade80; overflow: hidden; touch-action: none; }
         canvas { display: block; width: 100vw; height: 100vh; cursor: crosshair; }
         
-        /* Small, Unintrusive UI */
-        .mini-hud { position: absolute; top: 10px; left: 10px; background: rgba(255, 255, 255, 0.9); padding: 10px 15px; border-radius: 8px; border: 2px solid #3b82f6; box-shadow: 0 4px 10px rgba(0,0,0,0.2); z-index: 10; width: 220px; }
+        .mini-hud { position: absolute; top: 10px; left: 10px; background: rgba(255, 255, 255, 0.95); padding: 10px 15px; border-radius: 8px; border: 2px solid #3b82f6; box-shadow: 0 4px 10px rgba(0,0,0,0.2); z-index: 10; width: 220px; }
         .hud-title { font-size: 14px; font-weight: 900; color: #1e293b; margin-bottom: 5px; }
-        .hud-clock { font-size: 20px; font-weight: bold; color: #2563eb; margin-bottom: 10px; text-align: center; background: #e0f2fe; padding: 4px; border-radius: 4px; border: 1px solid #bfdbfe; }
+        .hud-clock { font-size: 20px; font-weight: bold; color: #2563eb; margin-bottom: 8px; text-align: center; background: #e0f2fe; padding: 4px; border-radius: 4px; border: 1px solid #bfdbfe; }
         
         .btn { width: 100%; background: #3b82f6; color: white; border: none; padding: 6px; border-radius: 4px; font-size: 11px; font-weight: bold; cursor: pointer; margin-bottom: 5px; }
         .btn:hover { background: #2563eb; }
-        
         .hint { font-size: 9px; color: #64748b; text-align: center; margin-top: 5px; }
 
-        /* Follow Panel */
-        #followPanel { display: none; position: absolute; bottom: 20px; left: 20px; background: rgba(255, 255, 255, 0.9); border-left: 4px solid #ef4444; padding: 10px 15px; border-radius: 6px; box-shadow: 0 2px 10px rgba(0,0,0,0.2); z-index: 10; }
+        #followPanel { display: none; position: absolute; bottom: 20px; left: 20px; background: rgba(255, 255, 255, 0.95); border-left: 4px solid #ef4444; padding: 10px 15px; border-radius: 6px; box-shadow: 0 2px 10px rgba(0,0,0,0.2); z-index: 10; }
         .t-name { font-size: 12px; font-weight: bold; color: #1e293b; }
         .t-status { font-size: 11px; color: #10b981; font-weight: bold; margin-top: 3px; }
 
-        /* Minimap */
         .radar { position: absolute; bottom: 20px; right: 20px; width: 150px; height: 150px; background: #f8fafc; border: 2px solid #94a3b8; border-radius: 8px; z-index: 10; overflow: hidden; box-shadow: 0 4px 10px rgba(0,0,0,0.2); }
         #radarCanvas { width: 100%; height: 100%; }
     </style>
@@ -35,11 +28,11 @@
 <body>
 
     <div class="mini-hud">
-        <div class="hud-title">🏙️ 80K Mega Nations</div>
+        <div class="hud-title">🚆 Mega Train Network</div>
         <div class="hud-clock" id="clock">08:00</div>
-        <button class="btn" onclick="timeSpeed = timeSpeed === 1 ? 10 : 1">⏩ Fast Time</button>
+        <button class="btn" onclick="timeSpeed = timeSpeed === 1 ? 5 : 1">⏩ Fast Time</button>
         <button class="btn" onclick="unfollow()" style="background:#ef4444;">🌍 Free Camera</button>
-        <div class="hint">Infinite Zoom: Scroll/Pinch<br>Pan: Drag | Follow: Click</div>
+        <div class="hint">Zoom: Scroll/Pinch | Pan: Drag | Click Train to Follow</div>
     </div>
 
     <div id="followPanel">
@@ -51,19 +44,13 @@
     <canvas id="gameCanvas"></canvas>
 
     <script>
-        // =========================================================================
-        // ENGINE, 80,000x80,000 WORLD & CAMERA
-        // =========================================================================
         const canvas = document.getElementById("gameCanvas");
         const ctx = canvas.getContext("2d", { alpha: false });
         const rCanvas = document.getElementById("radarCanvas");
         const rCtx = rCanvas.getContext("2d");
 
-        // THE MASSIVE 80,000 MAP
-        const W_SIZE = 80000; 
-        
-        // Camera supports INFINITE ZOOM (0.005 lets you see the whole 80k map!)
-        let cam = { x: 40000, y: 40000, zoom: 0.05 }; 
+        const W_SIZE = 60000; 
+        let cam = { x: 30000, y: 30000, zoom: 0.08 }; 
         let isDragging = false, startX, startY, camStartX, camStartY;
         let followedTarget = null;
         let timeSpeed = 1;
@@ -76,9 +63,7 @@
         canvas.addEventListener('mousedown', e => { isDragging = true; startX = e.clientX; startY = e.clientY; camStartX = cam.x; camStartY = cam.y; unfollow(); });
         window.addEventListener('mouseup', () => isDragging = false);
         window.addEventListener('mousemove', e => { if(isDragging) { cam.x = camStartX - (e.clientX - startX)/cam.zoom; cam.y = camStartY - (e.clientY - startY)/cam.zoom; } });
-        
-        // UNLIMITED ZOOM LIMITS
-        canvas.addEventListener('wheel', e => { e.preventDefault(); cam.zoom = Math.min(Math.max(0.005, cam.zoom * (e.deltaY > 0 ? 0.85 : 1.15)), 5.0); });
+        canvas.addEventListener('wheel', e => { e.preventDefault(); cam.zoom = Math.min(Math.max(0.01, cam.zoom * (e.deltaY > 0 ? 0.85 : 1.15)), 4.0); });
 
         let initPinch = null, initZoom = null;
         canvas.addEventListener('touchstart', e => {
@@ -86,107 +71,105 @@
             else if(e.touches.length === 2) { initPinch = Math.hypot(e.touches[0].clientX-e.touches[1].clientX, e.touches[0].clientY-e.touches[1].clientY); initZoom = cam.zoom; }
         });
         window.addEventListener('touchend', () => { isDragging = false; initPinch = null; });
-        window.addEventListener('touchmove', e => {
+        canvas.addEventListener('touchmove', e => {
             if(e.touches.length === 1 && isDragging && !initPinch) { cam.x = camStartX - (e.touches[0].clientX - startX)/cam.zoom; cam.y = camStartY - (e.touches[0].clientY - startY)/cam.zoom; }
-            else if(e.touches.length === 2 && initPinch) { let dist = Math.hypot(e.touches[0].clientX-e.touches[1].clientX, e.touches[0].clientY-e.touches[1].clientY); cam.zoom = Math.min(Math.max(0.005, initZoom * (dist/initPinch)), 5.0); }
+            else if(e.touches.length === 2 && initPinch) { let dist = Math.hypot(e.touches[0].clientX-e.touches[1].clientX, e.touches[0].clientY-e.touches[1].clientY); cam.zoom = Math.min(Math.max(0.01, initZoom * (dist/initPinch)), 4.0); }
         });
 
         // =========================================================================
-        // 4 MEGA CITIES GENERATOR (Procedural Data)
+        // RAILWAY GRAPH & TRACK EDGES (THICK & CLEAR)
         // =========================================================================
-        const cities = [
-            { id: "C1", name: "North-West Metro", x: 20000, y: 20000, color: "#ef4444", radius: 8000 },
-            { id: "C2", name: "North-East Hub", x: 60000, y: 20000, color: "#3b82f6", radius: 7000 },
-            { id: "C3", name: "South-West City", x: 20000, y: 60000, color: "#f59e0b", radius: 6000 },
-            { id: "C4", name: "South-East Capital", x: 60000, y: 60000, color: "#8b5cf6", radius: 9000 },
-            { id: "HUB", name: "Central Junction", x: 40000, y: 40000, color: "#1e293b", radius: 4000 } // Center connection
-        ];
-
-        // Massive Environment Arrays
-        const homes = [], trees = [], lakes = [];
-
-        // Generate City Details (Clean Flat 2D)
-        cities.forEach(city => {
-            // Homes around city
-            for(let i=0; i<800; i++) {
-                let ang = Math.random() * Math.PI * 2;
-                let dist = Math.random() * city.radius;
-                homes.push({ x: city.x + Math.cos(ang)*dist, y: city.y + Math.sin(ang)*dist, w: 150+Math.random()*150, h: 150+Math.random()*150, c: ["#f8fafc", "#e2e8f0", "#cbd5e1"][Math.floor(Math.random()*3)], roof: city.color });
-            }
-            // Lakes
-            for(let i=0; i<3; i++) lakes.push({ x: city.x + (Math.random()-0.5)*15000, y: city.y + (Math.random()-0.5)*15000, r: 800+Math.random()*1500 });
-        });
-        
-        // Forests (Fill empty spaces)
-        for(let i=0; i<5000; i++) { trees.push({ x: Math.random()*W_SIZE, y: Math.random()*W_SIZE, r: 60+Math.random()*80, c: Math.random()>0.5?"#16a34a":"#15803d" }); }
-
-        // =========================================================================
-        // GRAPH-BASED RAILWAY SYSTEM (TRUE MERGING TRACKS & SIGNALS)
-        // =========================================================================
-        // Nodes are points on the map. Trains move from Node to Node.
         const rNodes = {
-            "NW_Stn": { x: 20000, y: 20000, isStn: true, name: "NW Metro Station", links: ["NW_Out"] },
-            "NW_Out": { x: 30000, y: 30000, isStn: false, links: ["NW_Stn", "Center_In_Top"] },
+            "NW_Stn": { x: 15000, y: 15000, isStn: true, name: "North-West Station", links: ["NW_Out"] },
+            "NW_Out": { x: 25000, y: 25000, isStn: false, links: ["NW_Stn", "Center_Top"] },
             
-            "NE_Stn": { x: 60000, y: 20000, isStn: true, name: "NE Hub Station", links: ["NE_Out"] },
-            "NE_Out": { x: 50000, y: 30000, isStn: false, links: ["NE_Stn", "Center_In_Top"] },
+            "NE_Stn": { x: 45000, y: 15000, isStn: true, name: "North-East Station", links: ["NE_Out"] },
+            "NE_Out": { x: 35000, y: 25000, isStn: false, links: ["NE_Stn", "Center_Top"] },
 
-            "SW_Stn": { x: 20000, y: 60000, isStn: true, name: "SW City Station", links: ["SW_Out"] },
-            "SW_Out": { x: 30000, y: 50000, isStn: false, links: ["SW_Stn", "Center_In_Bot"] },
+            "SW_Stn": { x: 15000, y: 45000, isStn: true, name: "South-West Station", links: ["SW_Out"] },
+            "SW_Out": { x: 25000, y: 35000, isStn: false, links: ["SW_Stn", "Center_Bot"] },
 
-            "SE_Stn": { x: 60000, y: 60000, isStn: true, name: "SE Capital Station", links: ["SE_Out"] },
-            "SE_Out": { x: 50000, y: 50000, isStn: false, links: ["SE_Stn", "Center_In_Bot"] },
+            "SE_Stn": { x: 45000, y: 45000, isStn: true, name: "South-East Station", links: ["SE_Out"] },
+            "SE_Out": { x: 35000, y: 35000, isStn: false, links: ["SE_Stn", "Center_Bot"] },
 
-            // CENTRAL JUNCTION (WHERE TRACKS MERGE)
-            "Center_In_Top": { x: 40000, y: 35000, isStn: false, links: ["NW_Out", "NE_Out", "Center_Hub"] },
-            "Center_In_Bot": { x: 40000, y: 45000, isStn: false, links: ["SW_Out", "SE_Out", "Center_Hub"] },
-            "Center_Hub": { x: 40000, y: 40000, isStn: true, name: "CENTRAL MEGA JUNCTION", links: ["Center_In_Top", "Center_In_Bot", "Center_East", "Center_West"] },
+            // CENTRAL JUNCTION
+            "Center_Top": { x: 30000, y: 27000, isStn: false, links: ["NW_Out", "NE_Out", "Center_Hub"] },
+            "Center_Bot": { x: 30000, y: 33000, isStn: false, links: ["SW_Out", "SE_Out", "Center_Hub"] },
+            "Center_Hub": { x: 30000, y: 30000, isStn: true, name: "CENTRAL MEGA JUNCTION", links: ["Center_Top", "Center_Bot", "Center_East", "Center_West"] },
             
-            // Loop lines connecting center out
-            "Center_East": { x: 48000, y: 40000, isStn: false, links: ["Center_Hub", "NE_Out", "SE_Out"] },
-            "Center_West": { x: 32000, y: 40000, isStn: false, links: ["Center_Hub", "NW_Out", "SW_Out"] }
+            "Center_East": { x: 38000, y: 30000, isStn: false, links: ["Center_Hub", "NE_Out", "SE_Out"] },
+            "Center_West": { x: 22000, y: 30000, isStn: false, links: ["Center_Hub", "NW_Out", "SW_Out"] }
         };
 
-        // Initialize node tracking properties
         Object.values(rNodes).forEach(n => { n.occupiedBy = null; });
 
-        // Generate exact paths for rendering tracks
         const trackEdges = [];
         const drawnEdges = new Set();
         Object.values(rNodes).forEach(n1 => {
             n1.links.forEach(linkId => {
                 let n2 = rNodes[linkId];
-                let edgeId1 = `${n1.x},${n1.y}-${n2.x},${n2.y}`;
-                let edgeId2 = `${n2.x},${n2.y}-${n1.x},${n1.y}`;
-                if(!drawnEdges.has(edgeId1) && !drawnEdges.has(edgeId2)) {
+                let e1 = `${n1.x},${n1.y}-${n2.x},${n2.y}`, e2 = `${n2.x},${n2.y}-${n1.x},${n1.y}`;
+                if(!drawnEdges.has(e1) && !drawnEdges.has(e2)) {
                     trackEdges.push({x1: n1.x, y1: n1.y, x2: n2.x, y2: n2.y});
-                    drawnEdges.add(edgeId1);
+                    drawnEdges.add(e1);
                 }
             });
         });
 
+        // Helper to check if a point is too close to any track edge (so homes don't spawn on tracks)
+        function isNearTrack(x, y) {
+            for(let e of trackEdges) {
+                let l2 = (e.x2-e.x1)*(e.x2-e.x1) + (e.y2-e.y1)*(e.y2-e.y1);
+                if (l2 === 0) continue;
+                let t = ((x - e.x1) * (e.x2 - e.x1) + (y - e.y1) * (e.y2 - e.y1)) / l2;
+                t = Math.max(0, Math.min(1, t));
+                let projX = e.x1 + t * (e.x2 - e.x1);
+                let projY = e.y1 + t * (e.y2 - e.y1);
+                if (Math.hypot(x - projX, y - projY) < 1200) return true; // Safe buffer distance!
+            }
+            return false;
+        }
+
         // =========================================================================
-        // TRAINS & PATHFINDING AI (WAITING AT SIGNALS)
+        // HOMES & CITIES (Safe Zone generation away from tracks)
+        // =========================================================================
+        const homes = [], trees = [];
+        for(let i=0; i<4000; i++) {
+            let hx = Math.random()*W_SIZE, hy = Math.random()*W_SIZE;
+            if(!isNearTrack(hx, hy)) {
+                homes.push({ x: hx, y: hy, w: 200, h: 200, c: "#f8fafc", roof: "#3b82f6" });
+            }
+        }
+        for(let i=0; i<3000; i++) {
+            let tx = Math.random()*W_SIZE, ty = Math.random()*W_SIZE;
+            if(!isNearTrack(tx, ty)) { trees.push({ x: tx, y: ty, r: 80 }); }
+        }
+
+        // =========================================================================
+        // 8 DISTINCT TRAINS 🚂🚃
         // =========================================================================
         const trains = [
-            { id: "Express Red", c: "#ef4444", node: "NW_Stn", target: "NW_Out", path: ["NW_Stn", "NW_Out", "Center_In_Top", "Center_Hub", "Center_In_Bot", "SE_Out", "SE_Stn"], pIdx: 0, x: 20000, y: 20000, s: 60, maxS: 60, coaches: 10, state: "WAIT_STN", waitTimer: 200, a: 0, hist: [] },
-            { id: "Local Blue", c: "#3b82f6", node: "NE_Stn", target: "NE_Out", path: ["NE_Stn", "NE_Out", "Center_In_Top", "Center_Hub", "Center_West", "NW_Out", "NW_Stn"], pIdx: 0, x: 60000, y: 20000, s: 45, maxS: 45, coaches: 6, state: "WAIT_STN", waitTimer: 300, a: 0, hist: [] },
-            { id: "Cargo Green", c: "#10b981", node: "SW_Stn", target: "SW_Out", path: ["SW_Stn", "SW_Out", "Center_In_Bot", "Center_Hub", "Center_East", "NE_Out", "NE_Stn"], pIdx: 0, x: 20000, y: 60000, s: 30, maxS: 30, coaches: 25, state: "WAIT_STN", waitTimer: 100, a: 0, hist: [] },
-            { id: "Bullet White", c: "#ffffff", node: "SE_Stn", target: "SE_Out", path: ["SE_Stn", "SE_Out", "Center_East", "Center_Hub", "Center_West", "SW_Out", "SW_Stn"], pIdx: 0, x: 60000, y: 60000, s: 90, maxS: 90, coaches: 8, state: "WAIT_STN", waitTimer: 400, a: 0, hist: [] }
+            { id: "Express Red", c: "#ef4444", node: "NW_Stn", target: "NW_Out", path: ["NW_Stn", "NW_Out", "Center_Top", "Center_Hub", "Center_In_Bot" || "Center_Bot", "SE_Out", "SE_Stn"], pIdx: 0, x: 15000, y: 15000, s: 70, maxS: 70, coaches: 10, state: "WAIT_STN", waitTimer: 100, a: 0, hist: [] },
+            { id: "Local Blue", c: "#3b82f6", node: "NE_Stn", target: "NE_Out", path: ["NE_Stn", "NE_Out", "Center_Top", "Center_Hub", "Center_West", "NW_Out", "NW_Stn"], pIdx: 0, x: 45000, y: 15000, s: 50, maxS: 50, coaches: 6, state: "WAIT_STN", waitTimer: 200, a: 0, hist: [] },
+            { id: "Cargo Green", c: "#10b981", node: "SW_Stn", target: "SW_Out", path: ["SW_Stn", "SW_Out", "Center_Bot", "Center_Hub", "Center_East", "NE_Out", "NE_Stn"], pIdx: 0, x: 15000, y: 45000, s: 35, maxS: 35, coaches: 25, state: "WAIT_STN", waitTimer: 300, a: 0, hist: [] },
+            { id: "Bullet White", c: "#0f172a", node: "SE_Stn", target: "SE_Out", path: ["SE_Stn", "SE_Out", "Center_East", "Center_Hub", "Center_West", "SW_Out", "SW_Stn"], pIdx: 0, x: 45000, y: 45000, s: 100, maxS: 100, coaches: 8, state: "WAIT_STN", waitTimer: 150, a: 0, hist: [] },
+            { id: "Intercity Orange", c: "#f97316", node: "NW_Stn", target: "NW_Out", path: ["NW_Stn", "NW_Out", "Center_West", "Center_Hub", "Center_East", "NE_Out", "NE_Stn"], pIdx: 0, x: 15000, y: 15000, s: 60, maxS: 60, coaches: 8, state: "WAIT_STN", waitTimer: 400, a: 0, hist: [] },
+            { id: "Metro Purple", c: "#a855f7", node: "SE_Stn", target: "SE_Out", path: ["SE_Stn", "SE_Out", "Center_Bot", "Center_Hub", "Center_Top", "NW_Out", "NW_Stn"], pIdx: 0, x: 45000, y: 45000, s: 55, maxS: 55, coaches: 7, state: "WAIT_STN", waitTimer: 250, a: 0, hist: [] },
+            { id: "Regional Yellow", c: "#eab308", node: "NE_Stn", target: "NE_Out", path: ["NE_Stn", "NE_Out", "Center_Top", "Center_Hub", "Center_Bot", "SW_Out", "SW_Stn"], pIdx: 0, x: 45000, y: 15000, s: 45, maxS: 45, coaches: 9, state: "WAIT_STN", waitTimer: 350, a: 0, hist: [] },
+            { id: "Night Star Cyan", c: "#06b6d4", node: "SW_Stn", target: "SW_Out", path: ["SW_Stn", "SW_Out", "Center_West", "Center_Hub", "Center_East", "SE_Out", "SE_Stn"], pIdx: 0, x: 15000, y: 45000, s: 65, maxS: 65, coaches: 10, state: "WAIT_STN", waitTimer: 180, a: 0, hist: [] }
         ];
 
         canvas.addEventListener('click', e => {
             if(isDragging) return;
             let wx = (e.clientX - canvas.width/2)/cam.zoom + cam.x; let wy = (e.clientY - canvas.height/2)/cam.zoom + cam.y;
             let found = null;
-            trains.forEach(t => { if(Math.hypot(t.x - wx, t.y - wy) < 1500) found = t; });
+            trains.forEach(t => { if(Math.hypot(t.x - wx, t.y - wy) < 2500) found = t; });
             if(found) { followedTarget = found; document.getElementById('followPanel').style.display='block'; document.getElementById('tName').innerText = "🚆 " + found.id; }
         });
         function unfollow() { followedTarget = null; document.getElementById('followPanel').style.display = 'none'; }
 
-        // The Smart Junction AI
+        // Train AI & Red Light Signal Logic
         function updateTrains(dt) {
-            // Reset node occupations
             Object.values(rNodes).forEach(n => { n.occupiedBy = null; });
             trains.forEach(t => { rNodes[t.target].occupiedBy = t.id; rNodes[t.node].occupiedBy = t.id; });
 
@@ -196,18 +179,16 @@
 
                 if(t.state === "WAIT_STN") {
                     t.waitTimer -= dt * timeSpeed;
-                    statusText = "Boarding at Station...";
+                    statusText = "Boarding Station...";
                     if(t.waitTimer <= 0) { 
                         t.state = "RUN"; 
-                        // Reverse path if reached end
                         if(t.pIdx >= t.path.length - 1) { t.path.reverse(); t.pIdx = 0; }
                         t.node = t.path[t.pIdx];
                         t.target = t.path[t.pIdx + 1];
                     }
                 } 
                 else if (t.state === "WAIT_SIGNAL") {
-                    statusText = "🛑 Waiting at Signal (Junction)";
-                    // Check if target node is free now
+                    statusText = "🛑 Red Light (Waiting)";
                     let nextNodeOcc = rNodes[t.target].occupiedBy;
                     if(nextNodeOcc === null || nextNodeOcc === t.id) { t.state = "RUN"; }
                 } 
@@ -217,22 +198,19 @@
                     let moveAmt = t.s * timeSpeed;
 
                     t.hist.unshift({x: t.x, y: t.y, a: t.a});
-                    if(t.hist.length > 300) t.hist.pop(); // Keep enough history for long cargo
+                    if(t.hist.length > 500) t.hist.pop();
 
                     if (dist < moveAmt) {
-                        // Reached node
                         t.x = tNode.x; t.y = tNode.y;
                         t.pIdx++;
                         
                         if(t.pIdx >= t.path.length - 1) {
-                            // Reached final station
-                            t.state = "WAIT_STN"; t.waitTimer = 600; // Wait
+                            t.state = "WAIT_STN"; t.waitTimer = 500;
                         } else {
-                            // Look ahead to next node
                             let nextNodeId = t.path[t.pIdx + 1];
                             let nextNode = rNodes[nextNodeId];
                             
-                            // 🛑 SIGNAL LOGIC: If next node is occupied by someone else, STOP!
+                            // RED LIGHT CHECK
                             if(nextNode.occupiedBy !== null && nextNode.occupiedBy !== t.id) {
                                 t.state = "WAIT_SIGNAL";
                             } else {
@@ -240,7 +218,6 @@
                             }
                         }
                     } else {
-                        // Keep moving
                         t.a = Math.atan2(dy, dx);
                         t.x += Math.cos(t.a) * moveAmt;
                         t.y += Math.sin(t.a) * moveAmt;
@@ -252,98 +229,77 @@
         }
 
         // =========================================================================
-        // RENDERING SYSTEM (Clean 2D, Bright Colors)
+        // RENDERING
         // =========================================================================
-        function inView(x, y, pad=5000) {
+        function inView(x, y, pad=8000) {
             let hw = (canvas.width/2)/cam.zoom, hh = (canvas.height/2)/cam.zoom;
             return (x > cam.x - hw - pad && x < cam.x + hw + pad && y > cam.y - hh - pad && y < cam.y + hh + pad);
         }
 
         function drawWorld() {
-            // Bright Green Ground
             ctx.fillStyle = "#4ade80"; ctx.fillRect(0, 0, W_SIZE, W_SIZE);
 
-            // Lakes
-            ctx.fillStyle = "#38bdf8";
-            lakes.forEach(l => { if(inView(l.x, l.y, l.r)) { ctx.beginPath(); ctx.arc(l.x, l.y, l.r, 0, Math.PI*2); ctx.fill(); }});
-
-            // Clean Flat Homes
+            // Safe Homes (Never overlapping tracks)
             homes.forEach(h => {
                 if(!inView(h.x, h.y, h.w)) return;
-                // Base
                 ctx.fillStyle = h.c; ctx.fillRect(h.x, h.y, h.w, h.h);
-                // Roof (Flat Top aesthetic)
-                ctx.fillStyle = h.roof; ctx.fillRect(h.x, h.y, h.w, h.h*0.3);
-                // Tiny details (door)
-                ctx.fillStyle = "#1e293b"; ctx.fillRect(h.x + h.w/2 - 20, h.y + h.h - 40, 40, 40);
+                ctx.fillStyle = h.roof; ctx.fillRect(h.x, h.y, h.w, h.h * 0.35);
             });
 
-            // Connected Railway Tracks (Drawn globally)
+            // THICK, BOLD TRACKS (मोटा-मोटा रूळ)
             ctx.lineCap = "round";
-            
-            // Wooden Sleepers
-            ctx.beginPath(); ctx.strokeStyle = "#78350f"; ctx.lineWidth = 40; ctx.setLineDash([15, 30]);
+            // Sleepers
+            ctx.beginPath(); ctx.strokeStyle = "#451a03"; ctx.lineWidth = 100; ctx.setLineDash([30, 60]);
             trackEdges.forEach(e => { ctx.moveTo(e.x1, e.y1); ctx.lineTo(e.x2, e.y2); }); ctx.stroke();
-            
-            // Steel Rails
-            ctx.beginPath(); ctx.strokeStyle = "#cbd5e1"; ctx.lineWidth = 48; ctx.setLineDash([]);
+            // Rails
+            ctx.beginPath(); ctx.strokeStyle = "#cbd5e1"; ctx.lineWidth = 120; ctx.setLineDash([]);
             trackEdges.forEach(e => { ctx.moveTo(e.x1, e.y1); ctx.lineTo(e.x2, e.y2); }); ctx.stroke();
-            
-            // Inner track fill (creates 2 rails)
-            ctx.beginPath(); ctx.strokeStyle = "#4ade80"; ctx.lineWidth = 32;
+            // Center track gap
+            ctx.beginPath(); ctx.strokeStyle = "#4ade80"; ctx.lineWidth = 80;
             trackEdges.forEach(e => { ctx.moveTo(e.x1, e.y1); ctx.lineTo(e.x2, e.y2); }); ctx.stroke();
 
-            // Draw Stations (Nodes)
+            // Stations & Red Light Signals 🚥
             Object.values(rNodes).forEach(n => {
                 if(n.isStn) {
-                    ctx.fillStyle = "#1e293b"; ctx.fillRect(n.x - 600, n.y - 300, 1200, 600);
-                    ctx.fillStyle = "#f8fafc"; ctx.font = "bold 150px sans-serif"; ctx.textAlign = "center";
-                    ctx.fillText(n.name, n.x, n.y - 400);
+                    ctx.fillStyle = "#0f172a"; ctx.fillRect(n.x - 1200, n.y - 600, 2400, 1200);
+                    ctx.fillStyle = "#f8fafc"; ctx.font = "bold 250px sans-serif"; ctx.textAlign = "center";
+                    ctx.fillText(n.name, n.x, n.y - 800);
                 }
-                
-                // Draw Signal Lights at Nodes! 🚥
-                if(inView(n.x, n.y, 1000)) {
-                    let isStop = n.occupiedBy !== null;
-                    ctx.fillStyle = "#000"; ctx.fillRect(n.x + 80, n.y - 80, 60, 100);
-                    ctx.fillStyle = isStop ? "#ef4444" : "#10b981"; 
-                    ctx.beginPath(); ctx.arc(n.x + 110, n.y - 30, 25, 0, Math.PI*2); ctx.fill();
+                // Signals
+                if(inView(n.x, n.y, 2000)) {
+                    let isRed = n.occupiedBy !== null;
+                    ctx.fillStyle = "#000"; ctx.fillRect(n.x + 150, n.y - 150, 100, 180);
+                    ctx.fillStyle = isRed ? "#ef4444" : "#10b981"; // Red vs Green Light
+                    ctx.beginPath(); ctx.arc(n.x + 200, n.y - 60, 40, 0, Math.PI*2); ctx.fill();
                 }
             });
 
             // Trees
-            ctx.fillStyle = "#16a34a";
+            ctx.fillStyle = "#15803d";
             trees.forEach(t => { if(inView(t.x, t.y, t.r)) { ctx.beginPath(); ctx.arc(t.x, t.y, t.r, 0, Math.PI*2); ctx.fill(); }});
-
-            // City Area Highlights
-            cities.forEach(c => {
-                ctx.fillStyle = c.color; ctx.globalAlpha = 0.1;
-                ctx.beginPath(); ctx.arc(c.x, c.y, c.radius, 0, Math.PI*2); ctx.fill();
-                ctx.globalAlpha = 1.0;
-                ctx.fillStyle = c.color; ctx.font = "bold 300px sans-serif"; ctx.textAlign = "center";
-                ctx.fillText(`📍 ${c.name}`, c.x, c.y - 1000);
-            });
         }
 
         function drawTrains() {
-            const C_LEN = 200, C_GAP = 20; // Massive scale
+            const C_LEN = 350, C_GAP = 30; // Very large, distinct trains
             trains.forEach(t => {
-                if(!inView(t.x, t.y, 4000)) return;
+                if(!inView(t.x, t.y, 8000)) return;
                 
                 // Engine
                 ctx.save(); ctx.translate(t.x, t.y); ctx.rotate(t.a);
-                ctx.fillStyle = t.c; ctx.beginPath(); ctx.roundRect(-C_LEN/2, -40, C_LEN, 80, 20); ctx.fill();
-                ctx.fillStyle = "#1e293b"; ctx.fillRect(-C_LEN/4, -30, C_LEN/2, 60); // Roof
+                ctx.fillStyle = "rgba(0,0,0,0.4)"; ctx.beginPath(); ctx.roundRect(-C_LEN/2+20, -50+20, C_LEN, 100, 30); ctx.fill(); // Shadow
+                ctx.fillStyle = t.c; ctx.beginPath(); ctx.roundRect(-C_LEN/2, -60, C_LEN, 120, 30); ctx.fill();
+                ctx.fillStyle = "#0f172a"; ctx.fillRect(-C_LEN/4, -40, C_LEN/2, 80); // Roof
                 ctx.restore();
 
-                // Snaking Coaches using history array
+                // Distinct Coaches
                 for (let i = 1; i <= t.coaches; i++) {
                     let hIdx = Math.floor((i * (C_LEN + C_GAP)) / Math.max(t.s, 1));
                     if (hIdx < t.hist.length) {
                         let pos = t.hist[hIdx];
                         ctx.save(); ctx.translate(pos.x, pos.y); ctx.rotate(pos.a);
-                        ctx.fillStyle = t.type==="Cargo" ? "#78350f" : "#94a3b8"; 
-                        ctx.beginPath(); ctx.roundRect(-C_LEN/2, -40, C_LEN, 80, 10); ctx.fill();
-                        if(t.type !== "Cargo") { ctx.fillStyle = "#334155"; ctx.fillRect(-C_LEN/4, -30, C_LEN/2, 60); }
+                        ctx.fillStyle = "rgba(0,0,0,0.4)"; ctx.beginPath(); ctx.roundRect(-C_LEN/2+20, -50+20, C_LEN, 100, 20); ctx.fill();
+                        ctx.fillStyle = "#94a3b8"; ctx.beginPath(); ctx.roundRect(-C_LEN/2, -60, C_LEN, 120, 20); ctx.fill();
+                        ctx.fillStyle = "#1e293b"; ctx.fillRect(-C_LEN/3, -40, C_LEN*2/3, 80);
                         ctx.restore();
                     }
                 }
@@ -353,34 +309,22 @@
         function drawMinimap() {
             rCtx.clearRect(0,0,150,150);
             let sc = 150 / W_SIZE;
+            rCtx.fillStyle = "#4ade80"; rCtx.fillRect(0,0,150,150);
             
-            // Land
-            rCtx.fillStyle = "#bbf7d0"; rCtx.fillRect(0,0,150,150);
-            
-            // Tracks
-            rCtx.strokeStyle = "#475569"; rCtx.lineWidth = 1.5;
+            rCtx.strokeStyle = "#334155"; rCtx.lineWidth = 3;
             trackEdges.forEach(e => { rCtx.beginPath(); rCtx.moveTo(e.x1*sc, e.y1*sc); rCtx.lineTo(e.x2*sc, e.y2*sc); rCtx.stroke(); });
 
-            // Cities
-            cities.forEach(c => { rCtx.fillStyle = c.color; rCtx.beginPath(); rCtx.arc(c.x*sc, c.y*sc, 3, 0, Math.PI*2); rCtx.fill(); });
+            trains.forEach(t => { rCtx.fillStyle = t.c; rCtx.fillRect(t.x*sc - 3, t.y*sc - 3, 6, 6); });
 
-            // Trains
-            trains.forEach(t => { rCtx.fillStyle = t.c; rCtx.fillRect(t.x*sc - 2, t.y*sc - 2, 4, 4); });
-
-            // Camera Box
             rCtx.strokeStyle = "#ef4444"; rCtx.lineWidth = 2;
             let vW = (canvas.width/cam.zoom)*sc, vH = (canvas.height/cam.zoom)*sc;
             rCtx.strokeRect((cam.x*sc) - vW/2, (cam.y*sc) - vH/2, vW, vH);
         }
 
-        // =========================================================================
-        // MAIN LOOP
-        // =========================================================================
         let lastTime = performance.now();
         function animate(time) {
             let dt = time - lastTime; lastTime = time;
             
-            // Update Clock
             gameTime += (dt/1000)*2*timeSpeed; if(gameTime >= 24*60) gameTime = 0;
             let h = Math.floor(gameTime/60).toString().padStart(2,'0'); let m = Math.floor(gameTime%60).toString().padStart(2,'0');
             document.getElementById("clock").innerText = `${h}:${m}`;
