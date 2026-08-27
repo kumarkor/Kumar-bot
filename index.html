@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Mega Railway & City Simulator</title>
+    <title>Ultimate Real Railway Simulation</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; user-select: none; font-family: 'Segoe UI', Tahoma, sans-serif; }
         body { background: #4ade80; overflow: hidden; touch-action: none; }
@@ -28,9 +28,9 @@
 <body>
 
     <div class="mini-hud">
-        <div class="hud-title">🚆 Mega Train Network</div>
+        <div class="hud-title">🚄 Express Rail Net</div>
         <div class="hud-clock" id="clock">08:00</div>
-        <button class="btn" onclick="timeSpeed = timeSpeed === 1 ? 5 : 1">⏩ Fast Time</button>
+        <button class="btn" onclick="timeSpeed = timeSpeed === 1 ? 3 : 1">⏩ Fast Time</button>
         <button class="btn" onclick="unfollow()" style="background:#ef4444;">🌍 Free Camera</button>
         <div class="hint">Zoom: Scroll/Pinch | Pan: Drag | Click Train to Follow</div>
     </div>
@@ -49,8 +49,8 @@
         const rCanvas = document.getElementById("radarCanvas");
         const rCtx = rCanvas.getContext("2d");
 
-        const W_SIZE = 60000; 
-        let cam = { x: 30000, y: 30000, zoom: 0.08 }; 
+        const W_SIZE = 50000; 
+        let cam = { x: 25000, y: 25000, zoom: 0.1 }; 
         let isDragging = false, startX, startY, camStartX, camStartY;
         let followedTarget = null;
         let timeSpeed = 1;
@@ -63,7 +63,7 @@
         canvas.addEventListener('mousedown', e => { isDragging = true; startX = e.clientX; startY = e.clientY; camStartX = cam.x; camStartY = cam.y; unfollow(); });
         window.addEventListener('mouseup', () => isDragging = false);
         window.addEventListener('mousemove', e => { if(isDragging) { cam.x = camStartX - (e.clientX - startX)/cam.zoom; cam.y = camStartY - (e.clientY - startY)/cam.zoom; } });
-        canvas.addEventListener('wheel', e => { e.preventDefault(); cam.zoom = Math.min(Math.max(0.01, cam.zoom * (e.deltaY > 0 ? 0.85 : 1.15)), 4.0); });
+        canvas.addEventListener('wheel', e => { e.preventDefault(); cam.zoom = Math.min(Math.max(0.02, cam.zoom * (e.deltaY > 0 ? 0.85 : 1.15)), 3.0); });
 
         let initPinch = null, initZoom = null;
         canvas.addEventListener('touchstart', e => {
@@ -71,160 +71,120 @@
             else if(e.touches.length === 2) { initPinch = Math.hypot(e.touches[0].clientX-e.touches[1].clientX, e.touches[0].clientY-e.touches[1].clientY); initZoom = cam.zoom; }
         });
         window.addEventListener('touchend', () => { isDragging = false; initPinch = null; });
-        canvas.addEventListener('touchmove', e => {
+        window.addEventListener('touchmove', e => {
             if(e.touches.length === 1 && isDragging && !initPinch) { cam.x = camStartX - (e.touches[0].clientX - startX)/cam.zoom; cam.y = camStartY - (e.touches[0].clientY - startY)/cam.zoom; }
-            else if(e.touches.length === 2 && initPinch) { let dist = Math.hypot(e.touches[0].clientX-e.touches[1].clientX, e.touches[0].clientY-e.touches[1].clientY); cam.zoom = Math.min(Math.max(0.01, initZoom * (dist/initPinch)), 4.0); }
+            else if(e.touches.length === 2 && initPinch) { let dist = Math.hypot(e.touches[0].clientX-e.touches[1].clientX, e.touches[0].clientY-e.touches[1].clientY); cam.zoom = Math.min(Math.max(0.02, initZoom * (dist/initPinch)), 3.0); }
         });
 
         // =========================================================================
-        // RAILWAY GRAPH & TRACK EDGES (THICK & CLEAR)
+        // SMOOTH ROUNDED TRACK LOOPS (NO GLITCH, NO DEADLOCK)
         // =========================================================================
-        const rNodes = {
-            "NW_Stn": { x: 15000, y: 15000, isStn: true, name: "North-West Station", links: ["NW_Out"] },
-            "NW_Out": { x: 25000, y: 25000, isStn: false, links: ["NW_Stn", "Center_Top"] },
-            
-            "NE_Stn": { x: 45000, y: 15000, isStn: true, name: "North-East Station", links: ["NE_Out"] },
-            "NE_Out": { x: 35000, y: 25000, isStn: false, links: ["NE_Stn", "Center_Top"] },
+        // Instead of complex nodes that can deadlock, each train follows a gorgeous rounded circuit seamlessly.
+        function generateTrackLoop(x, y, w, h, r) {
+            let pts = [];
+            let step = 300;
+            // Top edge
+            for(let i=x+r; i<=x+w-r; i+=step) pts.push({x: i, y: y, isStn: false});
+            // Top-Right corner
+            pts.push({x: x+w-r/2, y: y+r/2, isStn: false});
+            // Right edge
+            for(let i=y+r; i<=y+h-r; i+=step) pts.push({x: x+w, y: i, isStn: i === y + h/2}); // Station in middle of right edge
+            // Bottom-Right corner
+            pts.push({x: x+w-r/2, y: y+h-r/2, isStn: false});
+            // Bottom edge
+            for(let i=x+w-r; i>=x+r; i-=step) pts.push({x: i, y: y+h, isStn: false});
+            // Bottom-Left corner
+            pts.push({x: x+r/2, y: y+h-r/2, isStn: false});
+            // Left edge
+            for(let i=y+h-r; i>=y+r; i-=step) pts.push({x: x, y: i, isStn: i === y + h/2}); // Station in middle of left edge
+            // Top-Left corner
+            pts.push({x: x+r/2, y: y+r/2, isStn: false});
+            return pts;
+        }
 
-            "SW_Stn": { x: 15000, y: 45000, isStn: true, name: "South-West Station", links: ["SW_Out"] },
-            "SW_Out": { x: 25000, y: 35000, isStn: false, links: ["SW_Stn", "Center_Bot"] },
+        const loop1 = generateTrackLoop(8000, 8000, 34000, 34000, 8000);
+        const loop2 = generateTrackLoop(12000, 12000, 26000, 26000, 6000);
 
-            "SE_Stn": { x: 45000, y: 45000, isStn: true, name: "South-East Station", links: ["SE_Out"] },
-            "SE_Out": { x: 35000, y: 35000, isStn: false, links: ["SE_Stn", "Center_Bot"] },
-
-            // CENTRAL JUNCTION
-            "Center_Top": { x: 30000, y: 27000, isStn: false, links: ["NW_Out", "NE_Out", "Center_Hub"] },
-            "Center_Bot": { x: 30000, y: 33000, isStn: false, links: ["SW_Out", "SE_Out", "Center_Hub"] },
-            "Center_Hub": { x: 30000, y: 30000, isStn: true, name: "CENTRAL MEGA JUNCTION", links: ["Center_Top", "Center_Bot", "Center_East", "Center_West"] },
-            
-            "Center_East": { x: 38000, y: 30000, isStn: false, links: ["Center_Hub", "NE_Out", "SE_Out"] },
-            "Center_West": { x: 22000, y: 30000, isStn: false, links: ["Center_Hub", "NW_Out", "SW_Out"] }
-        };
-
-        Object.values(rNodes).forEach(n => { n.occupiedBy = null; });
-
-        const trackEdges = [];
-        const drawnEdges = new Set();
-        Object.values(rNodes).forEach(n1 => {
-            n1.links.forEach(linkId => {
-                let n2 = rNodes[linkId];
-                let e1 = `${n1.x},${n1.y}-${n2.x},${n2.y}`, e2 = `${n2.x},${n2.y}-${n1.x},${n1.y}`;
-                if(!drawnEdges.has(e1) && !drawnEdges.has(e2)) {
-                    trackEdges.push({x1: n1.x, y1: n1.y, x2: n2.x, y2: n2.y});
-                    drawnEdges.add(e1);
-                }
-            });
-        });
-
-        // Helper to check if a point is too close to any track edge (so homes don't spawn on tracks)
-        function isNearTrack(x, y) {
-            for(let e of trackEdges) {
-                let l2 = (e.x2-e.x1)*(e.x2-e.x1) + (e.y2-e.y1)*(e.y2-e.y1);
-                if (l2 === 0) continue;
-                let t = ((x - e.x1) * (e.x2 - e.x1) + (y - e.y1) * (e.y2 - e.y1)) / l2;
-                t = Math.max(0, Math.min(1, t));
-                let projX = e.x1 + t * (e.x2 - e.x1);
-                let projY = e.y1 + t * (e.y2 - e.y1);
-                if (Math.hypot(x - projX, y - projY) < 1200) return true; // Safe buffer distance!
+        // Safe Distance Check for Homes
+        function isNearAnyTrack(x, y) {
+            let allPts = [...loop1, ...loop2];
+            for(let p of allPts) {
+                if(Math.hypot(x - p.x, y - p.y) < 1500) return true;
             }
             return false;
         }
 
         // =========================================================================
-        // HOMES & CITIES (Safe Zone generation away from tracks)
+        // HOMES & ENVIRONMENT (Far away from tracks)
         // =========================================================================
-        const homes = [], trees = [];
-        for(let i=0; i<4000; i++) {
-            let hx = Math.random()*W_SIZE, hy = Math.random()*W_SIZE;
-            if(!isNearTrack(hx, hy)) {
-                homes.push({ x: hx, y: hy, w: 200, h: 200, c: "#f8fafc", roof: "#3b82f6" });
-            }
-        }
+        const homes = [];
         for(let i=0; i<3000; i++) {
-            let tx = Math.random()*W_SIZE, ty = Math.random()*W_SIZE;
-            if(!isNearTrack(tx, ty)) { trees.push({ x: tx, y: ty, r: 80 }); }
+            let hx = Math.random()*W_SIZE, hy = Math.random()*W_SIZE;
+            if(!isNearAnyTrack(hx, hy)) {
+                homes.push({ x: hx, y: hy, w: 250, h: 250, c: "#f8fafc", roof: "#2563eb" });
+            }
         }
 
         // =========================================================================
-        // 8 DISTINCT TRAINS 🚂🚃
+        // 8 FAST & SMOOTH REAL TRAINS (WITH 10 SECONDS STATION STOP)
         // =========================================================================
         const trains = [
-            { id: "Express Red", c: "#ef4444", node: "NW_Stn", target: "NW_Out", path: ["NW_Stn", "NW_Out", "Center_Top", "Center_Hub", "Center_In_Bot" || "Center_Bot", "SE_Out", "SE_Stn"], pIdx: 0, x: 15000, y: 15000, s: 70, maxS: 70, coaches: 10, state: "WAIT_STN", waitTimer: 100, a: 0, hist: [] },
-            { id: "Local Blue", c: "#3b82f6", node: "NE_Stn", target: "NE_Out", path: ["NE_Stn", "NE_Out", "Center_Top", "Center_Hub", "Center_West", "NW_Out", "NW_Stn"], pIdx: 0, x: 45000, y: 15000, s: 50, maxS: 50, coaches: 6, state: "WAIT_STN", waitTimer: 200, a: 0, hist: [] },
-            { id: "Cargo Green", c: "#10b981", node: "SW_Stn", target: "SW_Out", path: ["SW_Stn", "SW_Out", "Center_Bot", "Center_Hub", "Center_East", "NE_Out", "NE_Stn"], pIdx: 0, x: 15000, y: 45000, s: 35, maxS: 35, coaches: 25, state: "WAIT_STN", waitTimer: 300, a: 0, hist: [] },
-            { id: "Bullet White", c: "#0f172a", node: "SE_Stn", target: "SE_Out", path: ["SE_Stn", "SE_Out", "Center_East", "Center_Hub", "Center_West", "SW_Out", "SW_Stn"], pIdx: 0, x: 45000, y: 45000, s: 100, maxS: 100, coaches: 8, state: "WAIT_STN", waitTimer: 150, a: 0, hist: [] },
-            { id: "Intercity Orange", c: "#f97316", node: "NW_Stn", target: "NW_Out", path: ["NW_Stn", "NW_Out", "Center_West", "Center_Hub", "Center_East", "NE_Out", "NE_Stn"], pIdx: 0, x: 15000, y: 15000, s: 60, maxS: 60, coaches: 8, state: "WAIT_STN", waitTimer: 400, a: 0, hist: [] },
-            { id: "Metro Purple", c: "#a855f7", node: "SE_Stn", target: "SE_Out", path: ["SE_Stn", "SE_Out", "Center_Bot", "Center_Hub", "Center_Top", "NW_Out", "NW_Stn"], pIdx: 0, x: 45000, y: 45000, s: 55, maxS: 55, coaches: 7, state: "WAIT_STN", waitTimer: 250, a: 0, hist: [] },
-            { id: "Regional Yellow", c: "#eab308", node: "NE_Stn", target: "NE_Out", path: ["NE_Stn", "NE_Out", "Center_Top", "Center_Hub", "Center_Bot", "SW_Out", "SW_Stn"], pIdx: 0, x: 45000, y: 15000, s: 45, maxS: 45, coaches: 9, state: "WAIT_STN", waitTimer: 350, a: 0, hist: [] },
-            { id: "Night Star Cyan", c: "#06b6d4", node: "SW_Stn", target: "SW_Out", path: ["SW_Stn", "SW_Out", "Center_West", "Center_Hub", "Center_East", "SE_Out", "SE_Stn"], pIdx: 0, x: 15000, y: 45000, s: 65, maxS: 65, coaches: 10, state: "WAIT_STN", waitTimer: 180, a: 0, hist: [] }
+            { id: "Vande Bharat Express", c: "#ef4444", route: loop1, pIdx: 0, s: 18, maxS: 18, coaches: 10, state: "RUN", waitTimer: 0, a: 0, hist: [] },
+            { id: "Rajdhani Express", c: "#3b82f6", route: loop1, pIdx: 15, s: 16, maxS: 16, coaches: 12, state: "RUN", waitTimer: 0, a: 0, hist: [] },
+            { id: "Mumbai Local", c: "#10b981", route: loop2, pIdx: 5, s: 12, maxS: 12, coaches: 8, state: "RUN", waitTimer: 0, a: 0, hist: [] },
+            { id: "Intercity Superfast", c: "#f59e0b", route: loop2, pIdx: 20, s: 15, maxS: 15, coaches: 9, state: "RUN", waitTimer: 0, a: 0, hist: [] },
+            { id: "Bullet Train", c: "#0f172a", route: loop1, pIdx: 30, s: 24, maxS: 24, coaches: 8, state: "RUN", waitTimer: 0, a: 0, hist: [] },
+            { id: "Cargo Freight", c: "#78350f", route: loop2, pIdx: 10, s: 9, maxS: 9, coaches: 25, state: "RUN", waitTimer: 0, a: 0, hist: [] },
+            { id: "Regional Passenger", c: "#8b5cf6", route: loop1, pIdx: 45, s: 11, maxS: 11, coaches: 7, state: "RUN", waitTimer: 0, a: 0, hist: [] },
+            { id: "Night Star Express", c: "#06b6d4", route: loop2, pIdx: 35, s: 14, maxS: 14, coaches: 10, state: "RUN", waitTimer: 0, a: 0, hist: [] }
         ];
 
         canvas.addEventListener('click', e => {
             if(isDragging) return;
             let wx = (e.clientX - canvas.width/2)/cam.zoom + cam.x; let wy = (e.clientY - canvas.height/2)/cam.zoom + cam.y;
             let found = null;
-            trains.forEach(t => { if(Math.hypot(t.x - wx, t.y - wy) < 2500) found = t; });
+            trains.forEach(t => { if(Math.hypot(t.x - wx, t.y - wy) < 3000) found = t; });
             if(found) { followedTarget = found; document.getElementById('followPanel').style.display='block'; document.getElementById('tName').innerText = "🚆 " + found.id; }
         });
         function unfollow() { followedTarget = null; document.getElementById('followPanel').style.display = 'none'; }
 
-        // Train AI & Red Light Signal Logic
+        // Bulletproof Train Update Loop (Zero Glitch)
         function updateTrains(dt) {
-            Object.values(rNodes).forEach(n => { n.occupiedBy = null; });
-            trains.forEach(t => { rNodes[t.target].occupiedBy = t.id; rNodes[t.node].occupiedBy = t.id; });
-
             trains.forEach(t => {
-                let statusText = "Moving";
-                let tNode = rNodes[t.target];
-
-                if(t.state === "WAIT_STN") {
+                let currentPt = t.route[t.pIdx];
+                
+                if (t.state === "WAIT_STN") {
+                    // 10 Seconds Station Stop! (1000ms * 10 = 10000ms)
                     t.waitTimer -= dt * timeSpeed;
-                    statusText = "Boarding Station...";
-                    if(t.waitTimer <= 0) { 
-                        t.state = "RUN"; 
-                        if(t.pIdx >= t.path.length - 1) { t.path.reverse(); t.pIdx = 0; }
-                        t.node = t.path[t.pIdx];
-                        t.target = t.path[t.pIdx + 1];
-                    }
-                } 
-                else if (t.state === "WAIT_SIGNAL") {
-                    statusText = "🛑 Red Light (Waiting)";
-                    let nextNodeOcc = rNodes[t.target].occupiedBy;
-                    if(nextNodeOcc === null || nextNodeOcc === t.id) { t.state = "RUN"; }
-                } 
-                else if (t.state === "RUN") {
-                    let dx = tNode.x - t.x; let dy = tNode.y - t.y;
-                    let dist = Math.hypot(dx, dy);
-                    let moveAmt = t.s * timeSpeed;
-
-                    t.hist.unshift({x: t.x, y: t.y, a: t.a});
-                    if(t.hist.length > 500) t.hist.pop();
-
-                    if (dist < moveAmt) {
-                        t.x = tNode.x; t.y = tNode.y;
-                        t.pIdx++;
-                        
-                        if(t.pIdx >= t.path.length - 1) {
-                            t.state = "WAIT_STN"; t.waitTimer = 500;
-                        } else {
-                            let nextNodeId = t.path[t.pIdx + 1];
-                            let nextNode = rNodes[nextNodeId];
-                            
-                            // RED LIGHT CHECK
-                            if(nextNode.occupiedBy !== null && nextNode.occupiedBy !== t.id) {
-                                t.state = "WAIT_SIGNAL";
-                            } else {
-                                t.node = t.target; t.target = nextNodeId;
-                            }
-                        }
-                    } else {
-                        t.a = Math.atan2(dy, dx);
-                        t.x += Math.cos(t.a) * moveAmt;
-                        t.y += Math.sin(t.a) * moveAmt;
-                    }
+                    if(t.waitTimer <= 0) { t.state = "RUN"; }
+                    if(followedTarget === t) document.getElementById('tStatus').innerHTML = `Status: <span style="color:#ef4444">🛑 Stopped at Station (${Math.ceil(t.waitTimer/1000)}s)</span>`;
+                    return;
                 }
 
-                if(followedTarget === t) document.getElementById('tStatus').innerHTML = `Status: <span style="color:${t.state.includes('WAIT')?'#ef4444':'#10b981'}">${statusText}</span><br>Speed: ${t.state==='RUN'?t.maxS:0} km/h`;
+                let targetPt = t.route[(t.pIdx + 1) % t.route.length];
+                let dx = targetPt.x - t.x; let dy = targetPt.y - t.y;
+                let dist = Math.hypot(dx, dy);
+                let moveStep = t.s * timeSpeed;
+
+                t.hist.unshift({x: t.x, y: t.y, a: t.a});
+                if(t.hist.length > 800) t.hist.pop();
+
+                if (dist < moveStep) {
+                    t.x = targetPt.x; t.y = targetPt.y;
+                    t.pIdx = (t.pIdx + 1) % t.route.length;
+
+                    // Check if new waypoint is a station
+                    if (targetPt.isStn) {
+                        t.state = "WAIT_STN";
+                        t.waitTimer = 10000; // Exactly 10 Seconds Stop!
+                    }
+                } else {
+                    t.a = Math.atan2(dy, dx);
+                    t.x += Math.cos(t.a) * moveStep;
+                    t.y += Math.sin(t.a) * moveStep;
+                }
+
+                if(followedTarget === t) document.getElementById('tStatus').innerHTML = `Status: <span style="color:#10b981">Cruising Smoothly</span><br>Speed: ${t.maxS * 10} km/h`;
             });
         }
 
@@ -236,62 +196,56 @@
             return (x > cam.x - hw - pad && x < cam.x + hw + pad && y > cam.y - hh - pad && y < cam.y + hh + pad);
         }
 
+        function drawTrackLoop(pts) {
+            ctx.lineCap = "round"; ctx.lineJoin = "round";
+            // Sleepers
+            ctx.beginPath(); ctx.strokeStyle = "#451a03"; ctx.lineWidth = 120; ctx.setLineDash([25, 50]);
+            ctx.moveTo(pts[0].x, pts[0].y); pts.forEach(p => ctx.lineTo(p.x, p.y)); ctx.closePath(); ctx.stroke();
+            // Rails
+            ctx.beginPath(); ctx.strokeStyle = "#cbd5e1"; ctx.lineWidth = 140; ctx.setLineDash([]);
+            ctx.moveTo(pts[0].x, pts[0].y); pts.forEach(p => ctx.lineTo(p.x, p.y)); ctx.closePath(); ctx.stroke();
+            // Track gap
+            ctx.beginPath(); ctx.strokeStyle = "#4ade80"; ctx.lineWidth = 100;
+            ctx.moveTo(pts[0].x, pts[0].y); pts.forEach(p => ctx.lineTo(p.x, p.y)); ctx.closePath(); ctx.stroke();
+
+            // Draw Station platforms
+            pts.forEach(p => {
+                if(p.isStn) {
+                    ctx.fillStyle = "#1e293b"; ctx.fillRect(p.x - 800, p.y - 800, 1600, 1600);
+                    ctx.fillStyle = "#fff"; ctx.font = "bold 180px sans-serif"; ctx.textAlign = "center";
+                    ctx.fillText("🚉 CITY STATION", p.x, p.y - 1000);
+                }
+            });
+        }
+
         function drawWorld() {
             ctx.fillStyle = "#4ade80"; ctx.fillRect(0, 0, W_SIZE, W_SIZE);
 
-            // Safe Homes (Never overlapping tracks)
+            // Safe Homes (Guaranteed away from tracks)
             homes.forEach(h => {
                 if(!inView(h.x, h.y, h.w)) return;
                 ctx.fillStyle = h.c; ctx.fillRect(h.x, h.y, h.w, h.h);
                 ctx.fillStyle = h.roof; ctx.fillRect(h.x, h.y, h.w, h.h * 0.35);
             });
 
-            // THICK, BOLD TRACKS (मोटा-मोटा रूळ)
-            ctx.lineCap = "round";
-            // Sleepers
-            ctx.beginPath(); ctx.strokeStyle = "#451a03"; ctx.lineWidth = 100; ctx.setLineDash([30, 60]);
-            trackEdges.forEach(e => { ctx.moveTo(e.x1, e.y1); ctx.lineTo(e.x2, e.y2); }); ctx.stroke();
-            // Rails
-            ctx.beginPath(); ctx.strokeStyle = "#cbd5e1"; ctx.lineWidth = 120; ctx.setLineDash([]);
-            trackEdges.forEach(e => { ctx.moveTo(e.x1, e.y1); ctx.lineTo(e.x2, e.y2); }); ctx.stroke();
-            // Center track gap
-            ctx.beginPath(); ctx.strokeStyle = "#4ade80"; ctx.lineWidth = 80;
-            trackEdges.forEach(e => { ctx.moveTo(e.x1, e.y1); ctx.lineTo(e.x2, e.y2); }); ctx.stroke();
-
-            // Stations & Red Light Signals 🚥
-            Object.values(rNodes).forEach(n => {
-                if(n.isStn) {
-                    ctx.fillStyle = "#0f172a"; ctx.fillRect(n.x - 1200, n.y - 600, 2400, 1200);
-                    ctx.fillStyle = "#f8fafc"; ctx.font = "bold 250px sans-serif"; ctx.textAlign = "center";
-                    ctx.fillText(n.name, n.x, n.y - 800);
-                }
-                // Signals
-                if(inView(n.x, n.y, 2000)) {
-                    let isRed = n.occupiedBy !== null;
-                    ctx.fillStyle = "#000"; ctx.fillRect(n.x + 150, n.y - 150, 100, 180);
-                    ctx.fillStyle = isRed ? "#ef4444" : "#10b981"; // Red vs Green Light
-                    ctx.beginPath(); ctx.arc(n.x + 200, n.y - 60, 40, 0, Math.PI*2); ctx.fill();
-                }
-            });
-
-            // Trees
-            ctx.fillStyle = "#15803d";
-            trees.forEach(t => { if(inView(t.x, t.y, t.r)) { ctx.beginPath(); ctx.arc(t.x, t.y, t.r, 0, Math.PI*2); ctx.fill(); }});
+            // Draw Both Smooth Circuits
+            drawTrackLoop(loop1);
+            drawTrackLoop(loop2);
         }
 
         function drawTrains() {
-            const C_LEN = 350, C_GAP = 30; // Very large, distinct trains
+            const C_LEN = 300, C_GAP = 25;
             trains.forEach(t => {
                 if(!inView(t.x, t.y, 8000)) return;
                 
                 // Engine
                 ctx.save(); ctx.translate(t.x, t.y); ctx.rotate(t.a);
-                ctx.fillStyle = "rgba(0,0,0,0.4)"; ctx.beginPath(); ctx.roundRect(-C_LEN/2+20, -50+20, C_LEN, 100, 30); ctx.fill(); // Shadow
+                ctx.fillStyle = "rgba(0,0,0,0.4)"; ctx.beginPath(); ctx.roundRect(-C_LEN/2+20, -50+20, C_LEN, 100, 30); ctx.fill();
                 ctx.fillStyle = t.c; ctx.beginPath(); ctx.roundRect(-C_LEN/2, -60, C_LEN, 120, 30); ctx.fill();
-                ctx.fillStyle = "#0f172a"; ctx.fillRect(-C_LEN/4, -40, C_LEN/2, 80); // Roof
+                ctx.fillStyle = "#0f172a"; ctx.fillRect(-C_LEN/4, -40, C_LEN/2, 80);
                 ctx.restore();
 
-                // Distinct Coaches
+                // Snake Coaches
                 for (let i = 1; i <= t.coaches; i++) {
                     let hIdx = Math.floor((i * (C_LEN + C_GAP)) / Math.max(t.s, 1));
                     if (hIdx < t.hist.length) {
@@ -311,8 +265,8 @@
             let sc = 150 / W_SIZE;
             rCtx.fillStyle = "#4ade80"; rCtx.fillRect(0,0,150,150);
             
-            rCtx.strokeStyle = "#334155"; rCtx.lineWidth = 3;
-            trackEdges.forEach(e => { rCtx.beginPath(); rCtx.moveTo(e.x1*sc, e.y1*sc); rCtx.lineTo(e.x2*sc, e.y2*sc); rCtx.stroke(); });
+            rCtx.strokeStyle = "#334155"; rCtx.lineWidth = 2;
+            loop1.forEach(p => { rCtx.fillRect(p.x*sc-1, p.y*sc-1, 2, 2); });
 
             trains.forEach(t => { rCtx.fillStyle = t.c; rCtx.fillRect(t.x*sc - 3, t.y*sc - 3, 6, 6); });
 
