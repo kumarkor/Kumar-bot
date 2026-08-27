@@ -3,449 +3,573 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Premium Railway Simulator - Stylish Edition</title>
+    <title>Nexus Gaming Hub | Premium</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;800;900&family=Press+Start+2P&display=swap" rel="stylesheet">
     <style>
         /* =========================================================================
-           STYLISH GLASSMORPHISM UI & ANIMATIONS
+           1. PREMIUM GLOBAL STYLES & GLASSMORPHISM
         ========================================================================= */
-        @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700;900&display=swap');
-        * { margin: 0; padding: 0; box-sizing: border-box; user-select: none; font-family: 'Montserrat', sans-serif; }
-        body { background: #22c55e; overflow: hidden; touch-action: none; color: #fff; }
-        canvas { display: block; width: 100vw; height: 100vh; cursor: grab; }
-        canvas:active { cursor: grabbing; }
-
-        /* Premium Dashboard */
-        .hud { position: absolute; top: 20px; left: 20px; background: rgba(15, 23, 42, 0.75); backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px); padding: 20px; border-radius: 16px; border: 1px solid rgba(255,255,255,0.2); box-shadow: 0 10px 40px rgba(0,0,0,0.5); z-index: 10; width: 280px; transition: all 0.3s ease; }
-        .hud-title { font-size: 18px; font-weight: 900; color: #38bdf8; margin-bottom: 5px; text-transform: uppercase; letter-spacing: 1px; text-shadow: 0 2px 4px rgba(0,0,0,0.5); }
-        .hud-subtitle { font-size: 11px; color: #94a3b8; margin-bottom: 15px; font-weight: 700; }
+        * { margin: 0; padding: 0; box-sizing: border-box; user-select: none; font-family: 'Outfit', sans-serif; -webkit-tap-highlight-color: transparent; }
+        body { background: #020617; color: #f8fafc; display: flex; justify-content: center; height: 100vh; overflow: hidden; }
         
-        .clock-box { background: linear-gradient(135deg, #020617, #0f172a); color: #10b981; font-size: 36px; font-weight: 900; padding: 10px; border-radius: 10px; border: 2px solid #059669; text-align: center; margin-bottom: 15px; letter-spacing: 3px; box-shadow: inset 0 0 15px rgba(16, 185, 129, 0.2), 0 4px 10px rgba(0,0,0,0.3); }
+        .app-container { width: 100%; max-width: 480px; height: 100%; background: radial-gradient(circle at top right, #1e1b4b, #020617); display: flex; flex-direction: column; position: relative; box-shadow: 0 0 50px rgba(0,0,0,0.9); overflow: hidden; }
 
-        .btn-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 10px; }
-        .btn { background: rgba(255,255,255,0.1); color: #fff; border: 1px solid rgba(255,255,255,0.2); padding: 12px 10px; border-radius: 8px; font-size: 11px; font-weight: 700; cursor: pointer; transition: all 0.2s ease; text-transform: uppercase; }
-        .btn:hover { background: #38bdf8; color: #000; border-color: #38bdf8; transform: translateY(-2px); box-shadow: 0 4px 10px rgba(56, 189, 248, 0.4); }
-        .btn-special { grid-column: span 2; background: linear-gradient(90deg, #ec4899, #ef4444); border: none; font-size: 13px; letter-spacing: 1px; }
-        .btn-special:hover { background: linear-gradient(90deg, #db2777, #dc2626); color: white; }
+        /* Top Header */
+        .top-bar { display: flex; justify-content: space-between; align-items: center; padding: 20px; background: rgba(15, 23, 42, 0.6); backdrop-filter: blur(15px); border-bottom: 1px solid rgba(255,255,255,0.05); z-index: 20; }
+        .logo { font-size: 22px; font-weight: 900; background: linear-gradient(90deg, #38bdf8, #818cf8); -webkit-background-clip: text; -webkit-text-fill-color: transparent; letter-spacing: 1px; }
+        .coin-pill { background: rgba(0,0,0,0.5); border: 1px solid #f59e0b; padding: 6px 16px; border-radius: 30px; font-weight: 800; font-size: 15px; color: #fcd34d; display: flex; align-items: center; gap: 6px; box-shadow: 0 0 15px rgba(245, 158, 11, 0.2); }
 
-        /* Follow Panel */
-        #targetPanel { display: none; position: absolute; bottom: 30px; left: 20px; background: rgba(15, 23, 42, 0.85); backdrop-filter: blur(10px); border-left: 5px solid #10b981; padding: 15px 20px; border-radius: 8px; z-index: 10; box-shadow: 0 10px 30px rgba(0,0,0,0.5); animation: slideUp 0.3s ease; }
-        @keyframes slideUp { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
-        .t-type { font-size: 14px; font-weight: 900; color: #fff; margin-bottom: 5px; }
-        .t-speed { font-size: 24px; color: #10b981; font-weight: bold; }
-        .t-status { font-size: 12px; color: #f59e0b; margin-top: 5px; font-weight: 700; }
+        /* Screens */
+        .screen { display: none; flex: 1; overflow-y: auto; padding: 20px; padding-bottom: 90px; animation: fadeUp 0.4s cubic-bezier(0.16, 1, 0.3, 1); }
+        .screen.active { display: block; }
+        @keyframes fadeUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
 
-        /* Radar Minimap */
-        .radar-box { position: absolute; bottom: 30px; right: 20px; width: 180px; height: 180px; background: rgba(2, 6, 23, 0.9); border: 3px solid #334155; border-radius: 50%; z-index: 10; overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,0.6); }
-        #radarCanvas { width: 100%; height: 100%; border-radius: 50%; }
+        .sec-title { font-size: 20px; font-weight: 900; margin-bottom: 20px; color: #fff; display: flex; align-items: center; gap: 10px; }
+        .sec-title::before { content: ''; display: block; width: 6px; height: 24px; background: #38bdf8; border-radius: 4px; }
 
-        .hint { position: absolute; top: 20px; right: 20px; background: rgba(0,0,0,0.6); padding: 10px 15px; border-radius: 8px; font-size: 11px; color: #cbd5e1; pointer-events: none; }
+        /* =========================================================================
+           2. GAMES GRID (20 Games)
+        ========================================================================= */
+        .game-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; }
+        .game-card { background: rgba(30, 41, 59, 0.5); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.05); border-radius: 20px; overflow: hidden; position: relative; transition: 0.3s; cursor: pointer; }
+        .game-card:hover { transform: translateY(-5px); border-color: #38bdf8; box-shadow: 0 10px 25px rgba(56, 189, 248, 0.2); }
+        .g-thumb { height: 110px; display: flex; justify-content: center; align-items: center; font-size: 50px; position: relative; }
+        .g-info { padding: 12px; text-align: center; background: rgba(0,0,0,0.3); }
+        .g-title { font-size: 14px; font-weight: 800; color: #e2e8f0; }
+        .g-tag { position: absolute; top: 10px; left: 10px; background: rgba(0,0,0,0.6); color: #10b981; font-size: 10px; padding: 4px 8px; border-radius: 12px; font-weight: bold; }
+        .g-locked { position: absolute; top:0; left:0; width:100%; height:100%; background: rgba(2,6,23,0.85); display: flex; flex-direction: column; justify-content: center; align-items: center; color: #94a3b8; font-weight: bold; font-size: 12px; z-index: 5; }
+
+        /* =========================================================================
+           3. SHOP, TASKS, HISTORY, PROFILE UI
+        ========================================================================= */
+        /* Tasks */
+        .task-card { background: linear-gradient(145deg, rgba(30,41,59,0.8), rgba(15,23,42,0.8)); border: 1px solid rgba(255,255,255,0.05); padding: 15px; border-radius: 16px; margin-bottom: 12px; }
+        .t-head { display: flex; justify-content: space-between; margin-bottom: 10px; font-weight: 800; font-size: 15px; }
+        .t-rew { color: #f59e0b; }
+        .t-bar-bg { background: #0f172a; height: 8px; border-radius: 4px; overflow: hidden; margin-bottom: 8px; }
+        .t-bar-fill { background: linear-gradient(90deg, #38bdf8, #818cf8); height: 100%; width: 0%; transition: 0.5s; }
+        .btn-claim { background: linear-gradient(90deg, #f59e0b, #d97706); width: 100%; border: none; padding: 10px; border-radius: 8px; color: #fff; font-weight: bold; display: none; cursor: pointer; }
+        
+        /* Shop */
+        .shop-card { display: flex; align-items: center; background: rgba(30,41,59,0.5); border: 1px solid rgba(255,255,255,0.05); padding: 15px; border-radius: 16px; margin-bottom: 12px; }
+        .s-icon { font-size: 36px; margin-right: 15px; }
+        .s-info { flex: 1; }
+        .s-info h4 { font-size: 15px; margin-bottom: 4px; }
+        .s-info p { font-size: 11px; color: #94a3b8; margin-bottom: 6px; }
+        .btn-buy { background: #10b981; border: none; padding: 8px 16px; border-radius: 8px; color: #fff; font-weight: bold; cursor: pointer; }
+        .btn-buy:disabled { background: #334155; color: #64748b; }
+
+        /* History */
+        .hist-card { display: flex; justify-content: space-between; align-items: center; background: rgba(15,23,42,0.6); padding: 12px 15px; border-radius: 12px; margin-bottom: 10px; border-left: 4px solid #38bdf8; }
+        .hist-card.spent { border-left-color: #ef4444; }
+        .h-date { font-size: 10px; color: #64748b; margin-top: 4px; }
+        .h-amt { font-size: 16px; font-weight: 800; }
+
+        /* Leaderboard & Profile */
+        .rank-card { display: flex; align-items: center; padding: 12px; background: rgba(30,41,59,0.4); border-radius: 12px; margin-bottom: 8px; }
+        .r-num { font-size: 18px; font-weight: 900; color: #94a3b8; width: 40px; }
+        .r-name { flex: 1; font-weight: bold; font-size: 14px; }
+        .r-score { color: #38bdf8; font-weight: 800; }
+        .r-top1 { border: 1px solid #f59e0b; background: rgba(245,158,11,0.1); } .r-top1 .r-num { color: #f59e0b; }
+        
+        .prof-box { text-align: center; padding: 30px; background: rgba(30,41,59,0.5); border-radius: 20px; border: 1px solid rgba(255,255,255,0.05); }
+        .p-av { font-size: 60px; margin-bottom: 10px; }
+        .p-stat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 20px; }
+        .p-stat { background: #0f172a; padding: 15px; border-radius: 12px; }
+        .p-val { font-size: 24px; font-weight: 900; color: #818cf8; }
+
+        /* =========================================================================
+           4. BOTTOM NAVIGATION
+        ========================================================================= */
+        .bottom-nav { position: absolute; bottom: 0; left: 0; width: 100%; height: 75px; background: rgba(15, 23, 42, 0.85); backdrop-filter: blur(20px); border-top: 1px solid rgba(255,255,255,0.05); display: flex; justify-content: space-around; align-items: center; z-index: 20; padding-bottom: 10px; }
+        .nav-item { display: flex; flex-direction: column; align-items: center; gap: 5px; color: #64748b; font-size: 11px; font-weight: 700; cursor: pointer; transition: 0.2s; width: 16%; }
+        .nav-icon { font-size: 22px; transition: 0.3s; }
+        .nav-item.active { color: #38bdf8; }
+        .nav-item.active .nav-icon { transform: translateY(-4px); filter: drop-shadow(0 0 8px rgba(56,189,248,0.8)); }
+
+        /* =========================================================================
+           5. GAME ENGINE OVERLAY
+        ========================================================================= */
+        #gameOverlay { display: none; position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: #000; z-index: 100; flex-direction: column; }
+        .g-header { display: flex; justify-content: space-between; align-items: center; padding: 15px 20px; background: #0f172a; border-bottom: 1px solid #1e293b; z-index: 101; }
+        .g-score { font-family: 'Press Start 2P', monospace; font-size: 12px; color: #f59e0b; }
+        .btn-exit { background: #ef4444; color: white; border: none; padding: 8px 16px; border-radius: 8px; font-weight: bold; cursor: pointer; }
+        canvas { flex: 1; width: 100%; display: block; }
+
+        #countdown { display: none; position: absolute; top:0; left:0; width:100%; height:100%; background: rgba(0,0,0,0.8); z-index: 105; justify-content: center; align-items: center; }
+        .cd-text { font-family: 'Press Start 2P'; font-size: 80px; color: #fff; text-shadow: 0 0 20px #38bdf8; animation: pulse 1s infinite; }
+        @keyframes pulse { 50% { transform: scale(1.2); } }
+
+        #resultScreen { display: none; position: absolute; top:0; left:0; width:100%; height:100%; background: rgba(2,6,23,0.95); z-index: 110; flex-direction: column; justify-content: center; align-items: center; padding: 20px; text-align: center; }
+        .res-title { font-size: 32px; font-weight: 900; color: #ef4444; margin-bottom: 20px; }
+        .res-box { background: rgba(30,41,59,0.5); padding: 20px; border-radius: 16px; width: 100%; max-width: 300px; margin-bottom: 20px; border: 1px solid rgba(255,255,255,0.05); }
+        .res-btn { background: #38bdf8; color: #000; border: none; width: 100%; padding: 15px; border-radius: 12px; font-size: 16px; font-weight: 900; margin-bottom: 10px; cursor: pointer; }
     </style>
 </head>
 <body>
 
-    <div class="hud">
-        <div class="hud-title">🚄 Stylish Train Simulator</div>
-        <div class="hud-subtitle">Premium Edition | Smart Stations</div>
-        
-        <div class="clock-box" id="uiClock">08:00</div>
-        
-        <div class="btn-grid">
-            <button class="btn" onclick="timeSpeed = timeSpeed === 1 ? 5 : 1">⏩ Fast Time</button>
-            <button class="btn" onclick="unfollow()">🌍 Free Cam</button>
-            <button class="btn btn-special" onclick="autoFindTrain()">🎥 Auto Find Train</button>
+<div class="app-container">
+
+    <!-- Top Header -->
+    <div class="top-bar">
+        <div class="logo">NEXUS</div>
+        <div class="coin-pill">🟡 <span id="uiCoins">0</span></div>
+    </div>
+
+    <!-- ================= SCREENS ================= -->
+    
+    <!-- 1. GAMES HUB (20 Games) -->
+    <div id="tab-games" class="screen active">
+        <div class="sec-title">Featured Games</div>
+        <div class="game-grid" id="gamesGrid">
+            <!-- Injected via JS -->
         </div>
     </div>
 
-    <div id="targetPanel">
-        <div class="t-type" id="tType">🚄 Express Train</div>
-        <div class="t-speed"><span id="tSpeed">0</span> <span style="font-size:12px;color:#94a3b8;">KM/H</span></div>
-        <div class="t-status" id="tStatus">Cruising...</div>
+    <!-- 2. DAILY TASKS -->
+    <div id="tab-tasks" class="screen">
+        <div class="sec-title">Daily Missions</div>
+        <div id="tasksList"></div>
     </div>
 
-    <div class="hint">🔍 Pinch/Scroll: Zoom | 👆 Drag: Pan Map</div>
+    <!-- 3. SHOP -->
+    <div id="tab-shop" class="screen">
+        <div class="sec-title">Premium Shop</div>
+        <div id="shopList"></div>
+    </div>
 
-    <div class="radar-box"><canvas id="radarCanvas"></canvas></div>
-    <canvas id="gameCanvas"></canvas>
+    <!-- 4. HISTORY -->
+    <div id="tab-history" class="screen">
+        <div class="sec-title">Transaction Ledger</div>
+        <div id="historyList"></div>
+    </div>
 
-    <script>
-        // =========================================================================
-        // CORE ENGINE & SMOOTH CAMERA
-        // =========================================================================
-        const canvas = document.getElementById("gameCanvas");
-        const ctx = canvas.getContext("2d", { alpha: false });
-        const rCanvas = document.getElementById("radarCanvas");
-        const rCtx = rCanvas.getContext("2d");
+    <!-- 5. LEADERBOARD -->
+    <div id="tab-leaderboard" class="screen">
+        <div class="sec-title">Global Top 10</div>
+        <div id="leaderboardList"></div>
+    </div>
 
-        const WORLD_SIZE = 25000; // Perfect size (Not too big, not too small)
-        let cam = { x: 12500, y: 12500, zoom: 0.3, targetX: 12500, targetY: 12500, targetZoom: 0.3 };
+    <!-- 6. PROFILE -->
+    <div id="tab-profile" class="screen">
+        <div class="sec-title">My Profile</div>
+        <div class="prof-box">
+            <div class="p-av">😎</div>
+            <h2>Nexus Player</h2>
+            <p style="color:#94a3b8; font-size:14px;">Rank: Platinum Tier</p>
+            <div class="p-stat-grid">
+                <div class="p-stat"><div class="p-val" id="statGames">0</div><div style="font-size:11px; color:#64748b;">GAMES PLAYED</div></div>
+                <div class="p-stat"><div class="p-val" id="statCoins">0</div><div style="font-size:11px; color:#64748b;">TOTAL EARNED</div></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bottom Navigation -->
+    <div class="bottom-nav">
+        <div class="nav-item active" onclick="switchTab('tab-games', this)"><div class="nav-icon">🎮</div>Games</div>
+        <div class="nav-item" onclick="switchTab('tab-tasks', this)"><div class="nav-icon">📋</div>Tasks</div>
+        <div class="nav-item" onclick="switchTab('tab-shop', this)"><div class="nav-icon">🛒</div>Shop</div>
+        <div class="nav-item" onclick="switchTab('tab-history', this)"><div class="nav-icon">🧾</div>History</div>
+        <div class="nav-item" onclick="switchTab('tab-leaderboard', this)"><div class="nav-icon">🏆</div>Ranks</div>
+        <div class="nav-item" onclick="switchTab('tab-profile', this)"><div class="nav-icon">👤</div>Profile</div>
+    </div>
+
+    <!-- ================= GAME ENGINE OVERLAY ================= -->
+    <div id="gameOverlay">
+        <div class="g-header">
+            <div class="g-score">SCORE: <span id="liveScore">0</span></div>
+            <button class="btn-exit" onclick="forceExit()">EXIT</button>
+        </div>
+        <canvas id="gameCanvas"></canvas>
         
-        let isDragging = false, startX, startY, camStartX, camStartY;
-        let followedTarget = null;
-        let timeSpeed = 1;
-        let gameTimeMins = 8 * 60;
-        let lastFrameTime = performance.now();
-
-        function resize() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; rCanvas.width=180; rCanvas.height=180; }
-        window.addEventListener('resize', resize); resize();
-
-        // Smooth Camera Controls
-        canvas.addEventListener('mousedown', e => { isDragging = true; startX = e.clientX; startY = e.clientY; camStartX = cam.targetX; camStartY = cam.targetY; unfollow(); });
-        window.addEventListener('mouseup', () => isDragging = false);
-        window.addEventListener('mousemove', e => { if(isDragging) { cam.targetX = camStartX - (e.clientX - startX)/cam.zoom; cam.targetY = camStartY - (e.clientY - startY)/cam.zoom; } });
-        canvas.addEventListener('wheel', e => { e.preventDefault(); cam.targetZoom = Math.min(Math.max(0.05, cam.targetZoom * (e.deltaY > 0 ? 0.8 : 1.2)), 3.0); });
-
-        let initPinch = null, initZoom = null;
-        canvas.addEventListener('touchstart', e => {
-            if(e.touches.length === 1) { isDragging=true; startX=e.touches[0].clientX; startY=e.touches[0].clientY; camStartX=cam.targetX; camStartY=cam.targetY; unfollow(); }
-            else if(e.touches.length === 2) { initPinch = Math.hypot(e.touches[0].clientX-e.touches[1].clientX, e.touches[0].clientY-e.touches[1].clientY); initZoom = cam.targetZoom; }
-        });
-        window.addEventListener('touchend', () => { isDragging = false; initPinch = null; });
-        window.addEventListener('touchmove', e => {
-            if(e.touches.length === 1 && isDragging && !initPinch) { cam.targetX = camStartX - (e.touches[0].clientX - startX)/cam.zoom; cam.targetY = camStartY - (e.touches[0].clientY - startY)/cam.zoom; }
-            else if(e.touches.length === 2 && initPinch) { let dist = Math.hypot(e.touches[0].clientX-e.touches[1].clientX, e.touches[0].clientY-e.touches[1].clientY); cam.targetZoom = Math.min(Math.max(0.05, initZoom * (dist/initPinch)), 3.0); }
-        });
-
-        canvas.addEventListener('click', e => {
-            if(isDragging) return;
-            let wx = (e.clientX - canvas.width/2)/cam.zoom + cam.x; let wy = (e.clientY - canvas.height/2)/cam.zoom + cam.y;
-            let found = null;
-            trains.forEach(t => { if(Math.hypot(t.x - wx, t.y - wy) < 500) found = t; });
-            if(found) setFollow(found);
-        });
-
-        function setFollow(target) { followedTarget = target; document.getElementById('targetPanel').style.display = 'block'; document.getElementById('tType').innerText = target.id; }
-        function unfollow() { followedTarget = null; document.getElementById('targetPanel').style.display = 'none'; }
-
-        let autoTrainIndex = 0;
-        function autoFindTrain() {
-            if(trains.length === 0) return;
-            let t = trains[autoTrainIndex];
-            setFollow(t);
-            cam.targetZoom = 0.8; // Zoom in nicely
-            autoTrainIndex = (autoTrainIndex + 1) % trains.length;
-        }
-
-        // =========================================================================
-        // HIGH-RESOLUTION PATH GENERATION (PERFECT CURVES, NO GLITCH)
-        // =========================================================================
-        // This math generates a perfect path array. The train moves exactly along these points.
-        function generateSmoothCircuit(cx, cy, w, h, radius) {
-            let path = [];
-            let resolution = 50; // Distance between points (lower = smoother)
-            
-            let left = cx - w/2, right = cx + w/2;
-            let top = cy - h/2, bottom = cy + h/2;
-
-            // Top edge (Right to Left)
-            for(let x=right-radius; x>=left+radius; x-=resolution) path.push({x: x, y: top});
-            // Top Left Corner
-            for(let a=Math.PI*1.5; a>=Math.PI; a-=0.1) path.push({x: left+radius + Math.cos(a)*radius, y: top+radius + Math.sin(a)*radius});
-            // Left Edge (Top to Bottom)
-            for(let y=top+radius; y<=bottom-radius; y+=resolution) path.push({x: left, y: y});
-            // Bottom Left Corner
-            for(let a=Math.PI; a>=Math.PI*0.5; a-=0.1) path.push({x: left+radius + Math.cos(a)*radius, y: bottom-radius + Math.sin(a)*radius});
-            // Bottom Edge (Left to Right)
-            for(let x=left+radius; x<=right-radius; x+=resolution) path.push({x: x, y: bottom});
-            // Bottom Right Corner
-            for(let a=Math.PI*0.5; a>=0; a-=0.1) path.push({x: right-radius + Math.cos(a)*radius, y: bottom-radius + Math.sin(a)*radius});
-            // Right Edge (Bottom to Top)
-            for(let y=bottom-radius; y>=top+radius; y-=resolution) path.push({x: right, y: y});
-            // Top Right Corner
-            for(let a=Math.PI*2; a>=Math.PI*1.5; a-=0.1) path.push({x: right-radius + Math.cos(a)*radius, y: top+radius + Math.sin(a)*radius});
-            
-            return path;
-        }
-
-        const outerTrack = generateSmoothCircuit(12500, 12500, 20000, 20000, 4000);
-        const innerTrack = generateSmoothCircuit(12500, 12500, 14000, 14000, 3000);
-
-        // STATIONS DEFINITION
-        const stations = [
-            { name: "MEGA CENTRAL", x: 12500, y: 2500, w: 2500, h: 1000, onTrack: outerTrack, stopDist: 0.12 }, // Top
-            { name: "SOUTH VALLEY", x: 12500, y: 22500, w: 2500, h: 1000, onTrack: outerTrack, stopDist: 0.62 }, // Bottom
-            { name: "EASTERN HUB", x: 19500, y: 12500, w: 1000, h: 2500, onTrack: innerTrack, stopDist: 0.85 }, // Inner Right
-            { name: "WESTERN HUB", x: 5500, y: 12500, w: 1000, h: 2500, onTrack: innerTrack, stopDist: 0.35 }  // Inner Left
-        ];
-
-        // Assign stations to track points
-        stations.forEach(st => {
-            let stopIdx = Math.floor(st.onTrack.length * st.stopDist);
-            st.onTrack[stopIdx].isStation = true;
-            st.onTrack[stopIdx].stationName = st.name;
-        });
-
-        // Safe Distance Math for Homes
-        function isNearTracks(x, y) {
-            // Check bounding boxes roughly to save performance
-            let outLeft = 2500-1500, outRight = 22500+1500, outTop = 2500-1500, outBot = 22500+1500;
-            let inLeft = 5500-1500, inRight = 19500+1500, inTop = 5500-1500, inBot = 19500+1500;
-            
-            // If near outer ring bounds
-            if((Math.abs(x - outLeft) < 1500 || Math.abs(x - outRight) < 1500) && y > outTop && y < outBot) return true;
-            if((Math.abs(y - outTop) < 1500 || Math.abs(y - outBot) < 1500) && x > outLeft && x < outRight) return true;
-            
-            // If near inner ring bounds
-            if((Math.abs(x - inLeft) < 1500 || Math.abs(x - inRight) < 1500) && y > inTop && y < inBot) return true;
-            if((Math.abs(y - inTop) < 1500 || Math.abs(y - inBot) < 1500) && x > inLeft && x < inRight) return true;
-
-            return false;
-        }
-
-        // =========================================================================
-        // ENVIRONMENT (Homes 🏠, Trees 🌲, Lakes 💧)
-        // =========================================================================
-        const homes = [], trees = [], lakes = [];
+        <div id="countdown"><div class="cd-text" id="cdText">3</div></div>
         
-        // Add Lakes
-        lakes.push({x: 12500, y: 12500, r: 2000}); // Center lake
-        lakes.push({x: 4000, y: 4000, r: 1500});
-        lakes.push({x: 21000, y: 21000, r: 1800});
+        <div id="resultScreen">
+            <div class="res-title">GAME OVER</div>
+            <div class="res-box">
+                <div style="font-size:14px; color:#94a3b8; margin-bottom:5px;">Final Score</div>
+                <div style="font-size:36px; font-weight:900; color:#fff; margin-bottom:15px;" id="resScore">0</div>
+                <div style="font-size:16px; font-weight:bold; color:#10b981;">Reward: +<span id="resCoins">0</span> 🟡</div>
+            </div>
+            <button class="res-btn" onclick="retryGame()">PLAY AGAIN</button>
+            <button class="res-btn" style="background:#1e293b; color:#fff;" onclick="closeGame()">BACK TO HUB</button>
+        </div>
+    </div>
 
-        // Add 300 Stylish Homes 🏠 (Controlled amount to avoid clutter)
-        let attempts = 0;
-        while(homes.length < 300 && attempts < 5000) {
-            let hx = Math.random()*W_SIZE; let hy = Math.random()*W_SIZE;
-            // Ensure they don't spawn in lakes or near tracks
-            let inLake = lakes.some(l => Math.hypot(hx-l.x, hy-l.y) < l.r + 200);
-            if(!isNearTracks(hx, hy) && !inLake) {
-                homes.push({x: hx, y: hy, size: 250 + Math.random()*100});
+</div>
+
+<script>
+    // =========================================================================
+    // 1. DATA MANAGEMENT (LocalStorage)
+    // =========================================================================
+    let user = JSON.parse(localStorage.getItem('nexusData')) || {
+        coins: 0, totalEarned: 0, gamesPlayed: 0,
+        items: [], history: [],
+        tasks: [
+            { id: 't1', title: 'Play 5 Games', goal: 5, prog: 0, rew: 100, claimed: false },
+            { id: 't2', title: 'Score 500 Total', goal: 500, prog: 0, rew: 150, claimed: false },
+            { id: 't3', title: 'Earn 100 Coins', goal: 100, prog: 0, rew: 50, claimed: false }
+        ],
+        taskDate: new Date().toDateString()
+    };
+
+    // Reset tasks daily
+    if(user.taskDate !== new Date().toDateString()) {
+        user.tasks.forEach(t => { t.prog = 0; t.claimed = false; });
+        user.taskDate = new Date().toDateString();
+        saveData();
+    }
+
+    function saveData() { localStorage.setItem('nexusData', JSON.stringify(user)); updateUI(); }
+    
+    function addCoins(amt, reason) {
+        user.coins += amt; if(amt > 0) { user.totalEarned += amt; updateTask('t3', amt); }
+        user.history.unshift({ r: reason, a: amt, d: new Date().toLocaleTimeString() });
+        if(user.history.length > 30) user.history.pop();
+        saveData();
+    }
+
+    function updateTask(id, amt) {
+        let t = user.tasks.find(x => x.id === id);
+        if(t && !t.claimed && t.prog < t.goal) { t.prog = Math.min(t.goal, t.prog + amt); saveData(); }
+    }
+
+    function updateUI() {
+        document.getElementById('uiCoins').innerText = user.coins;
+        document.getElementById('statGames').innerText = user.gamesPlayed;
+        document.getElementById('statCoins').innerText = user.totalEarned;
+    }
+    updateUI();
+
+    // =========================================================================
+    // 2. UI NAVIGATION & RENDERING
+    // =========================================================================
+    function switchTab(tabId, el) {
+        document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+        document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+        document.getElementById(tabId).classList.add('active');
+        el.classList.add('active');
+
+        if(tabId === 'tab-tasks') renderTasks();
+        if(tabId === 'tab-shop') renderShop();
+        if(tabId === 'tab-history') renderHistory();
+        if(tabId === 'tab-leaderboard') renderLeaderboard();
+    }
+
+    // --- 20 GAMES DATA ---
+    const allGames = [
+        { id: 'train', n: 'Train Rush', t: 'Action', c: ['#ef4444','#b91c1c'], e: '🚂', ready: true },
+        { id: 'rocket', n: 'Galaxy Fly', t: 'Arcade', c: ['#8b5cf6','#4c1d95'], e: '🚀', ready: true },
+        { id: 'racer', n: 'Neon Racer', t: 'Racing', c: ['#f59e0b','#b45309'], e: '🏎️', ready: true },
+        { id: 'catcher', n: 'Coin Catch', t: 'Casual', c: ['#10b981','#047857'], e: '💰', ready: true },
+        { id: 'ninja', n: 'Tap Ninja', t: 'Reflex', c: ['#06b6d4','#164e63'], e: '⚔️', ready: true },
+        { id: 'snake', n: 'Snake 2D', t: 'Classic', c: ['#84cc16','#15803d'], e: '🐍', ready: true },
+        { id: 'pong', n: 'Ping Pong', t: 'Sports', c: ['#f43f5e','#9f1239'], e: '🏓', ready: true },
+        { id: 'shooter', n: 'Space Pew', t: 'Shooter', c: ['#6366f1','#312e81'], e: '👾', ready: true },
+        // 12 Placeholders to make it 20!
+        { id: 'g9', n: 'Jump Cube', t: 'Platform', e: '🧊', ready: false }, { id: 'g10', n: 'Drift King', t: 'Racing', e: '🚙', ready: false },
+        { id: 'g11', n: 'Ludo Pro', t: 'Board', e: '🎲', ready: false }, { id: 'g12', n: 'Chess 3D', t: 'Brain', e: '♟️', ready: false },
+        { id: 'g13', n: 'Zombies', t: 'Survival', e: '🧟', ready: false }, { id: 'g14', n: 'Fruit Cut', t: 'Action', e: '🍉', ready: false },
+        { id: 'g15', n: '8 Ball Pool', t: 'Sports', e: '🎱', ready: false }, { id: 'g16', n: 'Bowling', t: 'Sports', e: '🎳', ready: false },
+        { id: 'g17', n: 'Word Guess', t: 'Puzzle', e: '🔠', ready: false }, { id: 'g18', n: 'Sudoku', t: 'Brain', e: '🔢', ready: false },
+        { id: 'g19', n: 'Darts 3D', t: 'Sports', e: '🎯', ready: false }, { id: 'g20', n: 'Golf Strike', t: 'Sports', e: '⛳', ready: false }
+    ];
+
+    function renderGames() {
+        let html = '';
+        allGames.forEach(g => {
+            if(g.ready) {
+                html += `<div class="game-card" onclick="openGame('${g.id}')">
+                    <div class="g-tag">${g.t}</div>
+                    <div class="g-thumb" style="background: linear-gradient(135deg, ${g.c[0]}, ${g.c[1]})">${g.e}</div>
+                    <div class="g-info"><div class="g-title">${g.n}</div></div>
+                </div>`;
+            } else {
+                html += `<div class="game-card">
+                    <div class="g-locked">🔒 Unlock Lvl 5</div>
+                    <div class="g-thumb" style="background: #1e293b">${g.e}</div>
+                    <div class="g-info"><div class="g-title">${g.n}</div></div>
+                </div>`;
             }
-            attempts++;
-        }
+        });
+        document.getElementById('gamesGrid').innerHTML = html;
+    }
+    renderGames();
 
-        // Add Trees 🌲🌳
-        for(let i=0; i<1500; i++) {
-            let tx = Math.random()*W_SIZE; let ty = Math.random()*W_SIZE;
-            if(!isNearTracks(tx, ty)) {
-                trees.push({x: tx, y: ty, emoji: Math.random()>0.5?"🌲":"🌳", size: 150 + Math.random()*100});
+    function renderTasks() {
+        let h = '';
+        user.tasks.forEach(t => {
+            let pct = (t.prog / t.goal) * 100;
+            let done = t.prog >= t.goal;
+            h += `<div class="task-card">
+                <div class="t-head"><span>${t.title}</span><span class="t-rew">🟡 ${t.rew}</span></div>
+                <div class="t-bar-bg" style="display:${t.claimed?'none':'block'}"><div class="t-bar-fill" style="width:${pct}%"></div></div>
+                <div style="font-size:11px; color:#94a3b8; text-align:right; margin-bottom:8px; display:${t.claimed?'none':'block'}">${t.prog}/${t.goal}</div>
+                <button class="btn-claim" style="display:${done&&!t.claimed?'block':'none'}" onclick="claimTask('${t.id}')">CLAIM REWARD</button>
+                <div style="color:#10b981; font-weight:bold; font-size:12px; text-align:center; display:${t.claimed?'block':'none'}">✅ Completed</div>
+            </div>`;
+        });
+        document.getElementById('tasksList').innerHTML = h;
+    }
+    function claimTask(id) {
+        let t = user.tasks.find(x => x.id===id);
+        if(t && !t.claimed && t.prog>=t.goal) { t.claimed = true; addCoins(t.rew, `Task: ${t.title}`); renderTasks(); }
+    }
+
+    const shopItems = [
+        { id:'s1', n:'Golden Train', d:'Yellow skin for Train Rush', p:300, e:'🚅' },
+        { id:'s2', n:'Neon Rocket', d:'Laser skin for Galaxy Fly', p:300, e:'🛸' },
+        { id:'s3', n:'Bat Mobile', d:'Dark skin for Neon Racer', p:400, e:'🦇' },
+        { id:'s4', n:'VIP 2x Pass', d:'Double coins in all games forever!', p:1500, e:'👑' }
+    ];
+    function renderShop() {
+        let h = '';
+        shopItems.forEach(s => {
+            let owned = user.items.includes(s.id);
+            let afford = user.coins >= s.p;
+            h += `<div class="shop-card">
+                <div class="s-icon">${s.e}</div>
+                <div class="s-info"><h4>${s.n}</h4><p>${s.d}</p><div style="color:#f59e0b; font-weight:bold; font-size:12px;">🟡 ${s.p}</div></div>
+                <button class="btn-buy" ${owned||!afford?'disabled':''} onclick="buyItem('${s.id}',${s.p},'${s.n}')">${owned?'OWNED':'BUY'}</button>
+            </div>`;
+        });
+        document.getElementById('shopList').innerHTML = h;
+    }
+    function buyItem(id, price, name) {
+        if(user.coins >= price) { addCoins(-price, `Bought ${name}`); user.items.push(id); saveData(); renderShop(); }
+    }
+
+    function renderHistory() {
+        let h = '';
+        if(user.history.length===0) h = '<p style="color:#64748b; text-align:center; font-size:12px;">No transactions yet.</p>';
+        user.history.forEach(x => {
+            let plus = x.a > 0;
+            h += `<div class="hist-card ${plus?'':'spent'}">
+                <div><div style="font-weight:bold; font-size:13px;">${x.r}</div><div class="h-date">${x.d}</div></div>
+                <div class="h-amt" style="color:${plus?'#10b981':'#ef4444'}">${plus?'+':''}${x.a}</div>
+            </div>`;
+        });
+        document.getElementById('historyList').innerHTML = h;
+    }
+
+    function renderLeaderboard() {
+        const bots = [ {n:'ShadowSlayer', s:45200}, {n:'ProGamer99', s:38100}, {n:'NinjaX', s:29400}, {n:'TechBoss', s:18500}, {n:'CoolDude', s:12000} ];
+        let h = '';
+        bots.forEach((b, i) => {
+            h += `<div class="rank-card ${i===0?'r-top1':''}">
+                <div class="r-num">#${i+1}</div><div class="r-name">${b.n}</div><div class="r-score">${b.s}</div>
+            </div>`;
+        });
+        // Add User
+        h += `<div class="rank-card" style="border: 1px solid #38bdf8; background:rgba(56,189,248,0.1); margin-top:20px;">
+            <div class="r-num">#84</div><div class="r-name">You (Nexus Player)</div><div class="r-score">${user.totalEarned}</div>
+        </div>`;
+        document.getElementById('leaderboardList').innerHTML = h;
+    }
+
+    // =========================================================================
+    // 3. MASTER GAME ENGINE (8 WORKING GAMES)
+    // =========================================================================
+    const canvas = document.getElementById('gameCanvas');
+    const ctx = canvas.getContext('2d');
+    let cw, ch, req, gState = 0; // 0=Wait, 1=Play
+    let curGame = '', frames = 0, score = 0, speed = 5;
+    let p = {}, ents = [], ents2 = [];
+
+    function resizeCanvas() { cw = window.innerWidth; ch = window.innerHeight - 60; canvas.width=cw; canvas.height=ch; }
+    window.addEventListener('resize', resizeCanvas);
+
+    function openGame(id) {
+        curGame = id; document.getElementById('gameOverlay').style.display = 'flex';
+        document.getElementById('resultScreen').style.display = 'none';
+        document.getElementById('liveScore').innerText = '0';
+        resizeCanvas();
+        startCountdown();
+    }
+
+    function startCountdown() {
+        let cd = document.getElementById('countdown'); let txt = document.getElementById('cdText');
+        cd.style.display = 'flex'; let c = 3; txt.innerText = c;
+        let t = setInterval(() => {
+            c--; if(c>0) txt.innerText = c; else if(c===0) txt.innerText = "GO!";
+            else { clearInterval(t); cd.style.display = 'none'; initEngine(); }
+        }, 1000);
+    }
+
+    function initEngine() {
+        gState = 1; frames = 0; score = 0; ents = []; ents2 = []; speed = 5;
+        
+        // Setup Players
+        if(curGame === 'train') { p = { l: 1, w: 40, h: 70, y: ch - 90 }; speed = 7; }
+        if(curGame === 'rocket') { p = { y: ch/2, v: 0, g: 0.6, j: -8, r: 15 }; }
+        if(curGame === 'racer') { p = { x: cw/2 - 20, y: ch - 80, w: 40, h: 70 }; speed = 8; }
+        if(curGame === 'catcher') { p = { x: cw/2 - 30, y: ch - 40, w: 60, h: 20 }; speed = 4; }
+        if(curGame === 'ninja') { speed = 1; score = 0; }
+        if(curGame === 'snake') { p = { b: [{x:10, y:10}], d: 'R', s: 20 }; ents.push({x:5,y:5}); speed = 1; }
+        if(curGame === 'pong') { p = { y: ch/2-40, w: 10, h: 80 }; ents = {x:cw/2, y:ch/2, vx:6, vy:6, r:8}; ents2 = {y: ch/2-40}; }
+        if(curGame === 'shooter') { p = { x: cw/2-15, y: ch-60, w:30, h:40 }; }
+
+        user.gamesPlayed++; updateTask('t1', 1); saveData();
+        gameLoop();
+    }
+
+    function gameLoop() {
+        if(gState === 0) return;
+        ctx.clearRect(0,0,cw,ch); frames++;
+
+        if(curGame==='train') runTrain();
+        else if(curGame==='rocket') runRocket();
+        else if(curGame==='racer') runRacer();
+        else if(curGame==='catcher') runCatcher();
+        else if(curGame==='ninja') runNinja();
+        else if(curGame==='snake') runSnake();
+        else if(curGame==='pong') runPong();
+        else if(curGame==='shooter') runShooter();
+
+        document.getElementById('liveScore').innerText = score;
+        req = requestAnimationFrame(gameLoop);
+    }
+
+    function gameOver() {
+        gState = 0; cancelAnimationFrame(req);
+        let coins = Math.floor(score / 10);
+        if(user.items.includes('s4')) coins *= 2; // VIP 2x
+        
+        updateTask('t2', score);
+        if(coins > 0) addCoins(coins, `Reward: ${curGame}`);
+
+        document.getElementById('resScore').innerText = score;
+        document.getElementById('resCoins').innerText = coins;
+        document.getElementById('resultScreen').style.display = 'flex';
+    }
+
+    function forceExit() { gState = 0; cancelAnimationFrame(req); document.getElementById('gameOverlay').style.display = 'none'; }
+    function closeGame() { document.getElementById('gameOverlay').style.display = 'none'; }
+    function retryGame() { document.getElementById('resultScreen').style.display = 'none'; startCountdown(); }
+
+    /* --- MINIGAME LOGICS --- */
+    
+    function runTrain() {
+        let lW = cw/3; let ls = [lW/2, lW+lW/2, lW*2+lW/2];
+        ctx.strokeStyle = "#334155"; ctx.lineWidth = 2;
+        for(let i=1; i<3; i++) { ctx.beginPath(); ctx.moveTo(i*lW, 0); ctx.lineTo(i*lW, ch); ctx.stroke(); }
+        
+        ctx.fillStyle = user.items.includes("s1") ? "#fcd34d" : "#ef4444"; 
+        ctx.fillRect(ls[p.l] - p.w/2, p.y, p.w, p.h);
+
+        if(frames%40===0) ents.push({ l: Math.floor(Math.random()*3), y: -50, t: Math.random()>0.7?'c':'b' });
+        for(let i=0; i<ents.length; i++) {
+            let e = ents[i]; e.y += speed; let ex = ls[e.l];
+            if(e.t==='b') { ctx.fillStyle="#1e293b"; ctx.fillRect(ex-20, e.y, 40, 50); }
+            else { ctx.fillStyle="#f59e0b"; ctx.beginPath(); ctx.arc(ex, e.y+25, 12, 0, Math.PI*2); ctx.fill(); }
+            
+            if(e.l===p.l && e.y+40>p.y && e.y<p.y+p.h) { if(e.t==='b') gameOver(); else { score+=20; ents.splice(i,1); i--; } }
+            else if(e.y>ch) { if(e.t==='b') { score+=10; speed+=0.05; } ents.splice(i,1); i--; }
+        }
+    }
+
+    function runRocket() {
+        p.v += p.g; p.y += p.v;
+        ctx.fillStyle = user.items.includes("s2") ? "#10b981" : "#8b5cf6"; ctx.beginPath(); ctx.arc(cw/3, p.y, p.r, 0, Math.PI*2); ctx.fill();
+        if(frames%90===0) { let gap=140; let t = Math.random()*(ch-gap-100)+50; ents.push({x:cw, t:t, b:t+gap, pass:false}); }
+        ctx.fillStyle = "#334155";
+        for(let i=0; i<ents.length; i++) {
+            let e = ents[i]; e.x -= 4;
+            ctx.fillRect(e.x, 0, 40, e.t); ctx.fillRect(e.x, e.b, 40, ch-e.b);
+            if(cw/3+p.r>e.x && cw/3-p.r<e.x+40 && (p.y-p.r<e.t || p.y+p.r>e.b)) gameOver();
+            if(e.x+40<cw/3 && !e.pass) { e.pass=true; score+=10; }
+            if(e.x<-50) { ents.splice(i,1); i--; }
+        }
+        if(p.y>ch || p.y<0) gameOver();
+    }
+
+    function runRacer() {
+        ctx.fillStyle = user.items.includes("s3") ? "#020617" : "#f59e0b"; ctx.fillRect(p.x, p.y, p.w, p.h);
+        if(frames%30===0) ents.push({x: Math.random()*(cw-40), y: -80, w:40, h:70});
+        ctx.fillStyle = "#ef4444";
+        for(let i=0; i<ents.length; i++) {
+            let e = ents[i]; e.y += speed; ctx.fillRect(e.x, e.y, e.w, e.h);
+            if(p.x<e.x+e.w && p.x+p.w>e.x && p.y<e.y+e.h && p.y+p.h>e.y) gameOver();
+            if(e.y>ch) { score+=10; speed+=0.1; ents.splice(i,1); i--; }
+        }
+    }
+
+    function runCatcher() {
+        ctx.fillStyle = "#10b981"; ctx.fillRect(p.x, p.y, p.w, p.h);
+        if(frames%40===0) ents.push({x: Math.random()*(cw-20), y: -20, t: Math.random()>0.2?'c':'b'});
+        for(let i=0; i<ents.length; i++) {
+            let e = ents[i]; e.y+=speed;
+            ctx.fillStyle = e.t==='b' ? "#ef4444" : "#f59e0b"; ctx.beginPath(); ctx.arc(e.x+10, e.y, 10, 0, Math.PI*2); ctx.fill();
+            if(e.x+20>p.x && e.x<p.x+p.w && e.y+10>p.y) { if(e.t==='b') gameOver(); else { score+=10; speed+=0.05; ents.splice(i,1); i--; continue; } }
+            if(e.y>ch) { ents.splice(i,1); i--; }
+        }
+    }
+
+    function runNinja() {
+        if(frames%40===0) ents.push({x: Math.random()*(cw-40)+20, y: Math.random()*(ch-100)+50, r: 25, a:0});
+        for(let i=0; i<ents.length; i++) {
+            let e = ents[i]; e.a++;
+            ctx.fillStyle = "#06b6d4"; ctx.beginPath(); ctx.arc(e.x, e.y, e.r, 0, Math.PI*2); ctx.fill();
+            ctx.strokeStyle="#fff"; ctx.lineWidth=2; ctx.beginPath(); ctx.arc(e.x, e.y, e.r*(1-e.a/100), 0, Math.PI*2); ctx.stroke();
+            if(e.a>100) gameOver();
+        }
+    }
+
+    function runSnake() {
+        if(frames%10===0) {
+            let h = {x: p.b[0].x, y: p.b[0].y};
+            if(p.d==='R') h.x++; if(p.d==='L') h.x--; if(p.d==='U') h.y--; if(p.d==='D') h.y++;
+            p.b.unshift(h);
+            if(h.x===ents[0].x && h.y===ents[0].y) { score+=10; ents[0]={x:Math.floor(Math.random()*(cw/p.s)), y:Math.floor(Math.random()*(ch/p.s))}; } else p.b.pop();
+            if(h.x<0||h.x>=cw/p.s||h.y<0||h.y>=ch/p.s) gameOver();
+            for(let i=1;i<p.b.length;i++) if(h.x===p.b[i].x && h.y===p.b[i].y) gameOver();
+        }
+        ctx.fillStyle="#ef4444"; ctx.fillRect(ents[0].x*p.s, ents[0].y*p.s, p.s, p.s);
+        ctx.fillStyle="#84cc16"; p.b.forEach(b => ctx.fillRect(b.x*p.s, b.y*p.s, p.s-1, p.s-1));
+    }
+
+    function runPong() {
+        let b = ents; let c = ents2;
+        ctx.fillStyle="#fff"; ctx.fillRect(10, p.y, p.w, p.h); ctx.fillRect(cw-20, c.y, p.w, p.h);
+        ctx.beginPath(); ctx.arc(b.x, b.y, b.r, 0, Math.PI*2); ctx.fill();
+        b.x+=b.vx; b.y+=b.vy; if(b.y<0||b.y>ch) b.vy*=-1;
+        if(c.y+p.h/2 < b.y) c.y+=5; else c.y-=5;
+        if(b.x<10+p.w && b.y>p.y && b.y<p.y+p.h) { b.vx*=-1; score+=10; b.x=10+p.w; }
+        if(b.x>cw-20 && b.y>c.y && b.y<c.y+p.h) { b.vx*=-1; b.x=cw-20; }
+        if(b.x<0) gameOver();
+    }
+
+    function runShooter() {
+        ctx.fillStyle="#6366f1"; ctx.fillRect(p.x, p.y, p.w, p.h);
+        if(frames%40===0) ents.push({x:Math.random()*(cw-30), y:-30, w:30, h:30});
+        ctx.fillStyle="#fcd34d";
+        for(let i=0; i<ents2.length; i++) { let b=ents2[i]; b.y-=10; ctx.fillRect(b.x, b.y, 4, 10); if(b.y<0) { ents2.splice(i,1); i--; } }
+        ctx.fillStyle="#ef4444";
+        for(let i=0; i<ents.length; i++) {
+            let e=ents[i]; e.y+=4; ctx.fillRect(e.x, e.y, e.w, e.h);
+            if(e.y>ch) gameOver();
+            for(let j=0; j<ents2.length; j++) {
+                let b=ents2[j]; if(b.x>e.x && b.x<e.x+e.w && b.y<e.y+e.h) { ents.splice(i,1); i--; ents2.splice(j,1); j--; score+=10; break; }
             }
         }
+    }
 
-        // =========================================================================
-        // THE TRAINS (Advanced Path Follower & 10s Wait)
-        // =========================================================================
-        const trains = [
-            { id: "🚄 Vande Bharat", c: "#f8fafc", track: outerTrack, dist: 0, s: 60, maxS: 60, coaches: 8, state: "RUN", wait: 0, x:0, y:0, a:0, hist:[] },
-            { id: "🚆 Rajdhani Exp", c: "#ef4444", track: outerTrack, dist: 25000, s: 50, maxS: 50, coaches: 10, state: "RUN", wait: 0, x:0, y:0, a:0, hist:[] },
-            { id: "🚇 City Metro", c: "#a855f7", track: innerTrack, dist: 0, s: 40, maxS: 40, coaches: 6, state: "RUN", wait: 0, x:0, y:0, a:0, hist:[] },
-            { id: "🚂 Heavy Goods", c: "#f59e0b", track: innerTrack, dist: 15000, s: 25, maxS: 25, coaches: 20, state: "RUN", wait: 0, x:0, y:0, a:0, hist:[] }
-        ];
+    /* --- CONTROLS --- */
+    canvas.addEventListener("touchstart", e => {
+        if(gState===0) return; let tx = e.touches[0].clientX, ty = e.touches[0].clientY;
+        if(curGame==='train') { if(tx<cw/2 && p.l>0) p.l--; else if(tx>cw/2 && p.l<2) p.l++; }
+        if(curGame==='rocket') p.v = p.j;
+        if(curGame==='ninja') { for(let i=0;i<ents.length;i++) { if(Math.hypot(tx-ents[i].x, ty-ents[i].y)<ents[i].r+20) { ents.splice(i,1); score+=10; break; } } }
+        if(curGame==='snake') { let dx=tx-p.b[0].x*p.s, dy=ty-p.b[0].y*p.s; if(Math.abs(dx)>Math.abs(dy)) { if(dx>0 && p.d!=='L') p.d='R'; else if(dx<0 && p.d!=='R') p.d='L'; } else { if(dy>0 && p.d!=='U') p.d='D'; else if(dy<0 && p.d!=='D') p.d='U'; } }
+        if(curGame==='shooter') ents2.push({x:p.x+p.w/2-2, y:p.y});
+    });
 
-        // Function to get exact X,Y and Angle on the track based on distance traveled
-        function getPointOnTrack(track, distance) {
-            let totalLen = track.length;
-            let idx = Math.floor(distance) % totalLen;
-            let nextIdx = (idx + 1) % totalLen;
-            
-            let p1 = track[idx]; let p2 = track[nextIdx];
-            let frac = distance - Math.floor(distance);
-            
-            let x = p1.x + (p2.x - p1.x) * frac;
-            let y = p1.y + (p2.y - p1.y) * frac;
-            let angle = Math.atan2(p2.y - p1.y, p2.x - p1.x);
-            
-            return { x, y, angle, pointObj: p1 };
-        }
+    canvas.addEventListener("touchmove", e => {
+        if(gState===0) return; let tx = e.touches[0].clientX, ty = e.touches[0].clientY;
+        if(curGame==='racer' || curGame==='catcher' || curGame==='shooter') { p.x = tx - p.w/2; if(p.x<0) p.x=0; if(p.x>cw-p.w) p.x=cw-p.w; }
+        if(curGame==='pong') p.y = ty - p.h/2;
+    });
 
-        function updateTrains(dt) {
-            trains.forEach(t => {
-                let currentPos = getPointOnTrack(t.track, t.dist);
-                t.x = currentPos.x; t.y = currentPos.y; t.a = currentPos.angle;
-
-                // Save history for perfectly snaking coaches
-                t.hist.unshift({x: t.x, y: t.y, a: t.a});
-                if(t.hist.length > 600) t.hist.pop();
-
-                let statusMsg = "Cruising...";
-
-                if (t.state === "WAIT") {
-                    t.wait -= dt * timeSpeed;
-                    statusMsg = `🛑 Boarding... (${Math.ceil(t.wait/1000)}s left)`;
-                    if(t.wait <= 0) { 
-                        t.state = "RUN"; 
-                        t.dist += 2; // Nudge forward to escape station point
-                    }
-                } 
-                else if (t.state === "RUN") {
-                    // Check if current point is a station
-                    if(currentPos.pointObj.isStation) {
-                        t.state = "WAIT";
-                        t.wait = 10000; // EXACTLY 10 SECONDS WAIT
-                        currentPos.pointObj.isStation = false; // Temporarily disable so it doesn't re-trigger immediately
-                        
-                        // Re-enable station tag after train leaves
-                        setTimeout(() => { currentPos.pointObj.isStation = true; }, 12000); 
-                    } else {
-                        // Move train
-                        t.dist += (t.s * timeSpeed * 0.1); 
-                    }
-                }
-
-                if(followedTarget === t) {
-                    document.getElementById('tSpeed').innerText = t.state==="WAIT" ? "0" : Math.round(t.s * 2);
-                    document.getElementById('tStatus').innerHTML = statusMsg;
-                }
-            });
-        }
-
-        // =========================================================================
-        // RENDER ENGINE (Stylish & Clean)
-        // =========================================================================
-        function inView(x, y, pad=5000) {
-            let hw = (canvas.width/2)/cam.zoom, hh = (canvas.height/2)/cam.zoom;
-            return (x > cam.x - hw - pad && x < cam.x + hw + pad && y > cam.y - hh - pad && y < cam.y + hh + pad);
-        }
-
-        function drawWorld() {
-            // Bright Green Lawn
-            ctx.fillStyle = "#22c55e"; ctx.fillRect(0, 0, W_SIZE, W_SIZE);
-
-            // Water Lakes 💧
-            ctx.fillStyle = "#38bdf8";
-            lakes.forEach(l => { if(inView(l.x, l.y, l.r)) { ctx.beginPath(); ctx.arc(l.x, l.y, l.r, 0, Math.PI*2); ctx.fill(); }});
-
-            // 🏠 Homes (Emoji Based, Huge and Clear)
-            ctx.textAlign = "center"; ctx.textBaseline = "middle";
-            homes.forEach(h => {
-                if(!inView(h.x, h.y, h.size)) return;
-                // Shadow
-                ctx.fillStyle = "rgba(0,0,0,0.3)"; ctx.beginPath(); ctx.ellipse(h.x+h.size/4, h.y+h.size/3, h.size/1.5, h.size/2.5, 0, 0, Math.PI*2); ctx.fill();
-                ctx.font = `${h.size}px sans-serif`; ctx.fillText("🏠", h.x, h.y);
-            });
-
-            // 🌲 Trees
-            trees.forEach(t => {
-                if(!inView(t.x, t.y, t.size)) return;
-                ctx.fillStyle = "rgba(0,0,0,0.3)"; ctx.beginPath(); ctx.ellipse(t.x+t.size/4, t.y+t.size/3, t.size/2, t.size/3, 0, 0, Math.PI*2); ctx.fill();
-                ctx.font = `${t.size}px sans-serif`; ctx.fillText(t.emoji, t.x, t.y);
-            });
-
-            // 🛤️ Stylish Bold Tracks
-            ctx.lineCap = "round"; ctx.lineJoin = "round";
-            [outerTrack, innerTrack].forEach(track => {
-                if(!inView(track[0].x, track[0].y, 20000)) return; // Broad cull
-                
-                // Sleepers (Wooden)
-                ctx.beginPath(); ctx.strokeStyle = "#451a03"; ctx.lineWidth = 140; ctx.setLineDash([30, 60]);
-                ctx.moveTo(track[0].x, track[0].y); track.forEach(p => ctx.lineTo(p.x, p.y)); ctx.closePath(); ctx.stroke();
-                
-                // Silver Rails
-                ctx.beginPath(); ctx.strokeStyle = "#cbd5e1"; ctx.lineWidth = 160; ctx.setLineDash([]);
-                ctx.moveTo(track[0].x, track[0].y); track.forEach(p => ctx.lineTo(p.x, p.y)); ctx.closePath(); ctx.stroke();
-                
-                // Center Gap
-                ctx.beginPath(); ctx.strokeStyle = "#22c55e"; ctx.lineWidth = 110;
-                ctx.moveTo(track[0].x, track[0].y); track.forEach(p => ctx.lineTo(p.x, p.y)); ctx.closePath(); ctx.stroke();
-            });
-
-            // 🚉 Premium Stations
-            stations.forEach(st => {
-                if(!inView(st.x, st.y, Math.max(st.w, st.h))) return;
-                
-                // Platform Base
-                ctx.fillStyle = "#334155"; ctx.fillRect(st.x - st.w/2, st.y - st.h/2, st.w, st.h);
-                // Yellow Safety Line
-                ctx.strokeStyle = "#facc15"; ctx.lineWidth = 20; ctx.strokeRect(st.x - st.w/2 + 30, st.y - st.h/2 + 30, st.w - 60, st.h - 60);
-                // Roof
-                ctx.fillStyle = "rgba(15, 23, 42, 0.8)"; ctx.fillRect(st.x - st.w/2 + 50, st.y - st.h/2 + 50, st.w - 100, st.h - 100);
-                
-                // Text
-                ctx.fillStyle = "#38bdf8"; ctx.font = "bold 200px Montserrat, sans-serif"; ctx.textAlign = "center";
-                ctx.fillText(st.name, st.x, st.y + 70);
-            });
-        }
-
-        function drawTrains() {
-            const C_LEN = 350, C_GAP = 30; // Big visible trains
-            trains.forEach(t => {
-                if(!inView(t.x, t.y, 5000)) return;
-                
-                // Engine
-                ctx.save(); ctx.translate(t.x, t.y); ctx.rotate(t.a);
-                // Shadow
-                ctx.fillStyle = "rgba(0,0,0,0.5)"; ctx.beginPath(); ctx.roundRect(-C_LEN/2+30, -60+30, C_LEN, 120, 40); ctx.fill();
-                // Body
-                ctx.fillStyle = t.c; ctx.beginPath(); ctx.roundRect(-C_LEN/2, -70, C_LEN, 140, 40); ctx.fill();
-                // Roof/Glass
-                ctx.fillStyle = "#0f172a"; ctx.beginPath(); ctx.roundRect(-C_LEN/3, -50, C_LEN*0.7, 100, 20); ctx.fill();
-                
-                // Headlight
-                let grad = ctx.createLinearGradient(C_LEN/2, 0, C_LEN/2+800, 0);
-                grad.addColorStop(0,"rgba(255,255,255,0.6)"); grad.addColorStop(1,"rgba(255,255,255,0)");
-                ctx.fillStyle = grad; ctx.beginPath(); ctx.moveTo(C_LEN/2, -30); ctx.lineTo(C_LEN/2+800, -150); ctx.lineTo(C_LEN/2+800, 150); ctx.lineTo(C_LEN/2, 30); ctx.fill();
-                ctx.restore();
-
-                // Snake Coaches
-                for (let i = 1; i <= t.coaches; i++) {
-                    let hIdx = Math.floor((i * (C_LEN + C_GAP)) / Math.max(t.s*0.1, 1));
-                    if (hIdx < t.hist.length) {
-                        let pos = t.hist[hIdx];
-                        ctx.save(); ctx.translate(pos.x, pos.y); ctx.rotate(pos.a);
-                        ctx.fillStyle = "rgba(0,0,0,0.5)"; ctx.beginPath(); ctx.roundRect(-C_LEN/2+30, -60+30, C_LEN, 120, 20); ctx.fill();
-                        ctx.fillStyle = t.id.includes("Cargo") ? "#78350f" : "#94a3b8"; 
-                        ctx.beginPath(); ctx.roundRect(-C_LEN/2, -70, C_LEN, 140, 20); ctx.fill();
-                        ctx.fillStyle = "#1e293b"; ctx.fillRect(-C_LEN/3, -40, C_LEN*0.66, 80);
-                        ctx.restore();
-                    }
-                }
-            });
-        }
-
-        // Stylish Minimap
-        function drawRadar() {
-            rCtx.clearRect(0,0,180,180);
-            let sc = 180 / W_SIZE;
-            
-            // Map bg
-            rCtx.fillStyle = "#0f172a"; rCtx.fillRect(0,0,180,180);
-            
-            // Tracks
-            rCtx.strokeStyle = "#334155"; rCtx.lineWidth = 3;
-            [outerTrack, innerTrack].forEach(track => {
-                rCtx.beginPath(); rCtx.moveTo(track[0].x*sc, track[0].y*sc);
-                for(let i=0; i<track.length; i+=10) rCtx.lineTo(track[i].x*sc, track[i].y*sc);
-                rCtx.closePath(); rCtx.stroke();
-            });
-
-            // Trains
-            trains.forEach(t => { rCtx.fillStyle = t.c; rCtx.beginPath(); rCtx.arc(t.x*sc, t.y*sc, 4, 0, Math.PI*2); rCtx.fill(); });
-
-            // Camera Box
-            rCtx.strokeStyle = "#10b981"; rCtx.lineWidth = 2;
-            let vW = (canvas.width/cam.zoom)*sc, vH = (canvas.height/cam.zoom)*sc;
-            rCtx.strokeRect((cam.x*sc) - vW/2, (cam.y*sc) - vH/2, vW, vH);
-        }
-
-        // =========================================================================
-        // MAIN LOOP
-        // =========================================================================
-        let lastTime = performance.now();
-        function animate(time) {
-            let dt = time - lastTime; lastTime = time;
-            
-            // Camera Smooth Follow/Lerp
-            cam.zoom += (cam.targetZoom - cam.zoom) * 0.1;
-            cam.x += (cam.targetX - cam.x) * 0.2;
-            cam.y += (cam.targetY - cam.y) * 0.2;
-
-            gameTimeMins += (dt/1000)*timeSpeed; if(gameTimeMins >= 24*60) gameTimeMins = 0;
-            let h = Math.floor(gameTimeMins/60).toString().padStart(2,'0'); let m = Math.floor(gameTimeMins%60).toString().padStart(2,'0');
-            document.getElementById("uiClock").innerText = `${h}:${m}`;
-
-            updateTrains(dt);
-
-            if(followedTarget) { cam.targetX = followedTarget.x; cam.targetY = followedTarget.y; }
-
-            ctx.fillStyle = "#22c55e"; ctx.fillRect(0,0,canvas.width,canvas.height);
-            ctx.save(); ctx.translate(canvas.width/2, canvas.height/2); ctx.scale(cam.zoom, cam.zoom); ctx.translate(-cam.x, -cam.y);
-            
-            drawWorld(); drawTrains();
-            
-            ctx.restore(); drawRadar();
-            requestAnimationFrame(animate);
-        }
-
-        requestAnimationFrame(animate);
-    </script>
+</script>
 </body>
 </html>
