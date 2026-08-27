@@ -3,55 +3,47 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Ultimate City Traffic Simulator 3D</title>
+    <title>Real Life City Simulator</title>
     <style>
-        /* =========================================
-           1. CORE UI & STYLE
-        ========================================= */
-        * { margin: 0; padding: 0; box-sizing: border-box; user-select: none; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        * { margin: 0; padding: 0; box-sizing: border-box; user-select: none; font-family: 'Segoe UI', sans-serif; }
         body { background: #000; overflow: hidden; touch-action: none; color: #fff; }
         canvas { display: block; width: 100vw; height: 100vh; cursor: crosshair; }
         canvas:active { cursor: grabbing; }
 
-        /* Dashboard */
-        .dashboard { position: absolute; top: 15px; left: 15px; background: rgba(15, 23, 42, 0.85); backdrop-filter: blur(10px); padding: 15px; border-radius: 12px; border: 1px solid #10b981; z-index: 10; box-shadow: 0 4px 20px rgba(0,0,0,0.8); }
-        .dash-title { font-size: 20px; font-weight: 900; color: #10b981; margin-bottom: 5px; text-transform: uppercase; letter-spacing: 1px; }
-        
-        .clock { background: #000; color: #38bdf8; font-family: monospace; font-size: 24px; font-weight: bold; padding: 5px 15px; border-radius: 8px; border: 1px solid #38bdf8; text-align: center; margin-bottom: 10px; }
-        
+        /* Clean Dashboard UI */
+        .dashboard { position: absolute; top: 15px; left: 15px; background: rgba(15, 23, 42, 0.8); backdrop-filter: blur(10px); padding: 15px; border-radius: 12px; border: 1px solid #38bdf8; z-index: 10; box-shadow: 0 5px 20px rgba(0,0,0,0.5); }
+        .dash-title { font-size: 16px; font-weight: 900; color: #38bdf8; margin-bottom: 5px; letter-spacing: 1px; }
+        .clock { background: #000; color: #10b981; font-family: monospace; font-size: 24px; font-weight: bold; padding: 5px 15px; border-radius: 8px; border: 1px solid #10b981; text-align: center; margin-bottom: 10px; cursor: pointer; }
         .btn-group { display: flex; gap: 10px; }
-        .btn { flex: 1; background: #334155; color: white; border: none; padding: 8px; border-radius: 6px; font-size: 12px; font-weight: bold; cursor: pointer; border: 1px solid #475569; transition: 0.2s; }
-        .btn:hover { background: #10b981; color: #000; }
+        .btn { flex: 1; background: #334155; color: white; border: none; padding: 8px; border-radius: 6px; font-size: 12px; font-weight: bold; cursor: pointer; transition: 0.2s; }
+        .btn:hover { background: #38bdf8; color: #000; }
 
-        /* Speedometer & Car Info */
-        #carInfo { display: none; position: absolute; bottom: 20px; left: 20px; background: rgba(0,0,0,0.8); border-left: 4px solid #ef4444; padding: 15px; border-radius: 8px; z-index: 10; width: 200px; }
-        .speed-val { font-family: monospace; font-size: 28px; color: #ef4444; font-weight: bold; }
-        
+        /* Follow Info */
+        #followInfo { display: none; position: absolute; bottom: 20px; left: 20px; background: rgba(0,0,0,0.8); border-left: 4px solid #f59e0b; padding: 15px; border-radius: 8px; z-index: 10; }
+        .speed-val { font-family: monospace; font-size: 24px; color: #f59e0b; font-weight: bold; }
+
         /* Minimap */
-        .minimap-container { position: absolute; bottom: 20px; right: 20px; width: 160px; height: 160px; background: rgba(0, 0, 0, 0.9); border: 2px solid #10b981; border-radius: 50%; z-index: 10; overflow: hidden; box-shadow: 0 0 15px rgba(16, 185, 129, 0.5); }
-        #minimap { width: 100%; height: 100%; border-radius: 50%; }
+        .minimap-container { position: absolute; bottom: 20px; right: 20px; width: 150px; height: 150px; background: rgba(0, 0, 0, 0.9); border: 2px solid #38bdf8; border-radius: 10px; z-index: 10; overflow: hidden; }
+        #minimap { width: 100%; height: 100%; }
 
-        /* Settings Modal */
-        #settingsPanel { display: none; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); background: rgba(15, 23, 42, 0.95); padding: 20px; border-radius: 12px; border: 2px solid #f59e0b; z-index: 100; width: 300px; box-shadow: 0 10px 40px rgba(0,0,0,0.9); }
-        .set-title { color: #f59e0b; font-size: 18px; font-weight: bold; margin-bottom: 15px; border-bottom: 1px solid #334155; padding-bottom: 5px; }
+        /* Settings */
+        #settingsPanel { display: none; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); background: rgba(15, 23, 42, 0.95); padding: 20px; border-radius: 12px; border: 2px solid #f59e0b; z-index: 100; width: 280px; }
         .set-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; font-size: 14px; }
-        
-        /* Switch UI */
-        .switch { position: relative; display: inline-block; width: 40px; height: 20px; }
+        .switch { position: relative; display: inline-block; width: 36px; height: 18px; }
         .switch input { opacity: 0; width: 0; height: 0; }
         .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #475569; transition: .4s; border-radius: 20px; }
-        .slider:before { position: absolute; content: ""; height: 16px; width: 16px; left: 2px; bottom: 2px; background-color: white; transition: .4s; border-radius: 50%; }
+        .slider:before { position: absolute; content: ""; height: 14px; width: 14px; left: 2px; bottom: 2px; background-color: white; transition: .4s; border-radius: 50%; }
         input:checked + .slider { background-color: #10b981; }
-        input:checked + .slider:before { transform: translateX(20px); }
-        
-        .close-btn { width: 100%; background: #ef4444; color: white; border: none; padding: 10px; border-radius: 8px; font-weight: bold; cursor: pointer; margin-top: 10px; }
-        .hint { position: absolute; top: 15px; right: 15px; color: #94a3b8; font-size: 11px; background: rgba(0,0,0,0.7); padding: 5px 10px; border-radius: 20px; z-index: 10; pointer-events: none; border: 1px solid #334155; }
+        input:checked + .slider:before { transform: translateX(18px); }
+        .close-btn { width: 100%; background: #ef4444; color: white; border: none; padding: 8px; border-radius: 8px; font-weight: bold; cursor: pointer; margin-top: 10px; }
+
+        .hint { position: absolute; top: 15px; right: 15px; color: #94a3b8; font-size: 11px; background: rgba(0,0,0,0.6); padding: 5px 10px; border-radius: 20px; z-index: 10; pointer-events: none; }
     </style>
 </head>
 <body>
 
     <div class="dashboard">
-        <div class="dash-title">🚦 City Traffic 3D</div>
+        <div class="dash-title">🏡 Real Life City</div>
         <div class="clock" id="gameClock">12:00</div>
         <div class="btn-group">
             <button class="btn" onclick="toggleSettings()">⚙️ Settings</button>
@@ -59,24 +51,22 @@
         </div>
     </div>
 
-    <!-- Speedometer -->
-    <div id="carInfo">
-        <div style="font-size:12px; color:#94a3b8; font-weight:bold; margin-bottom:5px;" id="carType">Sports Car</div>
-        <div class="speed-val"><span id="carSpeed">0</span> <span style="font-size:14px; color:#fff;">km/h</span></div>
-        <div style="font-size:10px; color:#10b981; margin-top:5px;" id="carAction">Cruising...</div>
+    <div id="followInfo">
+        <div style="font-size:12px; color:#94a3b8; font-weight:bold; margin-bottom:5px;" id="fType">Target</div>
+        <div class="speed-val"><span id="fSpeed">0</span> <span style="font-size:12px; color:#fff;">km/h</span></div>
+        <div style="font-size:11px; color:#10b981; margin-top:5px;" id="fAction">Moving...</div>
     </div>
 
     <div id="settingsPanel">
-        <div class="set-title">Simulator Settings</div>
-        <div class="set-row"><span>🌧️ Rain System</span><label class="switch"><input type="checkbox" id="rainToggle" onchange="toggleRain()"><span class="slider"></span></label></div>
+        <div style="color:#f59e0b; font-size:16px; font-weight:bold; margin-bottom:15px;">World Settings</div>
+        <div class="set-row"><span>🌧️ Weather (Rain)</span><label class="switch"><input type="checkbox" id="rainToggle" onchange="toggleRain()"><span class="slider"></span></label></div>
         <div class="set-row"><span>⏩ Fast Time (10x)</span><label class="switch"><input type="checkbox" id="fastTimeToggle" onchange="toggleFastTime()"><span class="slider"></span></label></div>
         <button class="close-btn" onclick="toggleSettings()">Save & Close</button>
     </div>
 
     <div class="minimap-container"><canvas id="minimap"></canvas></div>
-    <div class="hint">🔍 Pinch/Scroll: Zoom | 👆 Click Car: Follow | 🌍 Drag: Pan</div>
+    <div class="hint">🔍 Pinch/Scroll: Zoom | 👆 Click: Follow | 🌍 Drag: Pan</div>
 
-    <!-- Main Canvas -->
     <canvas id="gameCanvas"></canvas>
 
     <script>
@@ -88,45 +78,42 @@
         // ==========================================
         // 1. ENGINE & CAMERA CONFIG
         // ==========================================
-        const WORLD_SIZE = 10000;
-        let cam = { x: 5000, y: 5000, zoom: 0.8 };
+        const WORLD_SIZE = 6000;
+        let cam = { x: 3000, y: 3000, zoom: 0.6 };
         let isDragging = false, startX, startY, camStartX, camStartY;
-        let followedCar = null;
+        let followedTarget = null;
 
-        function resize() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; mCanvas.width = 160; mCanvas.height = 160; }
+        function resize() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; mCanvas.width = 150; mCanvas.height = 150; }
         window.addEventListener('resize', resize); resize();
 
         // Cam Controls
-        canvas.addEventListener('mousedown', e => { isDragging = true; startX = e.clientX; startY = e.clientY; camStartX = cam.x; camStartY = cam.y; followedCar = null; document.getElementById('carInfo').style.display='none'; });
+        canvas.addEventListener('mousedown', e => { isDragging = true; startX = e.clientX; startY = e.clientY; camStartX = cam.x; camStartY = cam.y; unfollow(); });
         window.addEventListener('mouseup', () => isDragging = false);
         canvas.addEventListener('mousemove', e => { if(isDragging) { cam.x = camStartX - (e.clientX - startX)/cam.zoom; cam.y = camStartY - (e.clientY - startY)/cam.zoom; } });
-        canvas.addEventListener('wheel', e => { e.preventDefault(); cam.zoom = Math.min(Math.max(0.2, cam.zoom * (e.deltaY > 0 ? 0.9 : 1.1)), 3.0); });
+        canvas.addEventListener('wheel', e => { e.preventDefault(); cam.zoom = Math.min(Math.max(0.3, cam.zoom * (e.deltaY > 0 ? 0.9 : 1.1)), 3.0); });
 
         // Touch Controls
         let initPinch = null, initZoom = null;
         canvas.addEventListener('touchstart', e => {
-            if(e.touches.length === 1) { isDragging=true; startX=e.touches[0].clientX; startY=e.touches[0].clientY; camStartX=cam.x; camStartY=cam.y; followedCar=null; document.getElementById('carInfo').style.display='none'; }
+            if(e.touches.length === 1) { isDragging=true; startX=e.touches[0].clientX; startY=e.touches[0].clientY; camStartX=cam.x; camStartY=cam.y; unfollow(); }
             else if(e.touches.length === 2) { initPinch = Math.hypot(e.touches[0].clientX-e.touches[1].clientX, e.touches[0].clientY-e.touches[1].clientY); initZoom = cam.zoom; }
         });
         window.addEventListener('touchend', () => { isDragging = false; initPinch = null; });
         canvas.addEventListener('touchmove', e => {
             if(e.touches.length === 1 && isDragging && !initPinch) { cam.x = camStartX - (e.touches[0].clientX - startX)/cam.zoom; cam.y = camStartY - (e.touches[0].clientY - startY)/cam.zoom; }
-            else if(e.touches.length === 2 && initPinch) { let dist = Math.hypot(e.touches[0].clientX-e.touches[1].clientX, e.touches[0].clientY-e.touches[1].clientY); cam.zoom = Math.min(Math.max(0.2, initZoom * (dist/initPinch)), 3.0); }
+            else if(e.touches.length === 2 && initPinch) { let dist = Math.hypot(e.touches[0].clientX-e.touches[1].clientX, e.touches[0].clientY-e.touches[1].clientY); cam.zoom = Math.min(Math.max(0.3, initZoom * (dist/initPinch)), 3.0); }
         });
 
-        // Click to follow car
+        // Click to follow
         canvas.addEventListener('click', e => {
             if(isDragging) return;
             let wx = (e.clientX - canvas.width/2)/cam.zoom + cam.x; let wy = (e.clientY - canvas.height/2)/cam.zoom + cam.y;
-            cars.forEach(c => {
-                if(Math.hypot(c.x - wx, c.y - wy) < 60) {
-                    followedCar = c;
-                    document.getElementById('carInfo').style.display = 'block';
-                    document.getElementById('carType').innerText = c.type;
-                }
-            });
+            cars.forEach(c => { if(Math.hypot(c.x - wx, c.y - wy) < 60) setFollow(c, c.t); });
+            trains.forEach(t => { if(Math.hypot(t.x - wx, t.y - wy) < 100) setFollow(t, "City Train"); });
         });
-        function unfollow() { followedCar = null; document.getElementById('carInfo').style.display = 'none'; }
+        
+        function setFollow(target, name) { followedTarget = target; document.getElementById('followInfo').style.display = 'block'; document.getElementById('fType').innerText = name; }
+        function unfollow() { followedTarget = null; document.getElementById('followInfo').style.display = 'none'; }
         function toggleSettings() { let p = document.getElementById("settingsPanel"); p.style.display = p.style.display === "block" ? "none" : "block"; }
         
         let isRainy = false, timeSpeed = 1;
@@ -146,418 +133,337 @@
         }
 
         // ==========================================
-        // 3. ROAD NETWORK (NODES & GRAPHS) 🛣️
+        // 3. CLEAN ROAD NETWORK & HOMES 🏠
         // ==========================================
-        const ROAD_W = 120;
-        const nodes = [];
-        const gridSize = 5; // 5x5 grid of intersections
-        const spacing = 2000; 
-
-        // Create Grid Intersections
-        for(let r=0; r<gridSize; r++) {
-            for(let c=0; c<gridSize; c++) {
-                nodes.push({ id: `N_${r}_${c}`, x: 1000 + c*spacing, y: 1000 + r*spacing, connections: [], lightState: 'NS_GREEN', timer: 0 });
+        const ROAD_W = 100;
+        const nodes = []; 
+        const homes = []; // House nodes
+        
+        // Simple Grid for a Clean City (3x3 Main blocks)
+        for(let r=0; r<3; r++) {
+            for(let c=0; c<3; c++) {
+                nodes.push({ id: `N_${r}_${c}`, x: 1500 + c*1500, y: 1500 + r*1500, links: [], light: 'NS_G', timer: 0, isHome: false });
             }
         }
-        
-        // Connect Nodes (Two-way streets)
-        function connect(n1, n2) { n1.connections.push(n2); n2.connections.push(n1); }
-        for(let r=0; r<gridSize; r++) {
-            for(let c=0; c<gridSize; c++) {
-                let curr = nodes[r*gridSize + c];
-                if(c < gridSize-1) connect(curr, nodes[r*gridSize + c + 1]); // East
-                if(r < gridSize-1) connect(curr, nodes[(r+1)*gridSize + c]); // South
+        function link(n1, n2) { n1.links.push(n2); n2.links.push(n1); }
+        // Link main roads
+        for(let r=0; r<3; r++) { for(let c=0; c<3; c++) { let curr = nodes[r*3+c]; if(c<2) link(curr, nodes[r*3+c+1]); if(r<2) link(curr, nodes[(r+1)*3+c]); }}
+
+        // Add 🏠 Homes (Driveways) branching off main roads
+        let houseCount = 0;
+        for(let r=0; r<3; r++) {
+            for(let c=0; c<2; c++) {
+                // Add homes between horizontal nodes
+                let n1 = nodes[r*3+c], n2 = nodes[r*3+c+1];
+                for(let i=1; i<=3; i++) {
+                    let hx = n1.x + i*375; let hy = n1.y - 120; // House slightly above road
+                    let hNode = { id: `H_${houseCount++}`, x: hx, y: hy, links: [], isHome: true, occupied: false };
+                    let roadNode = { id: `RN_${houseCount}`, x: hx, y: n1.y, links: [hNode], isHome: false, light: 'NONE' };
+                    hNode.links.push(roadNode);
+                    // Insert roadNode between n1 and n2
+                    link(n1, roadNode); link(roadNode, n2);
+                    homes.push(hNode); nodes.push(roadNode);
+                }
             }
         }
 
         // Traffic Light Manager
-        function updateTrafficLights(dt) {
+        function updateLights(dt) {
             nodes.forEach(n => {
+                if(n.light === 'NONE') return;
                 n.timer += dt * (timeSpeed > 1 ? 0.5 : 1);
-                if(n.timer > 10000) { // Switch every 10 seconds
-                    n.timer = 0;
-                    if(n.lightState === 'NS_GREEN') n.lightState = 'NS_YELLOW';
-                    else if(n.lightState === 'NS_YELLOW') n.lightState = 'EW_GREEN';
-                    else if(n.lightState === 'EW_GREEN') n.lightState = 'EW_YELLOW';
-                    else if(n.lightState === 'EW_YELLOW') n.lightState = 'NS_GREEN';
-                }
+                if(n.timer > 8000) { n.timer = 0; n.light = (n.light==='NS_G')?'NS_Y':(n.light==='NS_Y')?'EW_G':(n.light==='EW_G')?'EW_Y':'NS_G'; }
             });
         }
 
         // ==========================================
-        // 4. ENVIRONMENT (3D Buildings, Trees, People)
+        // 4. ENVIRONMENT (Parks, Lakes, Trees)
         // ==========================================
-        const bldgs = [], trees = [], peds = [], particles = [];
-        // Generate 2.5D Buildings in empty spaces
-        for(let r=0; r<gridSize-1; r++) {
-            for(let c=0; c<gridSize-1; c++) {
-                let bx = 1000 + c*spacing + ROAD_W/2 + 100;
-                let by = 1000 + r*spacing + ROAD_W/2 + 100;
-                for(let i=0; i<15; i++) {
-                    bldgs.push({ 
-                        x: bx + Math.random()*(spacing-ROAD_W-200), y: by + Math.random()*(spacing-ROAD_W-200), 
-                        w: 80+Math.random()*100, h: 80+Math.random()*100, z: 100+Math.random()*300, 
-                        c: `hsl(${Math.random()*40+200}, 40%, 30%)`, roof: `hsl(${Math.random()*40+200}, 30%, 40%)` 
-                    });
-                }
-            }
-        }
-        // Trees
-        for(let i=0; i<1000; i++) trees.push({ x: Math.random()*WORLD_SIZE, y: Math.random()*WORLD_SIZE, r: 15+Math.random()*15 });
-        // Pedestrians (Sidewalks)
-        for(let i=0; i<200; i++) peds.push({ x: Math.random()*WORLD_SIZE, y: Math.random()*WORLD_SIZE, c: `hsl(${Math.random()*360}, 60%, 50%)` });
-
-        // Rain Particles
-        const rain = [];
-        for(let i=0; i<300; i++) rain.push({ x: Math.random()*WORLD_SIZE, y: Math.random()*WORLD_SIZE, s: 15+Math.random()*20 });
+        const lakes = [{x: 2200, y: 2200, r: 250}, {x: 3700, y: 3700, r: 300}];
+        const trees = [];
+        for(let i=0; i<300; i++) trees.push({ x: Math.random()*WORLD_SIZE, y: Math.random()*WORLD_SIZE, r: 15+Math.random()*15 });
+        const particles = [];
+        const rain = []; for(let i=0; i<300; i++) rain.push({ x: Math.random()*WORLD_SIZE, y: Math.random()*WORLD_SIZE, s: 15+Math.random()*20 });
 
         // ==========================================
-        // 5. CARS & VEHICLE LOGIC 🚗
+        // 5. CARS & REAL LIFE LOGIC 🚗
         // ==========================================
-        const carTypes = [
-            { t: "Sports Car", c: "#ef4444", w: 20, h: 45, max: 18, acc: 0.4, brk: 0.8 },
-            { t: "Sedan", c: "#e2e8f0", w: 22, h: 48, max: 12, acc: 0.2, brk: 0.5 },
-            { t: "Taxi", c: "#f59e0b", w: 22, h: 48, max: 13, acc: 0.25, brk: 0.5 },
-            { t: "Police", c: "#020617", w: 22, h: 48, max: 20, acc: 0.5, brk: 1.0, siren: true },
-            { t: "Ambulance", c: "#fff", w: 26, h: 60, max: 15, acc: 0.3, brk: 0.6, siren: true },
-            { t: "Bus", c: "#3b82f6", w: 30, h: 90, max: 8, acc: 0.1, brk: 0.3 },
-            { t: "Truck", c: "#166534", w: 32, h: 100, max: 7, acc: 0.08, brk: 0.2 }
-        ];
-
+        const carTypes = [ { t: "Family Car", c: "#e2e8f0", max: 10 }, { t: "SUV", c: "#ef4444", max: 12 }, { t: "Police", c: "#020617", max: 15, siren: true } ];
         const cars = [];
-        for(let i=0; i<150; i++) {
+        
+        // ONLY 30 Cars for a Clean, uncluttered look
+        for(let i=0; i<30; i++) {
             let type = carTypes[Math.floor(Math.random()*carTypes.length)];
-            let n1 = nodes[Math.floor(Math.random()*nodes.length)];
-            let n2 = n1.connections[Math.floor(Math.random()*n1.connections.length)];
+            let start = homes[Math.floor(Math.random()*homes.length)];
             cars.push({
-                ...type, x: n1.x, y: n1.y, angle: Math.atan2(n2.y-n1.y, n2.x-n1.x),
-                speed: 0, targetNode: n2, lastNode: n1, braking: false, 
-                blinker: 0, stuckTimer: 0, ghostMode: false, msg: ""
+                ...type, w: 22, h: 48, x: start.x, y: start.y, angle: Math.PI/2, speed: 0,
+                target: start.links[0], last: start, state: "PARKED", wait: Math.random()*5000, 
+                blinker: 0, braking: false, stuckTimer: 0, ghost: false, homeNode: start
             });
-        }
-
-        // Add Smoke Particles
-        function addSmoke(x, y) {
-            particles.push({ x: x, y: y, life: 1, size: 5, vx: (Math.random()-0.5)*2, vy: (Math.random()-0.5)*2 });
+            start.occupied = true;
         }
 
         function updateCars(dt) {
             cars.forEach((c, i) => {
-                c.msg = ""; c.braking = false; c.blinker = 0;
+                c.braking = false; c.blinker = 0;
                 
-                let dx = c.targetNode.x - c.x; let dy = c.targetNode.y - c.y;
-                let distToTarget = Math.hypot(dx, dy);
-                let targetAngle = Math.atan2(dy, dx);
-                
-                // Align Car Angle (Smooth turning)
-                let angleDiff = targetAngle - c.angle;
-                angleDiff = Math.atan2(Math.sin(angleDiff), Math.cos(angleDiff));
-                c.angle += angleDiff * 0.1;
-
-                // Blinker Logic (If turning heavily)
-                if(Math.abs(angleDiff) > 0.3 && distToTarget < 200) c.blinker = angleDiff > 0 ? 1 : -1; // 1 Right, -1 Left
-
-                // --- 🛡️ ANTI-STUCK SYSTEM ---
-                if(c.speed < 1) c.stuckTimer += dt; else c.stuckTimer = 0;
-                if(c.stuckTimer > 4000) { c.ghostMode = true; c.msg = "BEEP!"; } // Horn & Ghost
-                if(c.stuckTimer > 6000) { c.stuckTimer = 0; } // Reset
-                if(c.speed > 5) c.ghostMode = false;
-
-                // --- 🚥 TRAFFIC LIGHT LOGIC ---
-                let stopForLight = false;
-                if(distToTarget < 150 && !c.ghostMode && !c.siren) {
-                    // Determine if approaching N/S or E/W
-                    let isNS = Math.abs(Math.sin(targetAngle)) > 0.5;
-                    let light = c.targetNode.lightState;
-                    if(isNS && (light === 'EW_GREEN' || light === 'EW_YELLOW' || light === 'NS_YELLOW')) stopForLight = true;
-                    if(!isNS && (light === 'NS_GREEN' || light === 'NS_YELLOW' || light === 'EW_YELLOW')) stopForLight = true;
+                if(c.state === "PARKED") {
+                    c.wait -= dt * timeSpeed;
+                    if(c.wait <= 0) { c.state = "DRIVING"; c.target = c.last.links[0]; } // Leave home
+                    return; // Don't move
                 }
 
-                // --- 🚙 CAR COLLISION LOGIC ---
-                let stopForCar = false;
-                if(!c.ghostMode) {
-                    for(let j=0; j<cars.length; j++) {
-                        if(i===j || cars[j].ghostMode) continue;
-                        let c2 = cars[j];
-                        let d = Math.hypot(c.x - c2.x, c.y - c2.y);
-                        if(d < 120) {
-                            let aToC2 = Math.atan2(c2.y - c.y, c2.x - c.x);
-                            let aDiff = Math.abs(c.angle - aToC2);
-                            aDiff = Math.atan2(Math.sin(aDiff), Math.cos(aDiff));
-                            // If car is in front cone
-                            if(Math.abs(aDiff) < 0.8) { stopForCar = true; break; }
+                let dx = c.target.x - c.x; let dy = c.target.y - c.y;
+                let dist = Math.hypot(dx, dy); let tAngle = Math.atan2(dy, dx);
+                
+                // Turn smoothly
+                let aDiff = tAngle - c.angle; aDiff = Math.atan2(Math.sin(aDiff), Math.cos(aDiff));
+                c.angle += aDiff * 0.1;
+                if(Math.abs(aDiff) > 0.3 && dist < 150) c.blinker = aDiff > 0 ? 1 : -1;
+
+                // Anti-stuck
+                if(c.speed < 1) c.stuckTimer += dt; else c.stuckTimer = 0;
+                if(c.stuckTimer > 5000) c.ghost = true;
+                if(c.stuckTimer > 8000) c.stuckTimer = 0;
+                if(c.speed > 4) c.ghost = false;
+
+                // Stop logic (Lights, Cars, Train)
+                let mustStop = false;
+                
+                // 1. Train Phatak Check (Horizontal track at Y=800)
+                if(Math.abs(c.y - 800) < 150 && trainGateClosed) mustStop = true;
+
+                // 2. Traffic Lights
+                if(dist < 100 && !c.ghost && c.target.light !== 'NONE' && !c.siren) {
+                    let isNS = Math.abs(Math.sin(tAngle)) > 0.5;
+                    let l = c.target.light;
+                    if(isNS && (l==='EW_G' || l==='EW_Y' || l==='NS_Y')) mustStop = true;
+                    if(!isNS && (l==='NS_G' || l==='NS_Y' || l==='EW_Y')) mustStop = true;
+                }
+
+                // 3. Cars ahead
+                if(!c.ghost) {
+                    cars.forEach((c2, j) => {
+                        if(i!==j && !c2.ghost && c2.state !== "PARKED") {
+                            if(Math.hypot(c.x-c2.x, c.y-c2.y) < 100) {
+                                let aToC2 = Math.atan2(c2.y-c.y, c2.x-c.x);
+                                let dAng = Math.abs(c.angle - aToC2);
+                                dAng = Math.atan2(Math.sin(dAng), Math.cos(dAng));
+                                if(Math.abs(dAng) < 0.8) mustStop = true;
+                            }
                         }
-                    }
+                    });
                 }
 
                 // Speed Control
-                if(stopForLight || stopForCar) {
-                    c.speed = Math.max(0, c.speed - c.brk); c.braking = true;
-                } else {
-                    c.speed = Math.min(c.max, c.speed + c.acc);
-                }
+                if(mustStop) { c.speed = Math.max(0, c.speed - 0.5); c.braking = true; } 
+                else { c.speed = Math.min(c.max, c.speed + 0.2); }
 
-                // Move
                 let actSpeed = c.speed * (timeSpeed > 1 ? 2 : 1);
                 
-                // Offset to drive on left/right side of road
-                let rightX = Math.cos(c.angle + Math.PI/2) * (ROAD_W/4);
-                let rightY = Math.sin(c.angle + Math.PI/2) * (ROAD_W/4);
-
-                if (distToTarget < actSpeed + 10) {
-                    // Reached Node, pick next random node (Don't go back immediately if possible)
-                    c.x = c.targetNode.x; c.y = c.targetNode.y;
-                    let nextNodes = c.targetNode.connections.filter(n => n.id !== c.lastNode.id);
-                    if(nextNodes.length === 0) nextNodes = c.targetNode.connections; // Dead end fallback
-                    c.lastNode = c.targetNode;
-                    c.targetNode = nextNodes[Math.floor(Math.random() * nextNodes.length)];
+                if (dist < actSpeed + 10) {
+                    c.x = c.target.x; c.y = c.target.y;
+                    
+                    if(c.target.isHome) {
+                        c.state = "PARKED"; c.wait = 10000 + Math.random()*10000; // Sleep for 10-20s
+                        c.speed = 0; c.angle = Math.PI/2; // Park straight
+                    } else {
+                        // Pick next route. 20% chance to go Home if nearby home is free
+                        let nextNodes = c.target.links.filter(n => n.id !== c.last.id);
+                        if(nextNodes.length === 0) nextNodes = c.target.links;
+                        
+                        let chosen = nextNodes[Math.floor(Math.random() * nextNodes.length)];
+                        // Force go home logic occasionally
+                        let homeNodes = nextNodes.filter(n => n.isHome && !n.occupied);
+                        if(homeNodes.length > 0 && Math.random() < 0.2) chosen = homeNodes[0];
+                        
+                        c.last = c.target; c.target = chosen;
+                    }
                 } else {
-                    // The visual position is offset, actual logic tracks center
                     c.x += Math.cos(c.angle) * actSpeed;
                     c.y += Math.sin(c.angle) * actSpeed;
-                    
-                    // Exhaust Smoke
-                    if(actSpeed > 2 && Math.random() > 0.7) addSmoke(c.x - Math.cos(c.angle)*c.h/2, c.y - Math.sin(c.angle)*c.h/2);
+                    if(actSpeed > 3 && Math.random()>0.8) particles.push({ x: c.x, y: c.y, l: 1, s: 5 }); // Smoke
                 }
             });
 
-            // Particles update
+            // Particles
             for(let i=0; i<particles.length; i++) {
-                let p = particles[i]; p.x+=p.vx; p.y+=p.vy; p.life-=0.02; p.size+=0.1;
-                if(p.life<=0) { particles.splice(i,1); i--; }
+                let p = particles[i]; p.l-=0.03; p.s+=0.2;
+                if(p.l<=0) { particles.splice(i,1); i--; }
             }
         }
 
         // ==========================================
-        // 6. RENDER ENGINE (2.5D Parallax & Lights)
+        // 6. TRAIN & PHATAK SYSTEM 🚂
         // ==========================================
-        function inView(x, y, pad=1000) {
+        // Train goes around the city (Rectangle loop)
+        const tRoute = [ {x: 500, y: 800}, {x: 5500, y: 800}, {x: 5500, y: 5500}, {x: 500, y: 5500} ];
+        const trains = [ { id: "City Express", x: 500, y: 800, rIdx: 0, s: 12, a: 0, hist: [] } ];
+        let trainGateClosed = false;
+
+        function updateTrain(dt) {
+            trainGateClosed = false;
+            trains.forEach(t => {
+                // Phatak logic (If train is on top horizontal track near middle roads)
+                if(t.rIdx === 0 && t.x > 1000 && t.x < 5000) trainGateClosed = true;
+
+                t.hist.unshift({x: t.x, y: t.y, a: t.a});
+                if(t.hist.length > 500) t.hist.pop();
+
+                let speed = t.s * (timeSpeed > 1 ? 2 : 1);
+                let target = tRoute[(t.rIdx + 1) % tRoute.length];
+                let dx = target.x - t.x, dy = target.y - t.y;
+                let dist = Math.hypot(dx, dy);
+
+                if(dist < speed) { t.x = target.x; t.y = target.y; t.rIdx = (t.rIdx+1)%tRoute.length; }
+                else {
+                    let tAng = Math.atan2(dy, dx);
+                    // Smooth turn for train
+                    let aDiff = tAng - t.a; aDiff = Math.atan2(Math.sin(aDiff), Math.cos(aDiff));
+                    t.a += aDiff * 0.05;
+                    t.x += Math.cos(t.a) * speed; t.y += Math.sin(t.a) * speed;
+                }
+            });
+        }
+
+        // ==========================================
+        // 7. RENDER ENGINE (Clean Look)
+        // ==========================================
+        function inView(x, y, pad=800) {
             let hw = (canvas.width/2)/cam.zoom, hh = (canvas.height/2)/cam.zoom;
             return (x > cam.x - hw - pad && x < cam.x + hw + pad && y > cam.y - hh - pad && y < cam.y + hh + pad);
         }
 
-        function drawRoads() {
-            ctx.fillStyle = "#1e293b"; // Road base
-            ctx.fillRect(0, 0, WORLD_SIZE, WORLD_SIZE); // Ground is road color everywhere for simplicity, overwrite with grass
+        function drawWorld() {
+            // Grass
+            ctx.fillStyle = isNight ? "#064e3b" : "#22c55e"; ctx.fillRect(0,0,WORLD_SIZE,WORLD_SIZE);
             
-            // Draw Grass Blocks
-            ctx.fillStyle = isNight ? "#064e3b" : "#15803d";
-            for(let r=0; r<gridSize-1; r++) {
-                for(let c=0; c<gridSize-1; c++) {
-                    let rx = 1000 + c*spacing + ROAD_W/2; let ry = 1000 + r*spacing + ROAD_W/2;
-                    let rw = spacing - ROAD_W; let rh = spacing - ROAD_W;
-                    if(inView(rx+rw/2, ry+rh/2, rw)) ctx.fillRect(rx, ry, rw, rh);
-                }
-            }
+            // Lakes
+            ctx.fillStyle = isNight ? "#0f172a" : "#38bdf8";
+            lakes.forEach(l => { ctx.beginPath(); ctx.arc(l.x, l.y, l.r, 0, Math.PI*2); ctx.fill(); });
 
-            // Draw Road Markings (Dashed Lines)
-            ctx.strokeStyle = "#cbd5e1"; ctx.lineWidth = 4; ctx.setLineDash([20, 30]);
-            for(let r=0; r<gridSize; r++) {
-                ctx.beginPath(); ctx.moveTo(1000, 1000 + r*spacing); ctx.lineTo(1000 + (gridSize-1)*spacing, 1000 + r*spacing); ctx.stroke();
-            }
-            for(let c=0; c<gridSize; c++) {
-                ctx.beginPath(); ctx.moveTo(1000 + c*spacing, 1000); ctx.lineTo(1000 + c*spacing, 1000 + (gridSize-1)*spacing); ctx.stroke();
-            }
-            ctx.setLineDash([]);
-        }
+            // Roads
+            ctx.fillStyle = "#334155";
+            for(let r=0; r<3; r++) ctx.fillRect(1500, 1500+r*1500-ROAD_W/2, 3000, ROAD_W);
+            for(let c=0; c<3; c++) ctx.fillRect(1500+c*1500-ROAD_W/2, 1500, ROAD_W, 3000);
+            
+            // Driveways
+            homes.forEach(h => { ctx.fillRect(h.x-20, h.y, 40, 120); });
 
-        function drawIntersections() {
-            nodes.forEach(n => {
-                if(!inView(n.x, n.y)) return;
-                // Zebra Crossings
-                ctx.fillStyle = "rgba(255,255,255,0.2)";
-                ctx.fillRect(n.x - ROAD_W/2, n.y - ROAD_W/2, ROAD_W, ROAD_W);
+            // Train Tracks
+            ctx.strokeStyle = "#475569"; ctx.lineWidth = 14; ctx.setLineDash([10, 10]);
+            ctx.strokeRect(500, 800, 5000, 4700);
+            ctx.strokeStyle = "#cbd5e1"; ctx.lineWidth = 18; ctx.setLineDash([]);
+            ctx.strokeRect(500, 800, 5000, 4700);
+            ctx.strokeStyle = isNight ? "#000" : "#1e293b"; ctx.lineWidth = 12;
+            ctx.strokeRect(500, 800, 5000, 4700);
 
-                // Traffic Lights (Center Box)
-                ctx.fillStyle = "#0f172a"; ctx.fillRect(n.x - 15, n.y - 15, 30, 30);
-                
-                // N/S Light
-                ctx.fillStyle = n.lightState.includes('NS_G') ? "#10b981" : (n.lightState.includes('NS_Y') ? "#f59e0b" : "#ef4444");
-                ctx.beginPath(); ctx.arc(n.x, n.y - 10, 4, 0, Math.PI*2); ctx.fill();
-                ctx.beginPath(); ctx.arc(n.x, n.y + 10, 4, 0, Math.PI*2); ctx.fill();
-
-                // E/W Light
-                ctx.fillStyle = n.lightState.includes('EW_G') ? "#10b981" : (n.lightState.includes('EW_Y') ? "#f59e0b" : "#ef4444");
-                ctx.beginPath(); ctx.arc(n.x - 10, n.y, 4, 0, Math.PI*2); ctx.fill();
-                ctx.beginPath(); ctx.arc(n.x + 10, n.y, 4, 0, Math.PI*2); ctx.fill();
+            // Homes 🏠 (Emoji + Base)
+            homes.forEach(h => {
+                if(!inView(h.x, h.y)) return;
+                ctx.fillStyle = isNight ? "#0f172a" : "#f8fafc";
+                ctx.fillRect(h.x-40, h.y-80, 80, 80); // Base House
+                ctx.font = "50px sans-serif"; ctx.textAlign = "center"; ctx.textBaseline="middle";
+                ctx.fillText("🏠", h.x, h.y-40);
+                if(isNight) { ctx.fillStyle="#fde047"; ctx.fillRect(h.x-15, h.y-30, 30, 20); } // Light
             });
+
+            // Trees
+            ctx.fillStyle = isNight ? "#022c22" : "#166534";
+            trees.forEach(t => { if(inView(t.x, t.y)) { ctx.beginPath(); ctx.arc(t.x, t.y, t.r, 0, Math.PI*2); ctx.fill(); }});
         }
 
         function drawCars() {
-            let blinkOn = (blinkTimer % 1000) > 500; // Blinker half-second pulse
-
+            let blinkOn = (blinkTimer % 1000) > 500;
+            
             cars.forEach(c => {
                 if(!inView(c.x, c.y)) return;
-
-                // Drive on left side of road (Indian/UK style)
-                let renderX = c.x + Math.cos(c.angle - Math.PI/2) * (ROAD_W/4);
-                let renderY = c.y + Math.sin(c.angle - Math.PI/2) * (ROAD_W/4);
-
-                ctx.save(); ctx.translate(renderX, renderY); ctx.rotate(c.angle);
-                
-                // Ghost Mode transparency
-                if(c.ghostMode) ctx.globalAlpha = 0.4;
+                ctx.save(); ctx.translate(c.x, c.y); ctx.rotate(c.angle);
+                if(c.ghost) ctx.globalAlpha = 0.5;
 
                 // Car Body
-                ctx.fillStyle = c.c;
-                ctx.beginPath(); ctx.roundRect(-c.h/2, -c.w/2, c.h, c.w, 5); ctx.fill();
+                ctx.fillStyle = c.c; ctx.beginPath(); ctx.roundRect(-c.h/2, -c.w/2, c.h, c.w, 4); ctx.fill();
+                ctx.fillStyle = "#000"; ctx.fillRect(-c.h/4, -c.w/2 + 2, c.h/2, c.w - 4); // Roof
+
+                // Siren
+                if(c.siren) { ctx.fillStyle = blinkOn ? "#ef4444" : "#3b82f6"; ctx.fillRect(-4, -c.w/2+2, 8, c.w-4); }
                 
-                // Roof / Windows
-                ctx.fillStyle = "#0f172a";
-                ctx.fillRect(-c.h/4, -c.w/2 + 2, c.h/2, c.w - 4);
-
-                // Police/Ambulance Sirens 🚨
-                if(c.siren) {
-                    ctx.fillStyle = blinkOn ? "#ef4444" : "#3b82f6";
-                    ctx.fillRect(-5, -c.w/2 + 2, 10, c.w - 4);
-                    // Siren Glow
-                    if(isNight) {
-                        ctx.globalAlpha = 0.5;
-                        ctx.beginPath(); ctx.arc(0, 0, 80, 0, Math.PI*2); ctx.fill();
-                        ctx.globalAlpha = 1.0;
-                    }
+                // Headlights
+                if(isNight && c.state !== "PARKED") {
+                    let grad = ctx.createLinearGradient(c.h/2, 0, c.h/2+150, 0); grad.addColorStop(0, "rgba(255,255,200,0.5)"); grad.addColorStop(1, "rgba(255,255,200,0)");
+                    ctx.fillStyle = grad; ctx.beginPath(); ctx.moveTo(c.h/2, -c.w/2); ctx.lineTo(c.h/2+150, -60); ctx.lineTo(c.h/2+150, 60); ctx.lineTo(c.h/2, c.w/2); ctx.fill();
                 }
 
-                // Headlights 💡
-                if(isNight) {
-                    let grad = ctx.createLinearGradient(c.h/2, 0, c.h/2 + 300, 0);
-                    grad.addColorStop(0, "rgba(255,255,200,0.6)"); grad.addColorStop(1, "rgba(255,255,200,0)");
-                    ctx.fillStyle = grad;
-                    ctx.beginPath(); ctx.moveTo(c.h/2, -c.w/2); ctx.lineTo(c.h/2+300, -100); ctx.lineTo(c.h/2+300, 100); ctx.lineTo(c.h/2, c.w/2); ctx.fill();
-                }
-
-                // Brake Lights 🛑
-                if(c.braking) {
-                    ctx.fillStyle = "#ef4444";
-                    ctx.fillRect(-c.h/2, -c.w/2, 4, 6); ctx.fillRect(-c.h/2, c.w/2 - 6, 4, 6);
-                    if(isNight) { ctx.fillStyle="rgba(239,68,68,0.5)"; ctx.beginPath(); ctx.arc(-c.h/2, 0, 30, 0, Math.PI*2); ctx.fill(); }
-                }
-
-                // Blinkers ⬅️
-                if(c.blinker !== 0 && blinkOn) {
-                    ctx.fillStyle = "#f59e0b";
-                    if(c.blinker === 1) { // Right turn
-                        ctx.fillRect(c.h/2-4, c.w/2-4, 4, 4); ctx.fillRect(-c.h/2, c.w/2-4, 4, 4);
-                    } else { // Left turn
-                        ctx.fillRect(c.h/2-4, -c.w/2, 4, 4); ctx.fillRect(-c.h/2, -c.w/2, 4, 4);
-                    }
-                }
+                // Brake / Blinkers
+                if(c.braking) { ctx.fillStyle = "#ef4444"; ctx.fillRect(-c.h/2, -c.w/2, 4, 6); ctx.fillRect(-c.h/2, c.w/2-6, 4, 6); }
+                if(c.blinker !== 0 && blinkOn) { ctx.fillStyle = "#f59e0b"; if(c.blinker === 1) ctx.fillRect(c.h/2-4, c.w/2-4, 4, 4); else ctx.fillRect(c.h/2-4, -c.w/2, 4, 4); }
 
                 ctx.restore();
+            });
+        }
 
-                // Horn Message 🔊
-                if(c.msg !== "") {
-                    ctx.fillStyle = "#fcd34d"; ctx.font = "bold 14px sans-serif"; ctx.textAlign = "center";
-                    ctx.fillText(c.msg, renderX, renderY - 30);
+        function drawTrains() {
+            const C_LEN = 55, C_GAP = 6;
+            trains.forEach(t => {
+                if(!inView(t.x, t.y)) return;
+                ctx.save(); ctx.translate(t.x, t.y); ctx.rotate(t.a);
+                ctx.fillStyle = "#ef4444"; ctx.fillRect(-C_LEN/2, -14, C_LEN, 28);
+                if(isNight) { let grad = ctx.createLinearGradient(C_LEN/2, 0, C_LEN/2+300, 0); grad.addColorStop(0, "rgba(255,255,200,0.8)"); grad.addColorStop(1, "rgba(255,255,200,0)"); ctx.fillStyle = grad; ctx.beginPath(); ctx.moveTo(C_LEN/2, -12); ctx.lineTo(C_LEN/2+300, -80); ctx.lineTo(C_LEN/2+300, 80); ctx.lineTo(C_LEN/2, 12); ctx.fill(); }
+                ctx.restore();
+
+                // Snaking Coaches
+                for (let i = 1; i <= 6; i++) {
+                    let hIdx = Math.floor((i * (C_LEN + C_GAP)) / Math.max(t.s, 1));
+                    if (hIdx < t.hist.length) {
+                        let pos = t.hist[hIdx];
+                        ctx.save(); ctx.translate(pos.x, pos.y); ctx.rotate(pos.a);
+                        ctx.fillStyle = "#e2e8f0"; ctx.fillRect(-C_LEN/2, -14, C_LEN, 28);
+                        ctx.fillStyle = "#000"; ctx.fillRect(-C_LEN/2 + 5, -10, C_LEN-10, 20);
+                        ctx.restore();
+                    }
                 }
-            });
-        }
-
-        function draw2DBuildings() {
-            // ✨ 2.5D Parallax Effect - Extrude buildings towards camera center
-            bldgs.forEach(b => {
-                if(!inView(b.x, b.y)) return;
                 
-                // Base
-                ctx.fillStyle = isNight ? "#020617" : b.c;
-                ctx.fillRect(b.x, b.y, b.w, b.h);
-                
-                // Calculate Parallax Offset (Roof moves depending on camera position)
-                let offsetX = (b.x + b.w/2 - cam.x) * (b.z / 1500);
-                let offsetY = (b.y + b.h/2 - cam.y) * (b.z / 1500);
-
-                // Walls (Connecting base to roof)
-                ctx.fillStyle = isNight ? "#0f172a" : `hsl(${b.c.match(/\d+/g)[0]}, 20%, 20%)`;
-                ctx.beginPath(); ctx.moveTo(b.x, b.y); ctx.lineTo(b.x + offsetX, b.y + offsetY); ctx.lineTo(b.x + b.w + offsetX, b.y + offsetY); ctx.lineTo(b.x + b.w, b.y); ctx.fill();
-                ctx.beginPath(); ctx.moveTo(b.x + b.w, b.y); ctx.lineTo(b.x + b.w + offsetX, b.y + offsetY); ctx.lineTo(b.x + b.w + offsetX, b.y + b.h + offsetY); ctx.lineTo(b.x + b.w, b.y + b.h); ctx.fill();
-
-                // Roof
-                ctx.fillStyle = isNight ? "#1e293b" : b.roof;
-                ctx.fillRect(b.x + offsetX, b.y + offsetY, b.w, b.h);
-
-                // Windows Light up at night
-                if(isNight && Math.random()>0.3) {
-                    ctx.fillStyle = "#fde047";
-                    ctx.fillRect(b.x + offsetX + 10, b.y + offsetY + 10, 15, 15);
-                }
+                // Horn at phatak
+                if(trainGateClosed) { ctx.fillStyle = "#f59e0b"; ctx.font="bold 16px sans-serif"; ctx.textAlign="center"; ctx.fillText("🔊 HORN!", t.x, t.y-30); }
             });
         }
 
-        function drawParticles() {
-            particles.forEach(p => {
-                ctx.fillStyle = `rgba(148, 163, 184, ${p.life * 0.5})`;
-                ctx.beginPath(); ctx.arc(p.x, p.y, p.size, 0, Math.PI*2); ctx.fill();
-            });
-        }
+        function drawParticles() { particles.forEach(p => { ctx.fillStyle = `rgba(148, 163, 184, ${p.l})`; ctx.beginPath(); ctx.arc(p.x, p.y, p.s, 0, Math.PI*2); ctx.fill(); }); }
 
-        // ==========================================
-        // 7. MINIMAP / RADAR 🗺️
-        // ==========================================
-        function drawMiniMap() {
-            mCtx.clearRect(0,0,160,160);
-            let scale = 160 / WORLD_SIZE;
-            
-            // Roads on Minimap
-            mCtx.fillStyle = "#334155";
-            for(let r=0; r<gridSize; r++) mCtx.fillRect(0, (1000 + r*spacing)*scale, 160, ROAD_W*scale);
-            for(let c=0; c<gridSize; c++) mCtx.fillRect((1000 + c*spacing)*scale, 0, ROAD_W*scale, 160);
-
-            // Cars
-            cars.forEach(c => { mCtx.fillStyle = c.siren ? "#38bdf8" : "#ef4444"; mCtx.beginPath(); mCtx.arc(c.x*scale, c.y*scale, 2, 0, Math.PI*2); mCtx.fill(); });
-            
-            // Camera Box
-            mCtx.strokeStyle = "#10b981"; mCtx.lineWidth = 1.5;
-            let vW = (canvas.width/cam.zoom)*scale, vH = (canvas.height/cam.zoom)*scale;
-            mCtx.strokeRect((cam.x*scale) - vW/2, (cam.y*scale) - vH/2, vW, vH);
+        function drawMinimap() {
+            mCtx.clearRect(0,0,150,150); let scale = 150/WORLD_SIZE;
+            mCtx.fillStyle="#334155"; for(let r=0; r<3; r++) mCtx.fillRect(0, (1500+r*1500)*scale, 150, ROAD_W*scale); for(let c=0; c<3; c++) mCtx.fillRect((1500+c*1500)*scale, 0, ROAD_W*scale, 150);
+            cars.forEach(c => { mCtx.fillStyle="#ef4444"; mCtx.fillRect(c.x*scale, c.y*scale, 3, 3); });
+            trains.forEach(t => { mCtx.fillStyle="#38bdf8"; mCtx.beginPath(); mCtx.arc(t.x*scale, t.y*scale, 4, 0, Math.PI*2); mCtx.fill(); });
+            mCtx.strokeStyle="#10b981"; let vW=(canvas.width/cam.zoom)*scale, vH=(canvas.height/cam.zoom)*scale; mCtx.strokeRect((cam.x*scale)-vW/2, (cam.y*scale)-vH/2, vW, vH);
         }
 
         // ==========================================
         // 8. MAIN LOOP
         // ==========================================
-        let lastFrameTime = performance.now();
+        let lastTime = performance.now();
         function animate(time) {
-            let dt = time - lastFrameTime; lastFrameTime = time;
+            let dt = time - lastTime; lastTime = time;
             
-            updateTime(dt);
-            updateTrafficLights(dt);
-            updateCars(dt);
+            updateTime(dt); updateLights(dt); updateTrain(dt); updateCars(dt);
             
-            if(followedCar) { 
-                cam.x = followedCar.x; cam.y = followedCar.y;
-                document.getElementById('carSpeed').innerText = Math.round(followedCar.speed * 15);
-                document.getElementById('carAction').innerText = followedCar.ghostMode ? "STUCK RECOVERY!" : (followedCar.braking ? "BRAKING..." : "CRUISING...");
+            if(followedTarget) { 
+                cam.x = followedTarget.x; cam.y = followedTarget.y; 
+                document.getElementById('fSpeed').innerText = Math.round((followedTarget.speed||followedTarget.s) * 10);
+                document.getElementById('fAction').innerText = (followedTarget.state || followedTarget.id);
             }
 
-            // Draw World
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-            ctx.save();
-            ctx.translate(canvas.width/2, canvas.height/2); ctx.scale(cam.zoom, cam.zoom); ctx.translate(-cam.x, -cam.y);
+            ctx.clearRect(0,0,canvas.width,canvas.height);
+            ctx.save(); ctx.translate(canvas.width/2, canvas.height/2); ctx.scale(cam.zoom, cam.zoom); ctx.translate(-cam.x, -cam.y);
             
-            drawRoads();
-            drawIntersections();
-            drawParticles();
-            drawCars();
-            draw2DBuildings(); // 2.5D Magic!
-
-            // Rain
-            if(isRainy) {
-                ctx.fillStyle = "rgba(255,255,255,0.4)";
-                rain.forEach(r => {
-                    let rx = cam.x - (canvas.width/2)/cam.zoom + r.x/cam.zoom;
-                    let ry = cam.y - (canvas.height/2)/cam.zoom + r.y/cam.zoom;
-                    ctx.fillRect(rx, ry, 2, r.s); 
-                    r.y += 30; if(r.y > canvas.height) { r.y = 0; r.x = Math.random()*canvas.width; }
-                });
-            }
-
-            // Night Overlay
-            if(isNight) { ctx.fillStyle = "rgba(0, 5, 20, 0.6)"; ctx.fillRect(0, 0, WORLD_SIZE, WORLD_SIZE); }
-
-            ctx.restore();
-            drawMiniMap();
+            drawWorld(); drawParticles(); drawCars(); drawTrains();
+            
+            if(isRainy) { ctx.fillStyle="rgba(255,255,255,0.4)"; rain.forEach(r => { let rx = cam.x - (canvas.width/2)/cam.zoom + r.x/cam.zoom; let ry = cam.y - (canvas.height/2)/cam.zoom + r.y/cam.zoom; ctx.fillRect(rx, ry, 2, r.s); r.y += 30; if(r.y > canvas.height) { r.y = 0; r.x = Math.random()*canvas.width; } }); }
+            if(isNight) { ctx.fillStyle="rgba(0,5,20,0.6)"; ctx.fillRect(0,0,WORLD_SIZE,WORLD_SIZE); }
+            
+            ctx.restore(); drawMinimap();
             requestAnimationFrame(animate);
         }
-
         requestAnimationFrame(animate);
     </script>
 </body>
