@@ -3,296 +3,445 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Ultimate Real Railway Simulation</title>
+    <title>Premium Railway Simulator - Stylish Edition</title>
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; user-select: none; font-family: 'Segoe UI', Tahoma, sans-serif; }
-        body { background: #4ade80; overflow: hidden; touch-action: none; }
-        canvas { display: block; width: 100vw; height: 100vh; cursor: crosshair; }
-        
-        .mini-hud { position: absolute; top: 10px; left: 10px; background: rgba(255, 255, 255, 0.95); padding: 10px 15px; border-radius: 8px; border: 2px solid #3b82f6; box-shadow: 0 4px 10px rgba(0,0,0,0.2); z-index: 10; width: 220px; }
-        .hud-title { font-size: 14px; font-weight: 900; color: #1e293b; margin-bottom: 5px; }
-        .hud-clock { font-size: 20px; font-weight: bold; color: #2563eb; margin-bottom: 8px; text-align: center; background: #e0f2fe; padding: 4px; border-radius: 4px; border: 1px solid #bfdbfe; }
-        
-        .btn { width: 100%; background: #3b82f6; color: white; border: none; padding: 6px; border-radius: 4px; font-size: 11px; font-weight: bold; cursor: pointer; margin-bottom: 5px; }
-        .btn:hover { background: #2563eb; }
-        .hint { font-size: 9px; color: #64748b; text-align: center; margin-top: 5px; }
+        /* =========================================================================
+           STYLISH GLASSMORPHISM UI & ANIMATIONS
+        ========================================================================= */
+        @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700;900&display=swap');
+        * { margin: 0; padding: 0; box-sizing: border-box; user-select: none; font-family: 'Montserrat', sans-serif; }
+        body { background: #22c55e; overflow: hidden; touch-action: none; color: #fff; }
+        canvas { display: block; width: 100vw; height: 100vh; cursor: grab; }
+        canvas:active { cursor: grabbing; }
 
-        #followPanel { display: none; position: absolute; bottom: 20px; left: 20px; background: rgba(255, 255, 255, 0.95); border-left: 4px solid #ef4444; padding: 10px 15px; border-radius: 6px; box-shadow: 0 2px 10px rgba(0,0,0,0.2); z-index: 10; }
-        .t-name { font-size: 12px; font-weight: bold; color: #1e293b; }
-        .t-status { font-size: 11px; color: #10b981; font-weight: bold; margin-top: 3px; }
+        /* Premium Dashboard */
+        .hud { position: absolute; top: 20px; left: 20px; background: rgba(15, 23, 42, 0.75); backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px); padding: 20px; border-radius: 16px; border: 1px solid rgba(255,255,255,0.2); box-shadow: 0 10px 40px rgba(0,0,0,0.5); z-index: 10; width: 280px; transition: all 0.3s ease; }
+        .hud-title { font-size: 18px; font-weight: 900; color: #38bdf8; margin-bottom: 5px; text-transform: uppercase; letter-spacing: 1px; text-shadow: 0 2px 4px rgba(0,0,0,0.5); }
+        .hud-subtitle { font-size: 11px; color: #94a3b8; margin-bottom: 15px; font-weight: 700; }
+        
+        .clock-box { background: linear-gradient(135deg, #020617, #0f172a); color: #10b981; font-size: 36px; font-weight: 900; padding: 10px; border-radius: 10px; border: 2px solid #059669; text-align: center; margin-bottom: 15px; letter-spacing: 3px; box-shadow: inset 0 0 15px rgba(16, 185, 129, 0.2), 0 4px 10px rgba(0,0,0,0.3); }
 
-        .radar { position: absolute; bottom: 20px; right: 20px; width: 150px; height: 150px; background: #f8fafc; border: 2px solid #94a3b8; border-radius: 8px; z-index: 10; overflow: hidden; box-shadow: 0 4px 10px rgba(0,0,0,0.2); }
-        #radarCanvas { width: 100%; height: 100%; }
+        .btn-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 10px; }
+        .btn { background: rgba(255,255,255,0.1); color: #fff; border: 1px solid rgba(255,255,255,0.2); padding: 12px 10px; border-radius: 8px; font-size: 11px; font-weight: 700; cursor: pointer; transition: all 0.2s ease; text-transform: uppercase; }
+        .btn:hover { background: #38bdf8; color: #000; border-color: #38bdf8; transform: translateY(-2px); box-shadow: 0 4px 10px rgba(56, 189, 248, 0.4); }
+        .btn-special { grid-column: span 2; background: linear-gradient(90deg, #ec4899, #ef4444); border: none; font-size: 13px; letter-spacing: 1px; }
+        .btn-special:hover { background: linear-gradient(90deg, #db2777, #dc2626); color: white; }
+
+        /* Follow Panel */
+        #targetPanel { display: none; position: absolute; bottom: 30px; left: 20px; background: rgba(15, 23, 42, 0.85); backdrop-filter: blur(10px); border-left: 5px solid #10b981; padding: 15px 20px; border-radius: 8px; z-index: 10; box-shadow: 0 10px 30px rgba(0,0,0,0.5); animation: slideUp 0.3s ease; }
+        @keyframes slideUp { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+        .t-type { font-size: 14px; font-weight: 900; color: #fff; margin-bottom: 5px; }
+        .t-speed { font-size: 24px; color: #10b981; font-weight: bold; }
+        .t-status { font-size: 12px; color: #f59e0b; margin-top: 5px; font-weight: 700; }
+
+        /* Radar Minimap */
+        .radar-box { position: absolute; bottom: 30px; right: 20px; width: 180px; height: 180px; background: rgba(2, 6, 23, 0.9); border: 3px solid #334155; border-radius: 50%; z-index: 10; overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,0.6); }
+        #radarCanvas { width: 100%; height: 100%; border-radius: 50%; }
+
+        .hint { position: absolute; top: 20px; right: 20px; background: rgba(0,0,0,0.6); padding: 10px 15px; border-radius: 8px; font-size: 11px; color: #cbd5e1; pointer-events: none; }
     </style>
 </head>
 <body>
 
-    <div class="mini-hud">
-        <div class="hud-title">🚄 Express Rail Net</div>
-        <div class="hud-clock" id="clock">08:00</div>
-        <button class="btn" onclick="timeSpeed = timeSpeed === 1 ? 3 : 1">⏩ Fast Time</button>
-        <button class="btn" onclick="unfollow()" style="background:#ef4444;">🌍 Free Camera</button>
-        <div class="hint">Zoom: Scroll/Pinch | Pan: Drag | Click Train to Follow</div>
+    <div class="hud">
+        <div class="hud-title">🚄 Stylish Train Simulator</div>
+        <div class="hud-subtitle">Premium Edition | Smart Stations</div>
+        
+        <div class="clock-box" id="uiClock">08:00</div>
+        
+        <div class="btn-grid">
+            <button class="btn" onclick="timeSpeed = timeSpeed === 1 ? 5 : 1">⏩ Fast Time</button>
+            <button class="btn" onclick="unfollow()">🌍 Free Cam</button>
+            <button class="btn btn-special" onclick="autoFindTrain()">🎥 Auto Find Train</button>
+        </div>
     </div>
 
-    <div id="followPanel">
-        <div class="t-name" id="tName">Train Express</div>
-        <div class="t-status" id="tStatus">Status: Moving</div>
+    <div id="targetPanel">
+        <div class="t-type" id="tType">🚄 Express Train</div>
+        <div class="t-speed"><span id="tSpeed">0</span> <span style="font-size:12px;color:#94a3b8;">KM/H</span></div>
+        <div class="t-status" id="tStatus">Cruising...</div>
     </div>
 
-    <div class="radar"><canvas id="radarCanvas"></canvas></div>
+    <div class="hint">🔍 Pinch/Scroll: Zoom | 👆 Drag: Pan Map</div>
+
+    <div class="radar-box"><canvas id="radarCanvas"></canvas></div>
     <canvas id="gameCanvas"></canvas>
 
     <script>
+        // =========================================================================
+        // CORE ENGINE & SMOOTH CAMERA
+        // =========================================================================
         const canvas = document.getElementById("gameCanvas");
         const ctx = canvas.getContext("2d", { alpha: false });
         const rCanvas = document.getElementById("radarCanvas");
         const rCtx = rCanvas.getContext("2d");
 
-        const W_SIZE = 50000; 
-        let cam = { x: 25000, y: 25000, zoom: 0.1 }; 
+        const WORLD_SIZE = 25000; // Perfect size (Not too big, not too small)
+        let cam = { x: 12500, y: 12500, zoom: 0.3, targetX: 12500, targetY: 12500, targetZoom: 0.3 };
+        
         let isDragging = false, startX, startY, camStartX, camStartY;
         let followedTarget = null;
         let timeSpeed = 1;
-        let gameTime = 8 * 60;
+        let gameTimeMins = 8 * 60;
+        let lastFrameTime = performance.now();
 
-        function resize() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; rCanvas.width=150; rCanvas.height=150; }
+        function resize() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; rCanvas.width=180; rCanvas.height=180; }
         window.addEventListener('resize', resize); resize();
 
-        // Camera Controls
-        canvas.addEventListener('mousedown', e => { isDragging = true; startX = e.clientX; startY = e.clientY; camStartX = cam.x; camStartY = cam.y; unfollow(); });
+        // Smooth Camera Controls
+        canvas.addEventListener('mousedown', e => { isDragging = true; startX = e.clientX; startY = e.clientY; camStartX = cam.targetX; camStartY = cam.targetY; unfollow(); });
         window.addEventListener('mouseup', () => isDragging = false);
-        window.addEventListener('mousemove', e => { if(isDragging) { cam.x = camStartX - (e.clientX - startX)/cam.zoom; cam.y = camStartY - (e.clientY - startY)/cam.zoom; } });
-        canvas.addEventListener('wheel', e => { e.preventDefault(); cam.zoom = Math.min(Math.max(0.02, cam.zoom * (e.deltaY > 0 ? 0.85 : 1.15)), 3.0); });
+        window.addEventListener('mousemove', e => { if(isDragging) { cam.targetX = camStartX - (e.clientX - startX)/cam.zoom; cam.targetY = camStartY - (e.clientY - startY)/cam.zoom; } });
+        canvas.addEventListener('wheel', e => { e.preventDefault(); cam.targetZoom = Math.min(Math.max(0.05, cam.targetZoom * (e.deltaY > 0 ? 0.8 : 1.2)), 3.0); });
 
         let initPinch = null, initZoom = null;
         canvas.addEventListener('touchstart', e => {
-            if(e.touches.length === 1) { isDragging=true; startX=e.touches[0].clientX; startY=e.touches[0].clientY; camStartX=cam.x; camStartY=cam.y; unfollow(); }
-            else if(e.touches.length === 2) { initPinch = Math.hypot(e.touches[0].clientX-e.touches[1].clientX, e.touches[0].clientY-e.touches[1].clientY); initZoom = cam.zoom; }
+            if(e.touches.length === 1) { isDragging=true; startX=e.touches[0].clientX; startY=e.touches[0].clientY; camStartX=cam.targetX; camStartY=cam.targetY; unfollow(); }
+            else if(e.touches.length === 2) { initPinch = Math.hypot(e.touches[0].clientX-e.touches[1].clientX, e.touches[0].clientY-e.touches[1].clientY); initZoom = cam.targetZoom; }
         });
         window.addEventListener('touchend', () => { isDragging = false; initPinch = null; });
         window.addEventListener('touchmove', e => {
-            if(e.touches.length === 1 && isDragging && !initPinch) { cam.x = camStartX - (e.touches[0].clientX - startX)/cam.zoom; cam.y = camStartY - (e.touches[0].clientY - startY)/cam.zoom; }
-            else if(e.touches.length === 2 && initPinch) { let dist = Math.hypot(e.touches[0].clientX-e.touches[1].clientX, e.touches[0].clientY-e.touches[1].clientY); cam.zoom = Math.min(Math.max(0.02, initZoom * (dist/initPinch)), 3.0); }
+            if(e.touches.length === 1 && isDragging && !initPinch) { cam.targetX = camStartX - (e.touches[0].clientX - startX)/cam.zoom; cam.targetY = camStartY - (e.touches[0].clientY - startY)/cam.zoom; }
+            else if(e.touches.length === 2 && initPinch) { let dist = Math.hypot(e.touches[0].clientX-e.touches[1].clientX, e.touches[0].clientY-e.touches[1].clientY); cam.targetZoom = Math.min(Math.max(0.05, initZoom * (dist/initPinch)), 3.0); }
         });
-
-        // =========================================================================
-        // SMOOTH ROUNDED TRACK LOOPS (NO GLITCH, NO DEADLOCK)
-        // =========================================================================
-        // Instead of complex nodes that can deadlock, each train follows a gorgeous rounded circuit seamlessly.
-        function generateTrackLoop(x, y, w, h, r) {
-            let pts = [];
-            let step = 300;
-            // Top edge
-            for(let i=x+r; i<=x+w-r; i+=step) pts.push({x: i, y: y, isStn: false});
-            // Top-Right corner
-            pts.push({x: x+w-r/2, y: y+r/2, isStn: false});
-            // Right edge
-            for(let i=y+r; i<=y+h-r; i+=step) pts.push({x: x+w, y: i, isStn: i === y + h/2}); // Station in middle of right edge
-            // Bottom-Right corner
-            pts.push({x: x+w-r/2, y: y+h-r/2, isStn: false});
-            // Bottom edge
-            for(let i=x+w-r; i>=x+r; i-=step) pts.push({x: i, y: y+h, isStn: false});
-            // Bottom-Left corner
-            pts.push({x: x+r/2, y: y+h-r/2, isStn: false});
-            // Left edge
-            for(let i=y+h-r; i>=y+r; i-=step) pts.push({x: x, y: i, isStn: i === y + h/2}); // Station in middle of left edge
-            // Top-Left corner
-            pts.push({x: x+r/2, y: y+r/2, isStn: false});
-            return pts;
-        }
-
-        const loop1 = generateTrackLoop(8000, 8000, 34000, 34000, 8000);
-        const loop2 = generateTrackLoop(12000, 12000, 26000, 26000, 6000);
-
-        // Safe Distance Check for Homes
-        function isNearAnyTrack(x, y) {
-            let allPts = [...loop1, ...loop2];
-            for(let p of allPts) {
-                if(Math.hypot(x - p.x, y - p.y) < 1500) return true;
-            }
-            return false;
-        }
-
-        // =========================================================================
-        // HOMES & ENVIRONMENT (Far away from tracks)
-        // =========================================================================
-        const homes = [];
-        for(let i=0; i<3000; i++) {
-            let hx = Math.random()*W_SIZE, hy = Math.random()*W_SIZE;
-            if(!isNearAnyTrack(hx, hy)) {
-                homes.push({ x: hx, y: hy, w: 250, h: 250, c: "#f8fafc", roof: "#2563eb" });
-            }
-        }
-
-        // =========================================================================
-        // 8 FAST & SMOOTH REAL TRAINS (WITH 10 SECONDS STATION STOP)
-        // =========================================================================
-        const trains = [
-            { id: "Vande Bharat Express", c: "#ef4444", route: loop1, pIdx: 0, s: 18, maxS: 18, coaches: 10, state: "RUN", waitTimer: 0, a: 0, hist: [] },
-            { id: "Rajdhani Express", c: "#3b82f6", route: loop1, pIdx: 15, s: 16, maxS: 16, coaches: 12, state: "RUN", waitTimer: 0, a: 0, hist: [] },
-            { id: "Mumbai Local", c: "#10b981", route: loop2, pIdx: 5, s: 12, maxS: 12, coaches: 8, state: "RUN", waitTimer: 0, a: 0, hist: [] },
-            { id: "Intercity Superfast", c: "#f59e0b", route: loop2, pIdx: 20, s: 15, maxS: 15, coaches: 9, state: "RUN", waitTimer: 0, a: 0, hist: [] },
-            { id: "Bullet Train", c: "#0f172a", route: loop1, pIdx: 30, s: 24, maxS: 24, coaches: 8, state: "RUN", waitTimer: 0, a: 0, hist: [] },
-            { id: "Cargo Freight", c: "#78350f", route: loop2, pIdx: 10, s: 9, maxS: 9, coaches: 25, state: "RUN", waitTimer: 0, a: 0, hist: [] },
-            { id: "Regional Passenger", c: "#8b5cf6", route: loop1, pIdx: 45, s: 11, maxS: 11, coaches: 7, state: "RUN", waitTimer: 0, a: 0, hist: [] },
-            { id: "Night Star Express", c: "#06b6d4", route: loop2, pIdx: 35, s: 14, maxS: 14, coaches: 10, state: "RUN", waitTimer: 0, a: 0, hist: [] }
-        ];
 
         canvas.addEventListener('click', e => {
             if(isDragging) return;
             let wx = (e.clientX - canvas.width/2)/cam.zoom + cam.x; let wy = (e.clientY - canvas.height/2)/cam.zoom + cam.y;
             let found = null;
-            trains.forEach(t => { if(Math.hypot(t.x - wx, t.y - wy) < 3000) found = t; });
-            if(found) { followedTarget = found; document.getElementById('followPanel').style.display='block'; document.getElementById('tName').innerText = "🚆 " + found.id; }
+            trains.forEach(t => { if(Math.hypot(t.x - wx, t.y - wy) < 500) found = t; });
+            if(found) setFollow(found);
         });
-        function unfollow() { followedTarget = null; document.getElementById('followPanel').style.display = 'none'; }
 
-        // Bulletproof Train Update Loop (Zero Glitch)
+        function setFollow(target) { followedTarget = target; document.getElementById('targetPanel').style.display = 'block'; document.getElementById('tType').innerText = target.id; }
+        function unfollow() { followedTarget = null; document.getElementById('targetPanel').style.display = 'none'; }
+
+        let autoTrainIndex = 0;
+        function autoFindTrain() {
+            if(trains.length === 0) return;
+            let t = trains[autoTrainIndex];
+            setFollow(t);
+            cam.targetZoom = 0.8; // Zoom in nicely
+            autoTrainIndex = (autoTrainIndex + 1) % trains.length;
+        }
+
+        // =========================================================================
+        // HIGH-RESOLUTION PATH GENERATION (PERFECT CURVES, NO GLITCH)
+        // =========================================================================
+        // This math generates a perfect path array. The train moves exactly along these points.
+        function generateSmoothCircuit(cx, cy, w, h, radius) {
+            let path = [];
+            let resolution = 50; // Distance between points (lower = smoother)
+            
+            let left = cx - w/2, right = cx + w/2;
+            let top = cy - h/2, bottom = cy + h/2;
+
+            // Top edge (Right to Left)
+            for(let x=right-radius; x>=left+radius; x-=resolution) path.push({x: x, y: top});
+            // Top Left Corner
+            for(let a=Math.PI*1.5; a>=Math.PI; a-=0.1) path.push({x: left+radius + Math.cos(a)*radius, y: top+radius + Math.sin(a)*radius});
+            // Left Edge (Top to Bottom)
+            for(let y=top+radius; y<=bottom-radius; y+=resolution) path.push({x: left, y: y});
+            // Bottom Left Corner
+            for(let a=Math.PI; a>=Math.PI*0.5; a-=0.1) path.push({x: left+radius + Math.cos(a)*radius, y: bottom-radius + Math.sin(a)*radius});
+            // Bottom Edge (Left to Right)
+            for(let x=left+radius; x<=right-radius; x+=resolution) path.push({x: x, y: bottom});
+            // Bottom Right Corner
+            for(let a=Math.PI*0.5; a>=0; a-=0.1) path.push({x: right-radius + Math.cos(a)*radius, y: bottom-radius + Math.sin(a)*radius});
+            // Right Edge (Bottom to Top)
+            for(let y=bottom-radius; y>=top+radius; y-=resolution) path.push({x: right, y: y});
+            // Top Right Corner
+            for(let a=Math.PI*2; a>=Math.PI*1.5; a-=0.1) path.push({x: right-radius + Math.cos(a)*radius, y: top+radius + Math.sin(a)*radius});
+            
+            return path;
+        }
+
+        const outerTrack = generateSmoothCircuit(12500, 12500, 20000, 20000, 4000);
+        const innerTrack = generateSmoothCircuit(12500, 12500, 14000, 14000, 3000);
+
+        // STATIONS DEFINITION
+        const stations = [
+            { name: "MEGA CENTRAL", x: 12500, y: 2500, w: 2500, h: 1000, onTrack: outerTrack, stopDist: 0.12 }, // Top
+            { name: "SOUTH VALLEY", x: 12500, y: 22500, w: 2500, h: 1000, onTrack: outerTrack, stopDist: 0.62 }, // Bottom
+            { name: "EASTERN HUB", x: 19500, y: 12500, w: 1000, h: 2500, onTrack: innerTrack, stopDist: 0.85 }, // Inner Right
+            { name: "WESTERN HUB", x: 5500, y: 12500, w: 1000, h: 2500, onTrack: innerTrack, stopDist: 0.35 }  // Inner Left
+        ];
+
+        // Assign stations to track points
+        stations.forEach(st => {
+            let stopIdx = Math.floor(st.onTrack.length * st.stopDist);
+            st.onTrack[stopIdx].isStation = true;
+            st.onTrack[stopIdx].stationName = st.name;
+        });
+
+        // Safe Distance Math for Homes
+        function isNearTracks(x, y) {
+            // Check bounding boxes roughly to save performance
+            let outLeft = 2500-1500, outRight = 22500+1500, outTop = 2500-1500, outBot = 22500+1500;
+            let inLeft = 5500-1500, inRight = 19500+1500, inTop = 5500-1500, inBot = 19500+1500;
+            
+            // If near outer ring bounds
+            if((Math.abs(x - outLeft) < 1500 || Math.abs(x - outRight) < 1500) && y > outTop && y < outBot) return true;
+            if((Math.abs(y - outTop) < 1500 || Math.abs(y - outBot) < 1500) && x > outLeft && x < outRight) return true;
+            
+            // If near inner ring bounds
+            if((Math.abs(x - inLeft) < 1500 || Math.abs(x - inRight) < 1500) && y > inTop && y < inBot) return true;
+            if((Math.abs(y - inTop) < 1500 || Math.abs(y - inBot) < 1500) && x > inLeft && x < inRight) return true;
+
+            return false;
+        }
+
+        // =========================================================================
+        // ENVIRONMENT (Homes 🏠, Trees 🌲, Lakes 💧)
+        // =========================================================================
+        const homes = [], trees = [], lakes = [];
+        
+        // Add Lakes
+        lakes.push({x: 12500, y: 12500, r: 2000}); // Center lake
+        lakes.push({x: 4000, y: 4000, r: 1500});
+        lakes.push({x: 21000, y: 21000, r: 1800});
+
+        // Add 300 Stylish Homes 🏠 (Controlled amount to avoid clutter)
+        let attempts = 0;
+        while(homes.length < 300 && attempts < 5000) {
+            let hx = Math.random()*W_SIZE; let hy = Math.random()*W_SIZE;
+            // Ensure they don't spawn in lakes or near tracks
+            let inLake = lakes.some(l => Math.hypot(hx-l.x, hy-l.y) < l.r + 200);
+            if(!isNearTracks(hx, hy) && !inLake) {
+                homes.push({x: hx, y: hy, size: 250 + Math.random()*100});
+            }
+            attempts++;
+        }
+
+        // Add Trees 🌲🌳
+        for(let i=0; i<1500; i++) {
+            let tx = Math.random()*W_SIZE; let ty = Math.random()*W_SIZE;
+            if(!isNearTracks(tx, ty)) {
+                trees.push({x: tx, y: ty, emoji: Math.random()>0.5?"🌲":"🌳", size: 150 + Math.random()*100});
+            }
+        }
+
+        // =========================================================================
+        // THE TRAINS (Advanced Path Follower & 10s Wait)
+        // =========================================================================
+        const trains = [
+            { id: "🚄 Vande Bharat", c: "#f8fafc", track: outerTrack, dist: 0, s: 60, maxS: 60, coaches: 8, state: "RUN", wait: 0, x:0, y:0, a:0, hist:[] },
+            { id: "🚆 Rajdhani Exp", c: "#ef4444", track: outerTrack, dist: 25000, s: 50, maxS: 50, coaches: 10, state: "RUN", wait: 0, x:0, y:0, a:0, hist:[] },
+            { id: "🚇 City Metro", c: "#a855f7", track: innerTrack, dist: 0, s: 40, maxS: 40, coaches: 6, state: "RUN", wait: 0, x:0, y:0, a:0, hist:[] },
+            { id: "🚂 Heavy Goods", c: "#f59e0b", track: innerTrack, dist: 15000, s: 25, maxS: 25, coaches: 20, state: "RUN", wait: 0, x:0, y:0, a:0, hist:[] }
+        ];
+
+        // Function to get exact X,Y and Angle on the track based on distance traveled
+        function getPointOnTrack(track, distance) {
+            let totalLen = track.length;
+            let idx = Math.floor(distance) % totalLen;
+            let nextIdx = (idx + 1) % totalLen;
+            
+            let p1 = track[idx]; let p2 = track[nextIdx];
+            let frac = distance - Math.floor(distance);
+            
+            let x = p1.x + (p2.x - p1.x) * frac;
+            let y = p1.y + (p2.y - p1.y) * frac;
+            let angle = Math.atan2(p2.y - p1.y, p2.x - p1.x);
+            
+            return { x, y, angle, pointObj: p1 };
+        }
+
         function updateTrains(dt) {
             trains.forEach(t => {
-                let currentPt = t.route[t.pIdx];
-                
-                if (t.state === "WAIT_STN") {
-                    // 10 Seconds Station Stop! (1000ms * 10 = 10000ms)
-                    t.waitTimer -= dt * timeSpeed;
-                    if(t.waitTimer <= 0) { t.state = "RUN"; }
-                    if(followedTarget === t) document.getElementById('tStatus').innerHTML = `Status: <span style="color:#ef4444">🛑 Stopped at Station (${Math.ceil(t.waitTimer/1000)}s)</span>`;
-                    return;
-                }
+                let currentPos = getPointOnTrack(t.track, t.dist);
+                t.x = currentPos.x; t.y = currentPos.y; t.a = currentPos.angle;
 
-                let targetPt = t.route[(t.pIdx + 1) % t.route.length];
-                let dx = targetPt.x - t.x; let dy = targetPt.y - t.y;
-                let dist = Math.hypot(dx, dy);
-                let moveStep = t.s * timeSpeed;
-
+                // Save history for perfectly snaking coaches
                 t.hist.unshift({x: t.x, y: t.y, a: t.a});
-                if(t.hist.length > 800) t.hist.pop();
+                if(t.hist.length > 600) t.hist.pop();
 
-                if (dist < moveStep) {
-                    t.x = targetPt.x; t.y = targetPt.y;
-                    t.pIdx = (t.pIdx + 1) % t.route.length;
+                let statusMsg = "Cruising...";
 
-                    // Check if new waypoint is a station
-                    if (targetPt.isStn) {
-                        t.state = "WAIT_STN";
-                        t.waitTimer = 10000; // Exactly 10 Seconds Stop!
+                if (t.state === "WAIT") {
+                    t.wait -= dt * timeSpeed;
+                    statusMsg = `🛑 Boarding... (${Math.ceil(t.wait/1000)}s left)`;
+                    if(t.wait <= 0) { 
+                        t.state = "RUN"; 
+                        t.dist += 2; // Nudge forward to escape station point
                     }
-                } else {
-                    t.a = Math.atan2(dy, dx);
-                    t.x += Math.cos(t.a) * moveStep;
-                    t.y += Math.sin(t.a) * moveStep;
+                } 
+                else if (t.state === "RUN") {
+                    // Check if current point is a station
+                    if(currentPos.pointObj.isStation) {
+                        t.state = "WAIT";
+                        t.wait = 10000; // EXACTLY 10 SECONDS WAIT
+                        currentPos.pointObj.isStation = false; // Temporarily disable so it doesn't re-trigger immediately
+                        
+                        // Re-enable station tag after train leaves
+                        setTimeout(() => { currentPos.pointObj.isStation = true; }, 12000); 
+                    } else {
+                        // Move train
+                        t.dist += (t.s * timeSpeed * 0.1); 
+                    }
                 }
 
-                if(followedTarget === t) document.getElementById('tStatus').innerHTML = `Status: <span style="color:#10b981">Cruising Smoothly</span><br>Speed: ${t.maxS * 10} km/h`;
+                if(followedTarget === t) {
+                    document.getElementById('tSpeed').innerText = t.state==="WAIT" ? "0" : Math.round(t.s * 2);
+                    document.getElementById('tStatus').innerHTML = statusMsg;
+                }
             });
         }
 
         // =========================================================================
-        // RENDERING
+        // RENDER ENGINE (Stylish & Clean)
         // =========================================================================
-        function inView(x, y, pad=8000) {
+        function inView(x, y, pad=5000) {
             let hw = (canvas.width/2)/cam.zoom, hh = (canvas.height/2)/cam.zoom;
             return (x > cam.x - hw - pad && x < cam.x + hw + pad && y > cam.y - hh - pad && y < cam.y + hh + pad);
         }
 
-        function drawTrackLoop(pts) {
-            ctx.lineCap = "round"; ctx.lineJoin = "round";
-            // Sleepers
-            ctx.beginPath(); ctx.strokeStyle = "#451a03"; ctx.lineWidth = 120; ctx.setLineDash([25, 50]);
-            ctx.moveTo(pts[0].x, pts[0].y); pts.forEach(p => ctx.lineTo(p.x, p.y)); ctx.closePath(); ctx.stroke();
-            // Rails
-            ctx.beginPath(); ctx.strokeStyle = "#cbd5e1"; ctx.lineWidth = 140; ctx.setLineDash([]);
-            ctx.moveTo(pts[0].x, pts[0].y); pts.forEach(p => ctx.lineTo(p.x, p.y)); ctx.closePath(); ctx.stroke();
-            // Track gap
-            ctx.beginPath(); ctx.strokeStyle = "#4ade80"; ctx.lineWidth = 100;
-            ctx.moveTo(pts[0].x, pts[0].y); pts.forEach(p => ctx.lineTo(p.x, p.y)); ctx.closePath(); ctx.stroke();
-
-            // Draw Station platforms
-            pts.forEach(p => {
-                if(p.isStn) {
-                    ctx.fillStyle = "#1e293b"; ctx.fillRect(p.x - 800, p.y - 800, 1600, 1600);
-                    ctx.fillStyle = "#fff"; ctx.font = "bold 180px sans-serif"; ctx.textAlign = "center";
-                    ctx.fillText("🚉 CITY STATION", p.x, p.y - 1000);
-                }
-            });
-        }
-
         function drawWorld() {
-            ctx.fillStyle = "#4ade80"; ctx.fillRect(0, 0, W_SIZE, W_SIZE);
+            // Bright Green Lawn
+            ctx.fillStyle = "#22c55e"; ctx.fillRect(0, 0, W_SIZE, W_SIZE);
 
-            // Safe Homes (Guaranteed away from tracks)
+            // Water Lakes 💧
+            ctx.fillStyle = "#38bdf8";
+            lakes.forEach(l => { if(inView(l.x, l.y, l.r)) { ctx.beginPath(); ctx.arc(l.x, l.y, l.r, 0, Math.PI*2); ctx.fill(); }});
+
+            // 🏠 Homes (Emoji Based, Huge and Clear)
+            ctx.textAlign = "center"; ctx.textBaseline = "middle";
             homes.forEach(h => {
-                if(!inView(h.x, h.y, h.w)) return;
-                ctx.fillStyle = h.c; ctx.fillRect(h.x, h.y, h.w, h.h);
-                ctx.fillStyle = h.roof; ctx.fillRect(h.x, h.y, h.w, h.h * 0.35);
+                if(!inView(h.x, h.y, h.size)) return;
+                // Shadow
+                ctx.fillStyle = "rgba(0,0,0,0.3)"; ctx.beginPath(); ctx.ellipse(h.x+h.size/4, h.y+h.size/3, h.size/1.5, h.size/2.5, 0, 0, Math.PI*2); ctx.fill();
+                ctx.font = `${h.size}px sans-serif`; ctx.fillText("🏠", h.x, h.y);
             });
 
-            // Draw Both Smooth Circuits
-            drawTrackLoop(loop1);
-            drawTrackLoop(loop2);
+            // 🌲 Trees
+            trees.forEach(t => {
+                if(!inView(t.x, t.y, t.size)) return;
+                ctx.fillStyle = "rgba(0,0,0,0.3)"; ctx.beginPath(); ctx.ellipse(t.x+t.size/4, t.y+t.size/3, t.size/2, t.size/3, 0, 0, Math.PI*2); ctx.fill();
+                ctx.font = `${t.size}px sans-serif`; ctx.fillText(t.emoji, t.x, t.y);
+            });
+
+            // 🛤️ Stylish Bold Tracks
+            ctx.lineCap = "round"; ctx.lineJoin = "round";
+            [outerTrack, innerTrack].forEach(track => {
+                if(!inView(track[0].x, track[0].y, 20000)) return; // Broad cull
+                
+                // Sleepers (Wooden)
+                ctx.beginPath(); ctx.strokeStyle = "#451a03"; ctx.lineWidth = 140; ctx.setLineDash([30, 60]);
+                ctx.moveTo(track[0].x, track[0].y); track.forEach(p => ctx.lineTo(p.x, p.y)); ctx.closePath(); ctx.stroke();
+                
+                // Silver Rails
+                ctx.beginPath(); ctx.strokeStyle = "#cbd5e1"; ctx.lineWidth = 160; ctx.setLineDash([]);
+                ctx.moveTo(track[0].x, track[0].y); track.forEach(p => ctx.lineTo(p.x, p.y)); ctx.closePath(); ctx.stroke();
+                
+                // Center Gap
+                ctx.beginPath(); ctx.strokeStyle = "#22c55e"; ctx.lineWidth = 110;
+                ctx.moveTo(track[0].x, track[0].y); track.forEach(p => ctx.lineTo(p.x, p.y)); ctx.closePath(); ctx.stroke();
+            });
+
+            // 🚉 Premium Stations
+            stations.forEach(st => {
+                if(!inView(st.x, st.y, Math.max(st.w, st.h))) return;
+                
+                // Platform Base
+                ctx.fillStyle = "#334155"; ctx.fillRect(st.x - st.w/2, st.y - st.h/2, st.w, st.h);
+                // Yellow Safety Line
+                ctx.strokeStyle = "#facc15"; ctx.lineWidth = 20; ctx.strokeRect(st.x - st.w/2 + 30, st.y - st.h/2 + 30, st.w - 60, st.h - 60);
+                // Roof
+                ctx.fillStyle = "rgba(15, 23, 42, 0.8)"; ctx.fillRect(st.x - st.w/2 + 50, st.y - st.h/2 + 50, st.w - 100, st.h - 100);
+                
+                // Text
+                ctx.fillStyle = "#38bdf8"; ctx.font = "bold 200px Montserrat, sans-serif"; ctx.textAlign = "center";
+                ctx.fillText(st.name, st.x, st.y + 70);
+            });
         }
 
         function drawTrains() {
-            const C_LEN = 300, C_GAP = 25;
+            const C_LEN = 350, C_GAP = 30; // Big visible trains
             trains.forEach(t => {
-                if(!inView(t.x, t.y, 8000)) return;
+                if(!inView(t.x, t.y, 5000)) return;
                 
                 // Engine
                 ctx.save(); ctx.translate(t.x, t.y); ctx.rotate(t.a);
-                ctx.fillStyle = "rgba(0,0,0,0.4)"; ctx.beginPath(); ctx.roundRect(-C_LEN/2+20, -50+20, C_LEN, 100, 30); ctx.fill();
-                ctx.fillStyle = t.c; ctx.beginPath(); ctx.roundRect(-C_LEN/2, -60, C_LEN, 120, 30); ctx.fill();
-                ctx.fillStyle = "#0f172a"; ctx.fillRect(-C_LEN/4, -40, C_LEN/2, 80);
+                // Shadow
+                ctx.fillStyle = "rgba(0,0,0,0.5)"; ctx.beginPath(); ctx.roundRect(-C_LEN/2+30, -60+30, C_LEN, 120, 40); ctx.fill();
+                // Body
+                ctx.fillStyle = t.c; ctx.beginPath(); ctx.roundRect(-C_LEN/2, -70, C_LEN, 140, 40); ctx.fill();
+                // Roof/Glass
+                ctx.fillStyle = "#0f172a"; ctx.beginPath(); ctx.roundRect(-C_LEN/3, -50, C_LEN*0.7, 100, 20); ctx.fill();
+                
+                // Headlight
+                let grad = ctx.createLinearGradient(C_LEN/2, 0, C_LEN/2+800, 0);
+                grad.addColorStop(0,"rgba(255,255,255,0.6)"); grad.addColorStop(1,"rgba(255,255,255,0)");
+                ctx.fillStyle = grad; ctx.beginPath(); ctx.moveTo(C_LEN/2, -30); ctx.lineTo(C_LEN/2+800, -150); ctx.lineTo(C_LEN/2+800, 150); ctx.lineTo(C_LEN/2, 30); ctx.fill();
                 ctx.restore();
 
                 // Snake Coaches
                 for (let i = 1; i <= t.coaches; i++) {
-                    let hIdx = Math.floor((i * (C_LEN + C_GAP)) / Math.max(t.s, 1));
+                    let hIdx = Math.floor((i * (C_LEN + C_GAP)) / Math.max(t.s*0.1, 1));
                     if (hIdx < t.hist.length) {
                         let pos = t.hist[hIdx];
                         ctx.save(); ctx.translate(pos.x, pos.y); ctx.rotate(pos.a);
-                        ctx.fillStyle = "rgba(0,0,0,0.4)"; ctx.beginPath(); ctx.roundRect(-C_LEN/2+20, -50+20, C_LEN, 100, 20); ctx.fill();
-                        ctx.fillStyle = "#94a3b8"; ctx.beginPath(); ctx.roundRect(-C_LEN/2, -60, C_LEN, 120, 20); ctx.fill();
-                        ctx.fillStyle = "#1e293b"; ctx.fillRect(-C_LEN/3, -40, C_LEN*2/3, 80);
+                        ctx.fillStyle = "rgba(0,0,0,0.5)"; ctx.beginPath(); ctx.roundRect(-C_LEN/2+30, -60+30, C_LEN, 120, 20); ctx.fill();
+                        ctx.fillStyle = t.id.includes("Cargo") ? "#78350f" : "#94a3b8"; 
+                        ctx.beginPath(); ctx.roundRect(-C_LEN/2, -70, C_LEN, 140, 20); ctx.fill();
+                        ctx.fillStyle = "#1e293b"; ctx.fillRect(-C_LEN/3, -40, C_LEN*0.66, 80);
                         ctx.restore();
                     }
                 }
             });
         }
 
-        function drawMinimap() {
-            rCtx.clearRect(0,0,150,150);
-            let sc = 150 / W_SIZE;
-            rCtx.fillStyle = "#4ade80"; rCtx.fillRect(0,0,150,150);
+        // Stylish Minimap
+        function drawRadar() {
+            rCtx.clearRect(0,0,180,180);
+            let sc = 180 / W_SIZE;
             
-            rCtx.strokeStyle = "#334155"; rCtx.lineWidth = 2;
-            loop1.forEach(p => { rCtx.fillRect(p.x*sc-1, p.y*sc-1, 2, 2); });
+            // Map bg
+            rCtx.fillStyle = "#0f172a"; rCtx.fillRect(0,0,180,180);
+            
+            // Tracks
+            rCtx.strokeStyle = "#334155"; rCtx.lineWidth = 3;
+            [outerTrack, innerTrack].forEach(track => {
+                rCtx.beginPath(); rCtx.moveTo(track[0].x*sc, track[0].y*sc);
+                for(let i=0; i<track.length; i+=10) rCtx.lineTo(track[i].x*sc, track[i].y*sc);
+                rCtx.closePath(); rCtx.stroke();
+            });
 
-            trains.forEach(t => { rCtx.fillStyle = t.c; rCtx.fillRect(t.x*sc - 3, t.y*sc - 3, 6, 6); });
+            // Trains
+            trains.forEach(t => { rCtx.fillStyle = t.c; rCtx.beginPath(); rCtx.arc(t.x*sc, t.y*sc, 4, 0, Math.PI*2); rCtx.fill(); });
 
-            rCtx.strokeStyle = "#ef4444"; rCtx.lineWidth = 2;
+            // Camera Box
+            rCtx.strokeStyle = "#10b981"; rCtx.lineWidth = 2;
             let vW = (canvas.width/cam.zoom)*sc, vH = (canvas.height/cam.zoom)*sc;
             rCtx.strokeRect((cam.x*sc) - vW/2, (cam.y*sc) - vH/2, vW, vH);
         }
 
+        // =========================================================================
+        // MAIN LOOP
+        // =========================================================================
         let lastTime = performance.now();
         function animate(time) {
             let dt = time - lastTime; lastTime = time;
             
-            gameTime += (dt/1000)*2*timeSpeed; if(gameTime >= 24*60) gameTime = 0;
-            let h = Math.floor(gameTime/60).toString().padStart(2,'0'); let m = Math.floor(gameTime%60).toString().padStart(2,'0');
-            document.getElementById("clock").innerText = `${h}:${m}`;
+            // Camera Smooth Follow/Lerp
+            cam.zoom += (cam.targetZoom - cam.zoom) * 0.1;
+            cam.x += (cam.targetX - cam.x) * 0.2;
+            cam.y += (cam.targetY - cam.y) * 0.2;
+
+            gameTimeMins += (dt/1000)*timeSpeed; if(gameTimeMins >= 24*60) gameTimeMins = 0;
+            let h = Math.floor(gameTimeMins/60).toString().padStart(2,'0'); let m = Math.floor(gameTimeMins%60).toString().padStart(2,'0');
+            document.getElementById("uiClock").innerText = `${h}:${m}`;
 
             updateTrains(dt);
 
-            if(followedTarget) { cam.x = followedTarget.x; cam.y = followedTarget.y; }
+            if(followedTarget) { cam.targetX = followedTarget.x; cam.targetY = followedTarget.y; }
 
-            ctx.fillStyle = "#4ade80"; ctx.fillRect(0,0,canvas.width,canvas.height);
+            ctx.fillStyle = "#22c55e"; ctx.fillRect(0,0,canvas.width,canvas.height);
             ctx.save(); ctx.translate(canvas.width/2, canvas.height/2); ctx.scale(cam.zoom, cam.zoom); ctx.translate(-cam.x, -cam.y);
             
             drawWorld(); drawTrains();
             
-            ctx.restore(); drawMinimap();
+            ctx.restore(); drawRadar();
             requestAnimationFrame(animate);
         }
 
