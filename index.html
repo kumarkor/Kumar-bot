@@ -6,93 +6,88 @@
     <title>Classic Games Hub</title>
     <link rel="manifest" href="manifest.json">
     <style>
-        /* ==========================================================
-           GLOBAL & MENU STYLES
+     /* ==========================================================
+           PREMIUM GLASSMORPHISM & GLOBAL STYLES
         ========================================================== */
-        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Tahoma, sans-serif; user-select: none; -webkit-tap-highlight-color: transparent; }
-        body { background: #0f172a; color: #fff; overflow: hidden; display: flex; justify-content: center; }
-        .app-container { width: 100%; max-width: 480px; height: 100vh; background: #1e293b; display: flex; flex-direction: column; position: relative; }
+        @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@400;700;900&display=swap');
         
-        /* Header */
-        .header { display: flex; justify-content: space-between; padding: 15px 20px; background: #020617; border-bottom: 2px solid #334155; }
-        .logo { font-size: 20px; font-weight: 900; color: #38bdf8; }
-        .coins { background: rgba(0,0,0,0.5); border: 1px solid #f59e0b; padding: 5px 12px; border-radius: 20px; color: #fcd34d; font-weight: bold; }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Outfit', Tahoma, sans-serif; user-select: none; -webkit-tap-highlight-color: transparent; }
+        body { background: #020617; color: #f8fafc; overflow: hidden; display: flex; justify-content: center; }
+        .app-container { width: 100%; max-width: 480px; height: 100vh; background: radial-gradient(circle at top right, #1e1b4b, #020617); display: flex; flex-direction: column; position: relative; box-shadow: 0 0 50px rgba(0,0,0,0.9); }
+        
+        /* Premium Header */
+        .header { display: flex; justify-content: space-between; align-items: center; padding: 20px; background: rgba(15, 23, 42, 0.5); backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px); border-bottom: 1px solid rgba(255,255,255,0.05); z-index: 10; }
+        .logo { font-size: 22px; font-weight: 900; background: linear-gradient(90deg, #38bdf8, #a855f7); -webkit-background-clip: text; -webkit-text-fill-color: transparent; letter-spacing: 1px; }
+        .coins { background: rgba(0,0,0,0.5); border: 1px solid #f59e0b; padding: 6px 16px; border-radius: 30px; color: #fcd34d; font-weight: 900; display: flex; align-items: center; gap: 6px; box-shadow: 0 0 15px rgba(245, 158, 11, 0.2); }
 
         /* Screens */
-        .screen { display: none; flex: 1; padding: 15px; overflow-y: auto; padding-bottom: 80px; }
+        .screen { display: none; flex: 1; padding: 20px; overflow-y: auto; padding-bottom: 90px; animation: fadeUp 0.4s ease; }
         .screen.active { display: block; }
-        .title { font-size: 18px; font-weight: bold; margin-bottom: 15px; border-left: 4px solid #38bdf8; padding-left: 10px; }
+        @keyframes fadeUp { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
+        
+        .title { font-size: 20px; font-weight: 900; margin-bottom: 20px; display: flex; align-items: center; gap: 10px; color: #fff; }
+        .title::before { content: ''; display: block; width: 6px; height: 24px; background: #38bdf8; border-radius: 4px; }
 
-        /* Game Grid */
-        .game-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; }
-        .g-card { background: #334155; border-radius: 12px; padding: 15px; text-align: center; border: 1px solid #475569; cursor: pointer; transition: 0.2s; }
-        .g-card:active { transform: scale(0.95); }
-        .g-icon { font-size: 40px; margin-bottom: 5px; }
-        .g-name { font-size: 14px; font-weight: bold; }
+        /* Install Button (Pulsing Neon Effect) */
+        #installBtn { display: none; background: linear-gradient(90deg, #10b981, #059669); color: white; padding: 15px; text-align: center; font-weight: 900; font-size: 14px; border-radius: 12px; margin-bottom: 20px; cursor: pointer; text-transform: uppercase; letter-spacing: 1px; animation: pulseGlow 2s infinite; border: 1px solid #34d399; }
+        @keyframes pulseGlow { 0% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.6); } 70% { box-shadow: 0 0 0 12px rgba(16, 185, 129, 0); } 100% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); } }
+
+        /* Glassmorphism Game Grid */
+        .game-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; }
+        .g-card { background: rgba(30, 41, 59, 0.5); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.05); border-radius: 16px; padding: 20px 10px; text-align: center; cursor: pointer; transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1); position: relative; overflow: hidden; }
+        .g-card:active, .g-card:hover { transform: translateY(-5px) scale(1.02); box-shadow: 0 15px 25px rgba(0,0,0,0.5); border-color: rgba(255,255,255,0.2); }
+        
+        .g-icon { font-size: 45px; margin-bottom: 10px; filter: drop-shadow(0 5px 10px rgba(0,0,0,0.5)); transition: transform 0.3s; }
+        .g-card:hover .g-icon, .g-card:active .g-icon { transform: scale(1.1) rotate(5deg); }
+        .g-name { font-size: 13px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.5px; }
+
+        /* Dynamic Top Borders & Glow for each card */
+        .g-card:nth-child(1) { border-top: 3px solid #ef4444; background: linear-gradient(180deg, rgba(239,68,68,0.1), transparent); }
+        .g-card:nth-child(2) { border-top: 3px solid #38bdf8; background: linear-gradient(180deg, rgba(56,189,248,0.1), transparent); }
+        .g-card:nth-child(3) { border-top: 3px solid #a855f7; background: linear-gradient(180deg, rgba(168,85,247,0.1), transparent); }
+        .g-card:nth-child(4) { border-top: 3px solid #10b981; background: linear-gradient(180deg, rgba(16,185,129,0.1), transparent); }
+        .g-card:nth-child(5) { border-top: 3px solid #f59e0b; background: linear-gradient(180deg, rgba(245,158,11,0.1), transparent); }
+        .g-card:nth-child(6) { border-top: 3px solid #ec4899; background: linear-gradient(180deg, rgba(236,72,153,0.1), transparent); }
+        .g-card:nth-child(7) { border-top: 3px solid #eab308; background: linear-gradient(180deg, rgba(234,179,8,0.1), transparent); }
+        .g-card:nth-child(8) { border-top: 3px solid #6366f1; background: linear-gradient(180deg, rgba(99,102,241,0.1), transparent); }
+        .g-card:nth-child(9) { border-top: 3px solid #14b8a6; background: linear-gradient(180deg, rgba(20,184,166,0.1), transparent); }
+        .g-card:nth-child(10) { border-top: 3px solid #f43f5e; background: linear-gradient(180deg, rgba(244,63,94,0.1), transparent); }
 
         /* UI Cards (History, Shop) */
-        .list-card { background: #0f172a; padding: 15px; border-radius: 12px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; border-left: 4px solid #10b981; }
+        .list-card { background: linear-gradient(145deg, rgba(30,41,59,0.8), rgba(15,23,42,0.8)); padding: 15px; border-radius: 16px; margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center; border: 1px solid rgba(255,255,255,0.05); border-left: 4px solid #10b981; }
         
-        /* Bottom Nav */
-        .nav { position: absolute; bottom: 0; left: 0; width: 100%; height: 60px; background: #020617; display: flex; justify-content: space-around; align-items: center; border-top: 1px solid #334155; }
-        .nav-item { color: #64748b; font-size: 12px; font-weight: bold; cursor: pointer; display: flex; flex-direction: column; align-items: center; }
-        .nav-item.active { color: #38bdf8; }
+        /* Floating Bottom Nav */
+        .nav { position: absolute; bottom: 0; left: 0; width: 100%; height: 70px; background: rgba(15, 23, 42, 0.85); backdrop-filter: blur(20px); display: flex; justify-content: space-around; align-items: center; border-top: 1px solid rgba(255,255,255,0.05); border-radius: 20px 20px 0 0; padding-bottom: 5px; z-index: 50; }
+        .nav-item { color: #64748b; font-size: 11px; font-weight: 800; cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 4px; transition: 0.3s; }
+        .nav-item.active { color: #38bdf8; transform: translateY(-4px); }
+        .nav-item.active::after { content: ''; width: 20px; height: 4px; background: #38bdf8; border-radius: 5px; margin-top: 2px; box-shadow: 0 0 10px #38bdf8; }
 
         /* ==========================================================
            GAME ENGINE OVERLAY & DOM UI
         ========================================================== */
-        #gameOverlay { display: none; position: absolute; top:0; left:0; width:100%; height:100%; background: #0f172a; z-index: 100; flex-direction: column; }
-        .g-header { display: flex; justify-content: space-between; padding: 15px; background: #020617; }
-        .btn-exit { background: #ef4444; color: #fff; border: none; padding: 5px 15px; border-radius: 6px; font-weight: bold; cursor: pointer; }
+        #gameOverlay { display: none; position: absolute; top:0; left:0; width:100%; height:100%; background: #020617; z-index: 100; flex-direction: column; }
+        .g-header { display: flex; justify-content: space-between; align-items: center; padding: 15px 20px; background: rgba(15, 23, 42, 0.8); backdrop-filter: blur(10px); border-bottom: 1px solid rgba(255,255,255,0.05); }
+        .btn-exit { background: #ef4444; color: #fff; border: none; padding: 8px 16px; border-radius: 8px; font-weight: 900; cursor: pointer; transition: 0.2s; }
+        .btn-exit:active { transform: scale(0.9); }
         
         /* Game Areas */
         #canvasArea { flex: 1; display: none; width: 100%; }
         #domArea { flex: 1; display: none; flex-direction: column; align-items: center; justify-content: center; padding: 20px; }
 
         /* Specific Game UI Elements */
-        .ox-board { display: grid; grid-template-columns: repeat(3, 1fr); gap: 5px; background: #38bdf8; padding: 5px; border-radius: 10px; }
-        .ox-cell { width: 80px; height: 80px; background: #1e293b; display: flex; justify-content: center; align-items: center; font-size: 40px; font-weight: bold; cursor: pointer; color: #fff; }
+        .ox-board { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; background: rgba(56,189,248,0.2); padding: 8px; border-radius: 16px; border: 2px solid #38bdf8; }
+        .ox-cell { width: 80px; height: 80px; background: #1e293b; display: flex; justify-content: center; align-items: center; font-size: 45px; font-weight: 900; cursor: pointer; color: #fff; border-radius: 10px; transition: 0.2s; }
+        .ox-cell:active { transform: scale(0.9); }
         
-        .mem-board { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
-        .mem-card { width: 60px; height: 60px; background: #334155; display: flex; justify-content: center; align-items: center; font-size: 30px; border-radius: 8px; cursor: pointer; border: 2px solid #475569; }
+        .mem-board { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
+        .mem-card { width: 65px; height: 65px; background: linear-gradient(135deg, #334155, #1e293b); display: flex; justify-content: center; align-items: center; font-size: 35px; border-radius: 12px; cursor: pointer; border: 2px solid #475569; transition: 0.3s; box-shadow: 0 4px 10px rgba(0,0,0,0.5); }
         
         .dots-board { position: relative; width: 300px; height: 300px; }
-        .dot { position: absolute; width: 12px; height: 12px; background: #fff; border-radius: 50%; transform: translate(-50%, -50%); z-index: 2; }
-        .line-h { position: absolute; height: 15px; background: transparent; cursor: pointer; z-index: 1; transform: translateY(-50%); }
-        .line-v { position: absolute; width: 15px; background: transparent; cursor: pointer; z-index: 1; transform: translateX(-50%); }
-        .line-active { background: #38bdf8 !important; }
-        .box-fill { position: absolute; z-index: 0; display: none; }
-
-        /* Install Button */
-        #installBtn { display: none; background: #10b981; color: white; padding: 10px; text-align: center; font-weight: bold; border-radius: 8px; margin-bottom: 15px; cursor: pointer; }
-    </style>
-</head>
-<body>
-
-<div class="app-container">
-    
-    <div class="header">
-        <div class="logo">CLASSIC HUB</div>
-        <div class="coins">🟡 <span id="uiCoins">0</span></div>
-    </div>
-
-    <!-- MAIN MENU -->
-    <div id="menu-games" class="screen active">
-        <div id="installBtn" onclick="installApp()">📲 Install App to play Offline</div>
-        <div class="title">Play vs AI & Classic</div>
-        <div class="game-grid">
-            <div class="g-card" onclick="startGame('OX')"><div class="g-icon">❌⭕</div><div class="g-name">Tic-Tac-Toe</div></div>
-            <div class="g-card" onclick="startGame('DOTS')"><div class="g-icon">🔲</div><div class="g-name">Dots & Boxes</div></div>
-            <div class="g-card" onclick="startGame('MEMORY')"><div class="g-icon">🧠</div><div class="g-name">Memory Match</div></div>
-            <div class="g-card" onclick="startGame('PONG')"><div class="g-icon">🏓</div><div class="g-name">Ping Pong AI</div></div>
-            <div class="g-card" onclick="startGame('RPS')"><div class="g-icon">✊🖐️</div><div class="g-name">Rock Paper Scissor</div></div>
-            <div class="g-card" onclick="startGame('SNAKE')"><div class="g-icon">🐍</div><div class="g-name">Classic Snake</div></div>
-            <div class="g-card" onclick="startGame('SIMON')"><div class="g-icon">🎨</div><div class="g-name">Color Pattern</div></div>
-            <div class="g-card" onclick="startGame('MATH')"><div class="g-icon">🧮</div><div class="g-name">Math Genius</div></div>
-            <div class="g-card" onclick="startGame('TAP')"><div class="g-icon">⚡</div><div class="g-name">Fast Tap</div></div>
-            <div class="g-card" onclick="startGame('CATCH')"><div class="g-icon">🧺</div><div class="g-name">Coin Catcher</div></div>
-        </div>
-    </div>
+        .dot { position: absolute; width: 16px; height: 16px; background: #fff; border-radius: 50%; transform: translate(-50%, -50%); z-index: 2; box-shadow: 0 0 10px rgba(255,255,255,0.8); }
+        .line-h { position: absolute; height: 20px; background: transparent; cursor: pointer; z-index: 1; transform: translateY(-50%); transition: 0.2s; }
+        .line-v { position: absolute; width: 20px; background: transparent; cursor: pointer; z-index: 1; transform: translateX(-50%); transition: 0.2s; }
+        .line-active { background: #38bdf8 !important; box-shadow: 0 0 15px #38bdf8; border-radius: 10px; }
+        .box-fill { position: absolute; z-index: 0; display: none; border-radius: 8px; }
 
     <!-- SHOP -->
     <div id="menu-shop" class="screen">
