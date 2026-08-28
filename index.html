@@ -3,533 +3,565 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Nexus Gaming OS | 20 Active Games</title>
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;700;900&family=Press+Start+2P&display=swap" rel="stylesheet">
+    <title>Classic Games Hub</title>
+    <link rel="manifest" href="manifest.json">
     <style>
-        /* =========================================================================
-           1. PREMIUM STYLISH UI (Dark Neon Glassmorphism)
-        ========================================================================= */
-        * { margin: 0; padding: 0; box-sizing: border-box; user-select: none; font-family: 'Outfit', sans-serif; -webkit-tap-highlight-color: transparent; }
-        body { background: #020617; color: #f8fafc; display: flex; justify-content: center; height: 100vh; overflow: hidden; }
+        /* ==========================================================
+           GLOBAL & MENU STYLES
+        ========================================================== */
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Tahoma, sans-serif; user-select: none; -webkit-tap-highlight-color: transparent; }
+        body { background: #0f172a; color: #fff; overflow: hidden; display: flex; justify-content: center; }
+        .app-container { width: 100%; max-width: 480px; height: 100vh; background: #1e293b; display: flex; flex-direction: column; position: relative; }
         
-        .app { width: 100%; max-width: 480px; height: 100%; background: radial-gradient(circle at top right, #1e1b4b, #020617); display: flex; flex-direction: column; position: relative; box-shadow: 0 0 50px rgba(0,0,0,0.9); overflow: hidden; }
-
         /* Header */
-        .header { display: flex; justify-content: space-between; align-items: center; padding: 20px; background: rgba(15, 23, 42, 0.7); backdrop-filter: blur(20px); border-bottom: 1px solid rgba(255,255,255,0.05); z-index: 20; }
-        .logo { font-size: 22px; font-weight: 900; background: linear-gradient(90deg, #10b981, #38bdf8); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
-        .coin-box { background: rgba(0,0,0,0.6); border: 1px solid #f59e0b; padding: 6px 15px; border-radius: 20px; font-weight: 900; font-size: 15px; color: #fcd34d; box-shadow: 0 0 10px rgba(245, 158, 11, 0.3); }
+        .header { display: flex; justify-content: space-between; padding: 15px 20px; background: #020617; border-bottom: 2px solid #334155; }
+        .logo { font-size: 20px; font-weight: 900; color: #38bdf8; }
+        .coins { background: rgba(0,0,0,0.5); border: 1px solid #f59e0b; padding: 5px 12px; border-radius: 20px; color: #fcd34d; font-weight: bold; }
 
         /* Screens */
-        .screen { display: none; flex: 1; overflow-y: auto; padding: 20px; padding-bottom: 90px; animation: slideUp 0.3s ease; }
+        .screen { display: none; flex: 1; padding: 15px; overflow-y: auto; padding-bottom: 80px; }
         .screen.active { display: block; }
-        @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        .title { font-size: 18px; font-weight: bold; margin-bottom: 15px; border-left: 4px solid #38bdf8; padding-left: 10px; }
 
-        .title { font-size: 20px; font-weight: 900; margin-bottom: 20px; display: flex; align-items: center; gap: 10px; }
-        .title::before { content: ''; width: 6px; height: 24px; background: #38bdf8; border-radius: 4px; }
-
-        /* =========================================================================
-           2. 20 GAMES GRID
-        ========================================================================= */
+        /* Game Grid */
         .game-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; }
-        .g-card { background: rgba(30, 41, 59, 0.6); border: 1px solid rgba(255,255,255,0.05); border-radius: 16px; overflow: hidden; transition: 0.2s; cursor: pointer; position: relative; }
-        .g-card:hover { transform: translateY(-5px); border-color: #10b981; box-shadow: 0 10px 20px rgba(16, 185, 129, 0.3); }
-        .g-icon { height: 100px; display: flex; justify-content: center; align-items: center; font-size: 50px; }
-        .g-info { padding: 10px; text-align: center; background: rgba(0,0,0,0.5); }
-        .g-name { font-size: 13px; font-weight: 800; color: #e2e8f0; }
-        .g-tag { position: absolute; top: 8px; left: 8px; background: rgba(0,0,0,0.7); color: #fff; font-size: 9px; padding: 4px 8px; border-radius: 10px; font-weight: bold; border: 1px solid rgba(255,255,255,0.2); }
+        .g-card { background: #334155; border-radius: 12px; padding: 15px; text-align: center; border: 1px solid #475569; cursor: pointer; transition: 0.2s; }
+        .g-card:active { transform: scale(0.95); }
+        .g-icon { font-size: 40px; margin-bottom: 5px; }
+        .g-name { font-size: 14px; font-weight: bold; }
 
-        /* =========================================================================
-           3. UI CARDS (Tasks, Shop, History, Profile)
-        ========================================================================= */
-        .card { background: linear-gradient(145deg, rgba(30,41,59,0.8), rgba(15,23,42,0.8)); border: 1px solid rgba(255,255,255,0.05); padding: 15px; border-radius: 16px; margin-bottom: 12px; }
+        /* UI Cards (History, Shop) */
+        .list-card { background: #0f172a; padding: 15px; border-radius: 12px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; border-left: 4px solid #10b981; }
         
-        /* Tasks */
-        .t-head { display: flex; justify-content: space-between; font-weight: 800; font-size: 14px; margin-bottom: 10px; }
-        .t-rew { color: #f59e0b; }
-        .bar-bg { background: #0f172a; height: 8px; border-radius: 4px; overflow: hidden; margin-bottom: 5px; }
-        .bar-fill { background: linear-gradient(90deg, #10b981, #38bdf8); height: 100%; width: 0%; transition: 0.5s; }
-        .btn-claim { width: 100%; background: #f59e0b; color: #000; border: none; padding: 10px; border-radius: 8px; font-weight: 900; margin-top: 10px; cursor: pointer; display: none; }
+        /* Bottom Nav */
+        .nav { position: absolute; bottom: 0; left: 0; width: 100%; height: 60px; background: #020617; display: flex; justify-content: space-around; align-items: center; border-top: 1px solid #334155; }
+        .nav-item { color: #64748b; font-size: 12px; font-weight: bold; cursor: pointer; display: flex; flex-direction: column; align-items: center; }
+        .nav-item.active { color: #38bdf8; }
 
-        /* Shop */
-        .s-item { display: flex; align-items: center; gap: 15px; }
-        .s-icon { font-size: 35px; }
-        .btn-buy { background: #38bdf8; color: #000; border: none; padding: 8px 15px; border-radius: 8px; font-weight: 900; cursor: pointer; }
-        .btn-buy:disabled { background: #334155; color: #94a3b8; }
-
-        /* History & Ranks */
-        .h-row { display: flex; justify-content: space-between; align-items: center; border-left: 4px solid #10b981; padding-left: 10px; }
-        .h-row.minus { border-left-color: #ef4444; }
-        .h-amt { font-size: 16px; font-weight: 900; }
+        /* ==========================================================
+           GAME ENGINE OVERLAY & DOM UI
+        ========================================================== */
+        #gameOverlay { display: none; position: absolute; top:0; left:0; width:100%; height:100%; background: #0f172a; z-index: 100; flex-direction: column; }
+        .g-header { display: flex; justify-content: space-between; padding: 15px; background: #020617; }
+        .btn-exit { background: #ef4444; color: #fff; border: none; padding: 5px 15px; border-radius: 6px; font-weight: bold; cursor: pointer; }
         
-        .r-row { display: flex; align-items: center; gap: 15px; }
-        .r-num { font-size: 18px; font-weight: 900; color: #64748b; width: 25px; }
+        /* Game Areas */
+        #canvasArea { flex: 1; display: none; width: 100%; }
+        #domArea { flex: 1; display: none; flex-direction: column; align-items: center; justify-content: center; padding: 20px; }
 
-        /* Profile */
-        .prof-hdr { text-align: center; margin-bottom: 20px; }
-        .prof-av { font-size: 60px; margin-bottom: 10px; }
-        .stat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-        .stat-box { background: #0f172a; padding: 15px; border-radius: 12px; text-align: center; }
-        .stat-val { font-size: 24px; font-weight: 900; color: #10b981; }
+        /* Specific Game UI Elements */
+        .ox-board { display: grid; grid-template-columns: repeat(3, 1fr); gap: 5px; background: #38bdf8; padding: 5px; border-radius: 10px; }
+        .ox-cell { width: 80px; height: 80px; background: #1e293b; display: flex; justify-content: center; align-items: center; font-size: 40px; font-weight: bold; cursor: pointer; color: #fff; }
+        
+        .mem-board { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
+        .mem-card { width: 60px; height: 60px; background: #334155; display: flex; justify-content: center; align-items: center; font-size: 30px; border-radius: 8px; cursor: pointer; border: 2px solid #475569; }
+        
+        .dots-board { position: relative; width: 300px; height: 300px; }
+        .dot { position: absolute; width: 12px; height: 12px; background: #fff; border-radius: 50%; transform: translate(-50%, -50%); z-index: 2; }
+        .line-h { position: absolute; height: 15px; background: transparent; cursor: pointer; z-index: 1; transform: translateY(-50%); }
+        .line-v { position: absolute; width: 15px; background: transparent; cursor: pointer; z-index: 1; transform: translateX(-50%); }
+        .line-active { background: #38bdf8 !important; }
+        .box-fill { position: absolute; z-index: 0; display: none; }
 
-        /* =========================================================================
-           4. BOTTOM NAVIGATION
-        ========================================================================= */
-        .nav-bar { position: absolute; bottom: 0; left: 0; width: 100%; height: 70px; background: rgba(15, 23, 42, 0.9); backdrop-filter: blur(20px); border-top: 1px solid rgba(255,255,255,0.05); display: flex; justify-content: space-around; align-items: center; z-index: 20; }
-        .nav-btn { display: flex; flex-direction: column; align-items: center; gap: 4px; color: #64748b; font-size: 10px; font-weight: 800; cursor: pointer; transition: 0.2s; }
-        .nav-btn.active { color: #10b981; }
-        .nav-btn.active .n-ico { transform: translateY(-3px); filter: drop-shadow(0 0 5px #10b981); }
-        .n-ico { font-size: 20px; transition: 0.3s; }
-
-        /* =========================================================================
-           5. GAME ENGINE OVERLAY
-        ========================================================================= */
-        #gameArea { display: none; position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: #000; z-index: 100; flex-direction: column; }
-        .g-hud { display: flex; justify-content: space-between; align-items: center; padding: 15px; background: #0f172a; border-bottom: 2px solid #1e293b; z-index: 101; }
-        .g-score { font-family: 'Press Start 2P', monospace; font-size: 12px; color: #f59e0b; }
-        .btn-exit { background: #ef4444; color: white; border: none; padding: 8px 20px; border-radius: 8px; font-weight: 900; cursor: pointer; }
-        canvas { flex: 1; width: 100%; display: block; }
-
-        #overlayMsg { display: none; position: absolute; top:0; left:0; width:100%; height:100%; background: rgba(0,0,0,0.85); z-index: 105; justify-content: center; align-items: center; flex-direction: column; text-align: center; }
-        .msg-text { font-family: 'Press Start 2P'; font-size: 60px; color: #38bdf8; text-shadow: 0 0 20px #38bdf8; animation: pulse 0.8s infinite; }
-        @keyframes pulse { 50% { transform: scale(1.1); } }
-
-        #resBox { display: none; background: rgba(15,23,42,0.95); border: 2px solid #10b981; padding: 30px; border-radius: 16px; width: 85%; }
-        .res-title { font-size: 28px; font-weight: 900; color: #ef4444; margin-bottom: 20px; }
-        .res-btn { width: 100%; padding: 15px; background: #10b981; color: #000; border: none; border-radius: 10px; font-size: 16px; font-weight: 900; margin-bottom: 10px; cursor: pointer; }
+        /* Install Button */
+        #installBtn { display: none; background: #10b981; color: white; padding: 10px; text-align: center; font-weight: bold; border-radius: 8px; margin-bottom: 15px; cursor: pointer; }
     </style>
 </head>
 <body>
 
-<div class="app">
-
-    <!-- HEADER -->
+<div class="app-container">
+    
     <div class="header">
-        <div class="logo">NEXUS PRO</div>
-        <div class="coin-box">🟡 <span id="uiCoins">0</span></div>
+        <div class="logo">CLASSIC HUB</div>
+        <div class="coins">🟡 <span id="uiCoins">0</span></div>
     </div>
 
-    <!-- 1. GAMES HUB -->
-    <div id="tab-games" class="screen active">
-        <div class="title">All 20 Active Games</div>
-        <div class="game-grid" id="gamesGrid"></div>
-    </div>
-
-    <!-- 2. TASKS -->
-    <div id="tab-tasks" class="screen">
-        <div class="title">Daily Missions</div>
-        <div id="tasksList"></div>
-    </div>
-
-    <!-- 3. SHOP -->
-    <div id="tab-shop" class="screen">
-        <div class="title">Premium Shop</div>
-        <div id="shopList"></div>
-    </div>
-
-    <!-- 4. HISTORY -->
-    <div id="tab-history" class="screen">
-        <div class="title">Wallet Ledger</div>
-        <div id="historyList"></div>
-    </div>
-
-    <!-- 5. LEADERBOARD -->
-    <div id="tab-ranks" class="screen">
-        <div class="title">Global Top 10</div>
-        <div id="ranksList"></div>
-    </div>
-
-    <!-- 6. PROFILE -->
-    <div id="tab-profile" class="screen">
-        <div class="title">My Profile</div>
-        <div class="prof-hdr">
-            <div class="prof-av">😎</div>
-            <h2>Nexus Master</h2>
-            <div style="color:#10b981; font-weight:bold; font-size:14px;">VIP Status: Active</div>
+    <!-- MAIN MENU -->
+    <div id="menu-games" class="screen active">
+        <div id="installBtn" onclick="installApp()">📲 Install App to play Offline</div>
+        <div class="title">Play vs AI & Classic</div>
+        <div class="game-grid">
+            <div class="g-card" onclick="startGame('OX')"><div class="g-icon">❌⭕</div><div class="g-name">Tic-Tac-Toe</div></div>
+            <div class="g-card" onclick="startGame('DOTS')"><div class="g-icon">🔲</div><div class="g-name">Dots & Boxes</div></div>
+            <div class="g-card" onclick="startGame('MEMORY')"><div class="g-icon">🧠</div><div class="g-name">Memory Match</div></div>
+            <div class="g-card" onclick="startGame('PONG')"><div class="g-icon">🏓</div><div class="g-name">Ping Pong AI</div></div>
+            <div class="g-card" onclick="startGame('RPS')"><div class="g-icon">✊🖐️</div><div class="g-name">Rock Paper Scissor</div></div>
+            <div class="g-card" onclick="startGame('SNAKE')"><div class="g-icon">🐍</div><div class="g-name">Classic Snake</div></div>
+            <div class="g-card" onclick="startGame('SIMON')"><div class="g-icon">🎨</div><div class="g-name">Color Pattern</div></div>
+            <div class="g-card" onclick="startGame('MATH')"><div class="g-icon">🧮</div><div class="g-name">Math Genius</div></div>
+            <div class="g-card" onclick="startGame('TAP')"><div class="g-icon">⚡</div><div class="g-name">Fast Tap</div></div>
+            <div class="g-card" onclick="startGame('CATCH')"><div class="g-icon">🧺</div><div class="g-name">Coin Catcher</div></div>
         </div>
-        <div class="stat-grid">
-            <div class="stat-box"><div class="stat-val" id="stGames">0</div><div style="font-size:10px; color:#64748b; font-weight:bold;">GAMES PLAYED</div></div>
-            <div class="stat-box"><div class="stat-val" id="stEarned">0</div><div style="font-size:10px; color:#64748b; font-weight:bold;">TOTAL COINS</div></div>
+    </div>
+
+    <!-- SHOP -->
+    <div id="menu-shop" class="screen">
+        <div class="title">Store</div>
+        <div class="list-card">
+            <div><strong>VIP Pass</strong><br><small>Double Coins in all games</small></div>
+            <button style="padding:5px 10px; background:#10b981; border:none; border-radius:5px; color:#fff;" onclick="buyItem('VIP', 1000)">🟡 1000</button>
+        </div>
+    </div>
+
+    <!-- HISTORY -->
+    <div id="menu-history" class="screen">
+        <div class="title">Coin History</div>
+        <div id="histList"></div>
+    </div>
+
+    <!-- PROFILE -->
+    <div id="menu-profile" class="screen">
+        <div class="title">Profile</div>
+        <div style="text-align:center; padding:30px; background:#020617; border-radius:12px;">
+            <div style="font-size:50px;">😎</div>
+            <h2 style="margin:10px 0;">Player 1</h2>
+            <p style="color:#10b981;">Total Earned: <span id="uiTotal">0</span> 🟡</p>
         </div>
     </div>
 
     <!-- BOTTOM NAV -->
-    <div class="nav-bar">
-        <div class="nav-btn active" onclick="nav('tab-games', this)"><div class="n-ico">🎮</div>Games</div>
-        <div class="nav-btn" onclick="nav('tab-tasks', this)"><div class="n-ico">📋</div>Tasks</div>
-        <div class="nav-btn" onclick="nav('tab-shop', this)"><div class="n-ico">🛒</div>Shop</div>
-        <div class="nav-btn" onclick="nav('tab-history', this)"><div class="n-ico">🧾</div>History</div>
-        <div class="nav-btn" onclick="nav('tab-ranks', this)"><div class="n-ico">🏆</div>Ranks</div>
-        <div class="nav-btn" onclick="nav('tab-profile', this)"><div class="n-ico">👤</div>Profile</div>
+    <div class="nav">
+        <div class="nav-item active" onclick="nav('menu-games', this)">🎮 Games</div>
+        <div class="nav-item" onclick="nav('menu-shop', this)">🛒 Shop</div>
+        <div class="nav-item" onclick="nav('menu-history', this)">🧾 History</div>
+        <div class="nav-item" onclick="nav('menu-profile', this)">👤 Profile</div>
     </div>
 
-    <!-- GAME ENGINE OVERLAY -->
-    <div id="gameArea">
-        <div class="g-hud">
-            <div class="g-score">SCORE: <span id="liveScore">0</span></div>
-            <button class="btn-exit" onclick="forceExit()">QUIT</button>
+    <!-- GAME OVERLAY -->
+    <div id="gameOverlay">
+        <div class="g-header">
+            <div style="color:#38bdf8; font-weight:bold;" id="gTitle">Game</div>
+            <button class="btn-exit" onclick="exitGame()">EXIT</button>
         </div>
-        <canvas id="gameCanvas"></canvas>
         
-        <div id="overlayMsg">
-            <div class="msg-text" id="cdText">3</div>
-            
-            <div id="resBox">
-                <div class="res-title">GAME OVER</div>
-                <div style="font-size:14px; color:#94a3b8; margin-bottom:5px;">Final Score</div>
-                <div style="font-size:40px; font-weight:900; color:#fff; margin-bottom:15px;" id="resScore">0</div>
-                <div style="font-size:16px; font-weight:bold; color:#f59e0b; margin-bottom:20px;">Earned: +<span id="resCoins">0</span> 🟡</div>
-                <button class="res-btn" onclick="retryGame()">PLAY AGAIN</button>
-                <button class="res-btn" style="background:#334155; color:#fff;" onclick="closeGame()">HUB MENU</button>
-            </div>
-        </div>
+        <div style="text-align:center; color:#f59e0b; padding:10px; font-weight:bold;" id="gStatus">Score: 0</div>
+        
+        <canvas id="canvasArea"></canvas>
+        <div id="domArea"></div>
     </div>
 
 </div>
 
 <script>
-    // =========================================================================
-    // 1. DATA MANAGEMENT & TASKS
-    // =========================================================================
-    let usr = JSON.parse(localStorage.getItem('nxData')) || {
-        coins: 0, tot: 0, plays: 0, items: [], hist: [], date: new Date().toDateString(),
-        tasks: [ {id:'t1', n:'Play 5 Games', g:5, p:0, r:100, c:false}, {id:'t2', n:'Score 500 Pts', g:500, p:0, r:150, c:false}, {id:'t3', n:'Earn 50 Coins', g:50, p:0, r:50, c:false} ]
-    };
-
-    if(usr.date !== new Date().toDateString()) { usr.tasks.forEach(t => {t.p=0; t.c=false;}); usr.date = new Date().toDateString(); save(); }
-
-    function save() { localStorage.setItem('nxData', JSON.stringify(usr)); updateUI(); }
-    
-    function addCoins(amt, rsn) {
-        usr.coins += amt; if(amt>0){ usr.tot += amt; updateTask('t3', amt); }
-        usr.hist.unshift({ r: rsn, a: amt, d: new Date().toLocaleTimeString() });
-        if(usr.hist.length>30) usr.hist.pop();
-        save();
+    // ==========================================================
+    // SYSTEM: STORAGE & PWA INSTALL
+    // ==========================================================
+    let user = JSON.parse(localStorage.getItem('classicHub')) || { coins:0, total:0, hist:[], items:[] };
+    function save() { localStorage.setItem('classicHub', JSON.stringify(user)); updateUI(); }
+    function updateUI() { 
+        document.getElementById('uiCoins').innerText = user.coins; 
+        document.getElementById('uiTotal').innerText = user.total;
+        let hHTML = '';
+        user.hist.forEach(h => { hHTML += `<div class="list-card"><span>${h.r}</span><strong style="color:#10b981">+${h.a}</strong></div>`; });
+        document.getElementById('histList').innerHTML = hHTML || '<p>No history.</p>';
     }
-
-    function updateTask(id, amt) { let t = usr.tasks.find(x=>x.id===id); if(t && !t.c && t.p<t.g) { t.p = Math.min(t.g, t.p+amt); save(); } }
-
-    function updateUI() {
-        document.getElementById('uiCoins').innerText = usr.coins;
-        document.getElementById('stGames').innerText = usr.plays;
-        document.getElementById('stEarned').innerText = usr.tot;
+    function addCoins(amt, reason) { user.coins+=amt; user.total+=amt; user.hist.unshift({r:reason, a:amt}); if(user.hist.length>20) user.hist.pop(); save(); }
+    function buyItem(id, price) { if(user.coins>=price && !user.items.includes(id)) { user.coins-=price; user.items.push(id); save(); alert("Bought!"); } }
+    
+    function nav(id, el) {
+        document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+        document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+        document.getElementById(id).classList.add('active'); el.classList.add('active');
     }
     updateUI();
 
-    function nav(id, el) {
-        document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-        document.querySelectorAll('.nav-btn').forEach(n => n.classList.remove('active'));
-        document.getElementById(id).classList.add('active'); el.classList.add('active');
-        if(id==='tab-tasks') renderTasks(); if(id==='tab-shop') renderShop(); if(id==='tab-history') renderHist(); if(id==='tab-ranks') renderRanks();
-    }
+    // PWA Install
+    if('serviceWorker' in navigator) { navigator.serviceWorker.register('sw.js'); }
+    let deferredPrompt;
+    window.addEventListener('beforeinstallprompt', (e) => { e.preventDefault(); deferredPrompt = e; document.getElementById('installBtn').style.display = 'block'; });
+    function installApp() { if(deferredPrompt) { deferredPrompt.prompt(); deferredPrompt=null; document.getElementById('installBtn').style.display='none'; } }
 
-    // =========================================================================
-    // 2. THE 20 FULLY ACTIVE GAMES CONFIGURATION
-    // (5 Master Engines mapped to 20 different themes)
-    // =========================================================================
-    const games = [
-        // Engine 1: Lane Dodge (Swipe L/R)
-        { id:'g1', n:'Neon Highway', eng:'lane', t:'Racing', bg:['#0f172a','#1e1b4b'], e:{p:'🏎️', g:'💎', b:'🛑'} },
-        { id:'g2', n:'Train Rush', eng:'lane', t:'Action', bg:['#1e293b','#0f172a'], e:{p:'🚂', g:'🟡', b:'🚧'} },
-        { id:'g3', n:'River Boat', eng:'lane', t:'Adventure', bg:['#082f49','#0c4a6e'], e:{p:'🚤', g:'⭐', b:'🐊'} },
-        { id:'g4', n:'Cyber Run', eng:'lane', t:'Arcade', bg:['#2e1065','#1e1b4b'], e:{p:'🏃', g:'⚡', b:'🕳️'} },
+    // ==========================================================
+    // GAME ENGINE CONTROLLER (MODULAR ARCHITECTURE)
+    // ==========================================================
+    const overlay = document.getElementById('gameOverlay');
+    const domArea = document.getElementById('domArea');
+    const canvasArea = document.getElementById('canvasArea');
+    const ctx = canvasArea.getContext('2d');
+    let currentGameObj = null, gameReq = null, gScore = 0;
+
+    function startGame(id) {
+        overlay.style.display = 'flex';
+        document.getElementById('gTitle').innerText = id;
+        document.getElementById('gStatus').innerText = "Score: 0";
+        domArea.innerHTML = ''; ctx.clearRect(0,0,canvasArea.width, canvasArea.height);
         
-        // Engine 2: Gravity Fly/Jump (Tap to rise)
-        { id:'g5', n:'Flappy Plane', eng:'grav', t:'Classic', bg:['#0ea5e9','#0369a1'], e:{p:'🛩️', g:'☁️', b:'⛰️'} },
-        { id:'g6', n:'Galaxy Fly', eng:'grav', t:'Sci-Fi', bg:['#312e81','#1e1b4b'], e:{p:'🚀', g:'⭐', b:'☄️'} },
-        { id:'g7', n:'Heli Cave', eng:'grav', t:'Action', bg:['#78350f','#451a03'], e:{p:'🚁', g:'💎', b:'🦇'} },
-        { id:'g8', n:'Dino Jump', eng:'grav', t:'Retro', bg:['#14532d','#064e3b'], e:{p:'🦖', g:'🥩', b:'🌵'}, ground:true },
+        // Select Game Block
+        if(id === 'OX') currentGameObj = Game_OX;
+        else if(id === 'MEMORY') currentGameObj = Game_Memory;
+        else if(id === 'DOTS') currentGameObj = Game_Dots;
+        else if(id === 'PONG') currentGameObj = Game_Pong;
+        else if(id === 'SNAKE') currentGameObj = Game_Snake;
+        else if(id === 'RPS') currentGameObj = Game_RPS;
+        else if(id === 'SIMON') currentGameObj = Game_Simon;
+        else if(id === 'MATH') currentGameObj = Game_Math;
+        else if(id === 'TAP') currentGameObj = Game_Tap;
+        else if(id === 'CATCH') currentGameObj = Game_Catch;
 
-        // Engine 3: Catcher (Drag L/R to catch)
-        { id:'g9', n:'Apple Drop', eng:'catch', t:'Casual', bg:['#831843','#4c0519'], e:{p:'🧺', g:'🍎', b:'💣'} },
-        { id:'g10', n:'Coin Miner', eng:'catch', t:'Puzzle', bg:['#713f12','#422006'], e:{p:'🛒', g:'💰', b:'🐍'} },
-        { id:'g11', n:'Star Catcher', eng:'catch', t:'Magic', bg:['#701a75','#4a044e'], e:{p:'🛸', g:'⭐', b:'☄️'} },
-        { id:'g12', n:'Gem Hunt', eng:'catch', t:'Adventure', bg:['#164e63','#083344'], e:{p:'👷', g:'💎', b:'🪨'} },
-
-        // Engine 4: Tapper/Shooter (Tap targets to destroy)
-        { id:'g13', n:'Ninja Slash', eng:'tap', t:'Action', bg:['#064e3b','#022c22'], e:{g:'🍉', b:'💣'} },
-        { id:'g14', n:'Bug Smasher', eng:'tap', t:'Reflex', bg:['#4c1d95','#2e1065'], e:{g:'🐜', b:'🐝'} },
-        { id:'g15', n:'Asteroids', eng:'tap', t:'Sci-Fi', bg:['#7c2d12','#431407'], e:{g:'☄️', b:'🛸'} },
-        { id:'g16', n:'Balloon Pop', eng:'tap', t:'Kids', bg:['#9d174d','#4c0519'], e:{g:'🎈', b:'📌'} },
-
-        // Engine 5: Survival (Drag anywhere to avoid chasing enemies)
-        { id:'g17', n:'Zombie Survive', eng:'surv', t:'Horror', bg:['#3f6212','#1a2e05'], e:{p:'🧍', b:'🧟'} },
-        { id:'g18', n:'Shark Escape', eng:'surv', t:'Ocean', bg:['#075985','#082f49'], e:{p:'🐟', b:'🦈'} },
-        { id:'g19', n:'UFO Dodge', eng:'surv', t:'Space', bg:['#1e1b4b','#000000'], e:{p:'🛰️', b:'🛸'} },
-        { id:'g20', n:'Ghost Manor', eng:'surv', t:'Spooky', bg:['#1e293b','#020617'], e:{p:'👦', b:'👻'} }
-    ];
-
-    function renderGames() {
-        let h = '';
-        games.forEach(g => {
-            h += `<div class="g-card" onclick="openGame('${g.id}')">
-                <div class="g-tag">${g.eng.toUpperCase()} ENG</div>
-                <div class="g-icon" style="background:linear-gradient(135deg,${g.bg[0]},${g.bg[1]})">${g.e.p || g.e.g}</div>
-                <div class="g-info"><div class="g-name">${g.n}</div></div>
-            </div>`;
-        });
-        document.getElementById('gamesGrid').innerHTML = h;
-    }
-    renderGames();
-
-    // --- UI Renders ---
-    function renderTasks() {
-        let h = '';
-        usr.tasks.forEach(t => {
-            let pct = (t.p/t.g)*100; let done = t.p>=t.g;
-            h += `<div class="card"><div class="t-head"><span>${t.n}</span><span class="t-rew">🟡 ${t.r}</span></div>
-            <div class="bar-bg" style="display:${t.c?'none':'block'}"><div class="bar-fill" style="width:${pct}%"></div></div>
-            <div style="font-size:10px; color:#94a3b8; text-align:right; display:${t.c?'none':'block'}">${t.p}/${t.g}</div>
-            <button class="btn-claim" style="display:${done&&!t.c?'block':'none'}" onclick="claimT('${t.id}')">CLAIM</button>
-            <div style="color:#10b981; font-weight:900; font-size:12px; text-align:center; display:${t.c?'block':'none'}">✅ DONE</div></div>`;
-        });
-        document.getElementById('tasksList').innerHTML = h;
-    }
-    function claimT(id) { let t = usr.tasks.find(x=>x.id===id); if(t && t.p>=t.g && !t.c) { t.c=true; addCoins(t.r, `Task: ${t.n}`); renderTasks(); } }
-
-    const shop = [
-        { id:'s1', n:'VIP 2x Coins', d:'Double rewards in ALL 20 games!', p:1000, i:'👑' },
-        { id:'s2', n:'Pro Gamer Badge', d:'Show off on Leaderboard', p:500, i:'🏅' }
-    ];
-    function renderShop() {
-        let h = '';
-        shop.forEach(s => {
-            let owned = usr.items.includes(s.id); let afford = usr.coins >= s.p;
-            h += `<div class="card s-item"><div class="s-icon">${s.i}</div><div style="flex:1">
-            <div style="font-weight:900; font-size:14px;">${s.n}</div><div style="font-size:10px; color:#94a3b8; margin-bottom:5px;">${s.d}</div>
-            <div style="color:#f59e0b; font-weight:900; font-size:12px;">🟡 ${s.p}</div></div>
-            <button class="btn-buy" ${owned||!afford?'disabled':''} onclick="buyS('${s.id}',${s.p},'${s.n}')">${owned?'OWNED':'BUY'}</button></div>`;
-        });
-        document.getElementById('shopList').innerHTML = h;
-    }
-    function buyS(id, p, n) { if(usr.coins>=p) { addCoins(-p, `Bought ${n}`); usr.items.push(id); save(); renderShop(); } }
-
-    function renderHist() {
-        let h = ''; if(usr.hist.length===0) h='<p style="text-align:center; color:#64748b; font-size:12px;">No records.</p>';
-        usr.hist.forEach(x => { let plus = x.a>0; h += `<div class="card h-row ${plus?'':'minus'}"><div><div style="font-weight:bold; font-size:13px;">${x.r}</div><div style="font-size:10px; color:#64748b;">${x.d}</div></div><div class="h-amt" style="color:${plus?'#10b981':'#ef4444'}">${plus?'+':''}${x.a}</div></div>`; });
-        document.getElementById('historyList').innerHTML = h;
+        // Init Game Type
+        if(currentGameObj.type === 'DOM') { canvasArea.style.display='none'; domArea.style.display='flex'; currentGameObj.init(); }
+        else { 
+            domArea.style.display='none'; canvasArea.style.display='block'; 
+            canvasArea.width = window.innerWidth; canvasArea.height = window.innerHeight - 100;
+            currentGameObj.init(); 
+            gameReq = requestAnimationFrame(gameLoop);
+        }
     }
 
-    function renderRanks() {
-        const bots = [{n:'ShadowKing',s:85000},{n:'NinjaX',s:62000},{n:'ProGamer',s:45000},{n:'NoobMaster',s:21000}];
-        let h = ''; bots.forEach((b,i) => { h += `<div class="card r-row"><div class="r-num">#${i+1}</div><div style="flex:1; font-weight:bold;">${b.n}</div><div style="color:#38bdf8; font-weight:900;">${b.s}</div></div>`; });
-        h += `<div class="card r-row" style="border: 2px solid #10b981; background:rgba(16,185,129,0.1);"><div class="r-num">#5</div><div style="flex:1; font-weight:bold; color:#10b981;">YOU (Nexus Master)</div><div style="color:#10b981; font-weight:900;">${usr.tot}</div></div>`;
-        document.getElementById('ranksList').innerHTML = h;
+    function gameLoop() { if(currentGameObj && currentGameObj.type === 'CANVAS') { currentGameObj.loop(); gameReq = requestAnimationFrame(gameLoop); } }
+    
+    function exitGame() { 
+        overlay.style.display = 'none'; cancelAnimationFrame(gameReq); 
+        if(currentGameObj && currentGameObj.cleanup) currentGameObj.cleanup(); 
+        currentGameObj = null; 
     }
 
-    // =========================================================================
-    // 3. MASTER GAME ENGINE (Handles 5 sub-engines for 20 games)
-    // =========================================================================
-    const canvas = document.getElementById('gameCanvas');
-    const ctx = canvas.getContext('2d');
-    let cw, ch, req, gState = 0; 
-    let cGame = null, frames = 0, score = 0, speed = 5;
-    let p = {}, ents = []; // Player and Entities
-    let touchX = 0, touchY = 0, isTouching = false;
-
-    function resizeCanvas() { cw = window.innerWidth; ch = window.innerHeight - 55; canvas.width=cw; canvas.height=ch; }
-    window.addEventListener('resize', resizeCanvas);
-
-    function openGame(id) {
-        cGame = games.find(g => g.id === id);
-        document.getElementById('gameArea').style.display = 'flex';
-        document.getElementById('overlayMsg').style.display = 'flex';
-        document.getElementById('resBox').style.display = 'none';
-        document.getElementById('cdText').style.display = 'block';
-        document.getElementById('liveScore').innerText = '0';
-        resizeCanvas();
-        startCountdown();
+    function gameWin(coins, msg) {
+        if(user.items.includes('VIP')) coins *= 2;
+        addCoins(coins, msg);
+        document.getElementById('gStatus').innerText = `You Won! +${coins} 🟡`;
+        setTimeout(exitGame, 2000);
     }
 
-    function startCountdown() {
-        let txt = document.getElementById('cdText'); let c = 3; txt.innerText = c;
-        let t = setInterval(() => { c--; if(c>0) txt.innerText = c; else if(c===0) txt.innerText = "START!"; else { clearInterval(t); document.getElementById('overlayMsg').style.display = 'none'; initEngine(); } }, 1000);
-    }
+    // ==========================================================
+    // 💡 GAME 1: OX (TIC-TAC-TOE vs AI)
+    // ==========================================================
+    const Game_OX = {
+        type: 'DOM', board: [], turn: 'X', active: true,
+        init: function() {
+            this.board = ['','','','','','','','','']; this.turn = 'X'; this.active = true;
+            domArea.innerHTML = '<div class="ox-board" id="oxBoard"></div>';
+            let html = '';
+            for(let i=0; i<9; i++) html += `<div class="ox-cell" onclick="Game_OX.play(${i})" id="ox${i}"></div>`;
+            document.getElementById('oxBoard').innerHTML = html;
+        },
+        play: function(i) {
+            if(this.board[i] !== '' || !this.active || this.turn === 'O') return;
+            this.board[i] = 'X'; document.getElementById('ox'+i).innerText = 'X'; document.getElementById('ox'+i).style.color = '#38bdf8';
+            if(this.checkWin('X')) { this.active = false; gameWin(20, 'Won OX'); return; }
+            if(this.board.indexOf('') === -1) { document.getElementById('gStatus').innerText = "Draw!"; setTimeout(exitGame, 2000); return; }
+            this.turn = 'O'; document.getElementById('gStatus').innerText = "AI is thinking...";
+            setTimeout(() => this.aiPlay(), 600);
+        },
+        aiPlay: function() {
+            let empty = []; this.board.forEach((v,i) => { if(v==='') empty.push(i); });
+            if(empty.length > 0) {
+                let pick = empty[Math.floor(Math.random()*empty.length)]; // Simple Random AI
+                this.board[pick] = 'O'; document.getElementById('ox'+pick).innerText = 'O'; document.getElementById('ox'+pick).style.color = '#ef4444';
+                if(this.checkWin('O')) { this.active = false; document.getElementById('gStatus').innerText = "AI Won!"; setTimeout(exitGame, 2000); return; }
+            }
+            this.turn = 'X'; document.getElementById('gStatus').innerText = "Your Turn (X)";
+        },
+        checkWin: function(p) {
+            const wins = [[0,1,2],[3,4,5],[6,7,8],[0,3,6],[1,4,7],[2,5,8],[0,4,8],[2,4,6]];
+            return wins.some(w => this.board[w[0]]===p && this.board[w[1]]===p && this.board[w[2]]===p);
+        }
+    };
 
-    function initEngine() {
-        gState = 1; frames = 0; score = 0; ents = []; speed = 6;
-        
-        // Init player based on engine type
-        if(cGame.eng === 'lane') { p = { l: 1, y: ch - 100, s: 60 }; } // 3 lanes
-        if(cGame.eng === 'grav') { p = { y: ch/2, v: 0, g: 0.5, j: -8, s: 40 }; }
-        if(cGame.eng === 'catch') { p = { x: cw/2, y: ch - 80, s: 60 }; }
-        if(cGame.eng === 'tap') { p = { s: 50 }; speed = 3; } // No player object needed, just speed
-        if(cGame.eng === 'surv') { p = { x: cw/2, y: ch/2, s: 50 }; speed = 4; }
-
-        usr.plays++; updateTask('t1', 1); save();
-        gameLoop();
-    }
-
-    function gameLoop() {
-        if(gState === 0) return;
-        ctx.fillStyle = cGame.bg[0]; ctx.fillRect(0,0,cw,ch); // Background
-        frames++;
-
-        // Route to sub-engine
-        if(cGame.eng === 'lane') runLane();
-        if(cGame.eng === 'grav') runGrav();
-        if(cGame.eng === 'catch') runCatch();
-        if(cGame.eng === 'tap') runTap();
-        if(cGame.eng === 'surv') runSurv();
-
-        document.getElementById('liveScore').innerText = score;
-        req = requestAnimationFrame(gameLoop);
-    }
-
-    function gameOver() {
-        gState = 0; cancelAnimationFrame(req);
-        let coins = Math.floor(score / 10);
-        if(usr.items.includes('s1')) coins *= 2; // VIP pass
-        
-        updateTask('t2', score);
-        if(coins > 0) addCoins(coins, `Won in ${cGame.n}`);
-
-        document.getElementById('cdText').style.display = 'none';
-        document.getElementById('resScore').innerText = score;
-        document.getElementById('resCoins').innerText = coins;
-        document.getElementById('resBox').style.display = 'block';
-        document.getElementById('overlayMsg').style.display = 'flex';
-    }
-
-    function forceExit() { gState = 0; cancelAnimationFrame(req); document.getElementById('gameArea').style.display = 'none'; }
-    function closeGame() { document.getElementById('gameArea').style.display = 'none'; }
-    function retryGame() { document.getElementById('overlayMsg').style.display = 'flex'; document.getElementById('resBox').style.display = 'none'; document.getElementById('cdText').style.display = 'block'; startCountdown(); }
-
-    /* =========================================================================
-       SUB-ENGINES (The Core Math for 20 Games)
-    ========================================================================= */
-    ctx.textAlign = "center"; ctx.textBaseline = "middle";
-
-    // 1. LANE ENGINE (Train, Racing, Boat)
-    function runLane() {
-        let lW = cw/3; let ls = [lW/2, lW+lW/2, lW*2+lW/2];
-        ctx.strokeStyle = cGame.bg[1]; ctx.lineWidth = 4;
-        for(let i=1; i<3; i++) { ctx.beginPath(); ctx.moveTo(i*lW, 0); ctx.lineTo(i*lW, ch); ctx.stroke(); }
-        
-        // Draw Player
-        ctx.font = `${p.s}px sans-serif`; ctx.fillText(cGame.e.p, ls[p.l], p.y);
-
-        // Spawn logic
-        if(frames % Math.max(20, 60 - Math.floor(speed*2)) === 0) ents.push({ l: Math.floor(Math.random()*3), y: -50, t: Math.random()>0.7?'g':'b' });
-        
-        for(let i=0; i<ents.length; i++) {
-            let e = ents[i]; e.y += speed;
-            ctx.font = `40px sans-serif`; ctx.fillText(e.t==='b' ? cGame.e.b : cGame.e.g, ls[e.l], e.y);
+    // ==========================================================
+    // 💡 GAME 2: DOTS & BOXES (User vs AI)
+    // ==========================================================
+    const Game_Dots = {
+        type: 'DOM', gridSize: 3, lines: {}, boxes: [], turn: 'U', pScore: 0, aiScore: 0,
+        init: function() {
+            this.lines = {}; this.boxes = []; this.pScore = 0; this.aiScore = 0; this.turn = 'U';
+            domArea.innerHTML = '<div class="dots-board" id="dtBoard"></div>';
+            let b = document.getElementById('dtBoard');
+            let s = 300 / this.gridSize; // 100px per box
             
-            if(e.l === p.l && Math.abs(e.y - p.y) < p.s/2 + 20) {
-                if(e.t==='b') gameOver(); else { score+=20; ents.splice(i,1); i--; }
-            } else if(e.y > ch+50) {
-                if(e.t==='b') { score+=10; speed+=0.05; } ents.splice(i,1); i--;
-            }
-        }
-    }
-
-    // 2. GRAVITY ENGINE (Flappy, Heli, Dino)
-    function runGrav() {
-        p.v += p.g; p.y += p.v;
-        if(cGame.ground && p.y > ch-80) { p.y = ch-80; p.v = 0; } // Dino logic
-        
-        ctx.font = `${p.s}px sans-serif`; ctx.fillText(cGame.e.p, cw/3, p.y);
-
-        if(frames % 80 === 0) {
-            if(cGame.ground) { ents.push({ x: cw, y: ch-80, t: 'b', pass: false }); } // Ground obst
-            else {
-                let gap = 160; let topH = Math.random()*(ch-gap-100)+50;
-                ents.push({ x: cw, top: topH, bot: topH+gap, pass: false, t: 'pipe' });
-            }
-        }
-        if(frames % 120 === 0) ents.push({ x: cw, y: Math.random()*(ch-100)+50, t: 'g' }); // Collectibles
-
-        for(let i=0; i<ents.length; i++) {
-            let e = ents[i]; e.x -= speed;
-            if(e.t === 'pipe') {
-                ctx.fillStyle = cGame.bg[1]; ctx.fillRect(e.x-30, 0, 60, e.top); ctx.fillRect(e.x-30, e.bot, 60, ch-e.bot);
-                ctx.font = `30px sans-serif`; ctx.fillText(cGame.e.b, e.x, e.top-20); ctx.fillText(cGame.e.b, e.x, e.bot+20);
-                if(Math.abs((cw/3)-e.x) < 40 && (p.y-p.s/2 < e.top || p.y+p.s/2 > e.bot)) gameOver();
-                if(e.x < cw/3 && !e.pass) { e.pass=true; score+=10; speed+=0.05; }
-            } else if (e.t === 'b') {
-                ctx.font = `50px sans-serif`; ctx.fillText(cGame.e.b, e.x, e.y);
-                if(Math.abs((cw/3)-e.x) < 40 && Math.abs(p.y-e.y) < 40) gameOver();
-                if(e.x < cw/3 && !e.pass) { e.pass=true; score+=10; speed+=0.05; }
-            } else if (e.t === 'g') {
-                ctx.font = `40px sans-serif`; ctx.fillText(cGame.e.g, e.x, e.y);
-                if(Math.abs((cw/3)-e.x) < 40 && Math.abs(p.y-e.y) < 40) { score+=20; ents.splice(i,1); i--; continue; }
-            }
-            if(e.x < -100) { ents.splice(i,1); i--; }
-        }
-        if(!cGame.ground && (p.y > ch || p.y < 0)) gameOver();
-    }
-
-    // 3. CATCHER ENGINE (Basket, Coin miner)
-    function runCatch() {
-        p.x = isTouching ? touchX : p.x;
-        p.x = Math.max(p.s/2, Math.min(cw-p.s/2, p.x));
-        ctx.font = `${p.s}px sans-serif`; ctx.fillText(cGame.e.p, p.x, p.y);
-
-        if(frames % Math.max(20, 50 - Math.floor(speed)) === 0) ents.push({ x: Math.random()*(cw-40)+20, y: -40, t: Math.random()>0.2?'g':'b' });
-
-        for(let i=0; i<ents.length; i++) {
-            let e = ents[i]; e.y += speed;
-            ctx.font = `40px sans-serif`; ctx.fillText(e.t==='b' ? cGame.e.b : cGame.e.g, e.x, e.y);
-            if(Math.abs(e.x - p.x) < p.s/2+20 && Math.abs(e.y - p.y) < p.s/2) {
-                if(e.t==='b') gameOver(); else { score+=10; speed+=0.05; ents.splice(i,1); i--; continue; }
-            }
-            if(e.y > ch+50) { ents.splice(i,1); i--; }
-        }
-    }
-
-    // 4. TAPPER/SHOOTER ENGINE (Ninja, Bugs)
-    function runTap() {
-        if(frames % Math.max(30, 80 - Math.floor(speed*5)) === 0) ents.push({ x: Math.random()*(cw-80)+40, y: Math.random()*(ch-100)+50, r: 0, maxR: 40, t: Math.random()>0.3?'g':'b', state: 'grow' });
-
-        for(let i=0; i<ents.length; i++) {
-            let e = ents[i];
-            if(e.state === 'grow') { e.r += speed*0.2; if(e.r >= e.maxR) e.state = 'shrink'; }
-            else { e.r -= speed*0.2; if(e.r <= 0) { if(e.t==='g') gameOver(); else { ents.splice(i,1); i--; continue; } } }
-            
-            ctx.font = `${e.r*1.5}px sans-serif`; ctx.fillText(e.t==='b' ? cGame.e.b : cGame.e.g, e.x, e.y);
-        }
-    }
-
-    // 5. SURVIVAL ENGINE (Avoid chasing enemies)
-    function runSurv() {
-        if(isTouching) { p.x += (touchX - p.x)*0.1; p.y += (touchY - p.y)*0.1; }
-        p.x = Math.max(p.s/2, Math.min(cw-p.s/2, p.x)); p.y = Math.max(p.s/2, Math.min(ch-p.s/2, p.y));
-        
-        ctx.font = `${p.s}px sans-serif`; ctx.fillText(cGame.e.p, p.x, p.y);
-
-        if(frames % 120 === 0) { // Spawn enemy at edges
-            let ex = Math.random()>0.5 ? 0 : cw; let ey = Math.random()*ch;
-            ents.push({ x: ex, y: ey, s: Math.random()*2 + speed*0.5 });
-        }
-        if(frames % 60 === 0) { score+=5; speed+=0.05; } // Survival points
-
-        for(let i=0; i<ents.length; i++) {
-            let e = ents[i];
-            let dx = p.x - e.x; let dy = p.y - e.y; let ang = Math.atan2(dy, dx);
-            e.x += Math.cos(ang) * e.s; e.y += Math.sin(ang) * e.s;
-            ctx.font = `40px sans-serif`; ctx.fillText(cGame.e.b, e.x, e.y);
-            if(Math.hypot(dx, dy) < p.s/2 + 10) gameOver();
-        }
-    }
-
-    /* --- INPUT HANDLING --- */
-    canvas.addEventListener("touchstart", e => {
-        if(gState===0) return; isTouching = true;
-        touchX = e.touches[0].clientX; touchY = e.touches[0].clientY - 60; // Offset for header
-        
-        if(cGame.eng === 'lane') { if(touchX < cw/2 && p.l>0) p.l--; else if(touchX > cw/2 && p.l<2) p.l++; }
-        if(cGame.eng === 'grav') p.v = p.j;
-        if(cGame.eng === 'tap') {
-            for(let i=0; i<ents.length; i++) {
-                if(Math.hypot(touchX - ents[i].x, touchY - ents[i].y) < ents[i].r + 20) {
-                    if(ents[i].t === 'b') gameOver(); else { score+=10; speed+=0.1; ents.splice(i,1); break; }
+            // Draw Dots & Lines
+            for(let r=0; r<=this.gridSize; r++) {
+                for(let c=0; c<=this.gridSize; c++) {
+                    let dot = document.createElement('div'); dot.className = 'dot'; dot.style.left = (c*s)+'px'; dot.style.top = (r*s)+'px'; b.appendChild(dot);
+                    if(c < this.gridSize) {
+                        let id = `H_${r}_${c}`; this.lines[id] = false;
+                        let l = document.createElement('div'); l.className='line-h'; l.id=id; l.style.left=(c*s+6)+'px'; l.style.top=(r*s)+'px'; l.style.width=(s-12)+'px';
+                        l.onclick = () => this.play(id); b.appendChild(l);
+                    }
+                    if(r < this.gridSize) {
+                        let id = `V_${r}_${c}`; this.lines[id] = false;
+                        let l = document.createElement('div'); l.className='line-v'; l.id=id; l.style.left=(c*s)+'px'; l.style.top=(r*s+6)+'px'; l.style.height=(s-12)+'px';
+                        l.onclick = () => this.play(id); b.appendChild(l);
+                    }
+                    if(r<this.gridSize && c<this.gridSize) {
+                        let box = document.createElement('div'); box.className='box-fill'; box.id=`B_${r}_${c}`; box.style.left=(c*s+6)+'px'; box.style.top=(r*s+6)+'px'; box.style.width=(s-12)+'px'; box.style.height=(s-12)+'px';
+                        b.appendChild(box);
+                    }
                 }
             }
-        }
-    });
-    canvas.addEventListener("touchmove", e => { if(gState!==0) { touchX = e.touches[0].clientX; touchY = e.touches[0].clientY - 60; } });
-    canvas.addEventListener("touchend", () => isTouching = false);
+            this.updateUI();
+        },
+        play: function(id) {
+            if(this.lines[id] || this.turn !== 'U') return;
+            this.makeMove(id, 'U');
+        },
+        makeMove: function(id, player) {
+            this.lines[id] = true; 
+            let lDiv = document.getElementById(id); lDiv.style.background = player==='U'?'#38bdf8':'#ef4444'; lDiv.style.zIndex = 1;
+            
+            let scored = this.checkBoxes(player);
+            this.updateUI();
+            
+            let totalLines = Object.keys(this.lines).length; let usedLines = Object.values(this.lines).filter(v=>v).length;
+            if(usedLines === totalLines) {
+                if(this.pScore > this.aiScore) gameWin(30, 'Won Dots'); else { document.getElementById('gStatus').innerText = "AI Won!"; setTimeout(exitGame, 2000); } return;
+            }
 
+            if(!scored) {
+                this.turn = player === 'U' ? 'AI' : 'U';
+                if(this.turn === 'AI') setTimeout(() => this.aiTurn(), 600);
+            } else if (player === 'AI') {
+                setTimeout(() => this.aiTurn(), 600); // AI plays again if scored
+            }
+        },
+        aiTurn: function() {
+            let avail = Object.keys(this.lines).filter(k => !this.lines[k]);
+            if(avail.length === 0) return;
+            let pick = avail[Math.floor(Math.random()*avail.length)]; // Random AI for now
+            this.makeMove(pick, 'AI');
+        },
+        checkBoxes: function(player) {
+            let scored = false;
+            for(let r=0; r<this.gridSize; r++) {
+                for(let c=0; c<this.gridSize; c++) {
+                    let id = `B_${r}_${c}`;
+                    if(!this.boxes.includes(id)) {
+                        if(this.lines[`H_${r}_${c}`] && this.lines[`H_${r+1}_${c}`] && this.lines[`V_${r}_${c}`] && this.lines[`V_${r}_${c+1}`]) {
+                            this.boxes.push(id); scored = true;
+                            if(player==='U') this.pScore++; else this.aiScore++;
+                            let bDiv = document.getElementById(id); bDiv.style.display = 'block'; bDiv.style.background = player==='U'?'rgba(56,189,248,0.5)':'rgba(239,68,68,0.5)';
+                        }
+                    }
+                }
+            }
+            return scored;
+        },
+        updateUI: function() { document.getElementById('gStatus').innerText = `You: ${this.pScore} | AI: ${this.aiScore}  (${this.turn==='U'?"Your Turn":"AI Turn"})`; }
+    };
+
+    // ==========================================================
+    // 💡 GAME 3: MEMORY MATCH
+    // ==========================================================
+    const Game_Memory = {
+        type: 'DOM', cards: [], flipped: [], matched: 0,
+        init: function() {
+            let emj = ['🍎','🍌','🍇','🍉','🍓','🍒','🍍','🥝'];
+            this.cards = [...emj, ...emj].sort(() => Math.random() - 0.5);
+            this.flipped = []; this.matched = 0;
+            domArea.innerHTML = '<div class="mem-board" id="memBoard"></div>';
+            let html = '';
+            this.cards.forEach((c, i) => { html += `<div class="mem-card" id="m${i}" onclick="Game_Memory.flip(${i})">❓</div>`; });
+            document.getElementById('memBoard').innerHTML = html;
+            document.getElementById('gStatus').innerText = "Find Pairs!";
+        },
+        flip: function(i) {
+            let c = document.getElementById('m'+i);
+            if(c.innerText !== '❓' || this.flipped.length >= 2) return;
+            c.innerText = this.cards[i]; c.style.background = '#475569';
+            this.flipped.push({i:i, val:this.cards[i]});
+            
+            if(this.flipped.length === 2) {
+                setTimeout(() => {
+                    if(this.flipped[0].val === this.flipped[1].val) {
+                        this.matched++;
+                        if(this.matched === 8) gameWin(25, 'Won Memory');
+                    } else {
+                        document.getElementById('m'+this.flipped[0].i).innerText = '❓'; document.getElementById('m'+this.flipped[0].i).style.background = '#334155';
+                        document.getElementById('m'+this.flipped[1].i).innerText = '❓'; document.getElementById('m'+this.flipped[1].i).style.background = '#334155';
+                    }
+                    this.flipped = [];
+                }, 800);
+            }
+        }
+    };
+
+    // ==========================================================
+    // 💡 GAME 4: PING PONG (User vs AI)
+    // ==========================================================
+    const Game_Pong = {
+        type: 'CANVAS',
+        init: function() { 
+            this.p = { y: canvasArea.height/2-40, s: 0 }; 
+            this.ai = { y: canvasArea.height/2-40 }; 
+            this.b = { x: canvasArea.width/2, y: canvasArea.height/2, vx: -5, vy: 5 }; 
+            document.getElementById('gStatus').innerText = "Score 5 to win!";
+            this.uScore = 0; this.aiScore = 0;
+            
+            // Touch control for paddle
+            canvasArea.ontouchmove = (e) => { this.p.y = e.touches[0].clientY - 100 - 40; };
+        },
+        loop: function() {
+            let c = canvasArea;
+            // AI logic
+            if(this.ai.y + 40 < this.b.y) this.ai.y += 4; else this.ai.y -= 4;
+            
+            // Ball physics
+            this.b.x += this.b.vx; this.b.y += this.b.vy;
+            if(this.b.y < 0 || this.b.y > c.height) this.b.vy *= -1;
+            
+            // Collisions
+            if(this.b.x < 30 && this.b.y > this.p.y && this.b.y < this.p.y+80) { this.b.vx *= -1; this.b.x = 30; }
+            if(this.b.x > c.width-30 && this.b.y > this.ai.y && this.b.y < this.ai.y+80) { this.b.vx *= -1; this.b.x = c.width-30; }
+            
+            // Score
+            if(this.b.x < 0) { this.aiScore++; this.resetB(); }
+            if(this.b.x > c.width) { this.uScore++; this.resetB(); }
+
+            document.getElementById('gStatus').innerText = `You: ${this.uScore} | AI: ${this.aiScore}`;
+            if(this.uScore >= 5) { gameWin(20, 'Won Pong'); this.resetB(); this.b.vx=0; this.b.vy=0; }
+            if(this.aiScore >= 5) { document.getElementById('gStatus').innerText = "AI Won!"; setTimeout(exitGame, 2000); this.b.vx=0; this.b.vy=0; }
+
+            // Draw
+            ctx.fillStyle = '#1e293b'; ctx.fillRect(0,0,c.width,c.height); // BG
+            ctx.fillStyle = '#38bdf8'; ctx.fillRect(20, this.p.y, 10, 80); // P1
+            ctx.fillStyle = '#ef4444'; ctx.fillRect(c.width-30, this.ai.y, 10, 80); // AI
+            ctx.fillStyle = '#fff'; ctx.beginPath(); ctx.arc(this.b.x, this.b.y, 8, 0, Math.PI*2); ctx.fill(); // Ball
+        },
+        resetB: function() { this.b.x = canvasArea.width/2; this.b.y = canvasArea.height/2; this.b.vx = -this.b.vx; }
+    };
+
+    // ==========================================================
+    // 💡 GAME 5: ROCK PAPER SCISSORS
+    // ==========================================================
+    const Game_RPS = {
+        type: 'DOM',
+        init: function() {
+            domArea.innerHTML = `
+                <div style="font-size:80px; margin-bottom:20px;" id="rpsRes">🤔</div>
+                <div style="display:flex; gap:20px;">
+                    <button style="font-size:40px; padding:10px; border-radius:10px; cursor:pointer;" onclick="Game_RPS.play('R')">✊</button>
+                    <button style="font-size:40px; padding:10px; border-radius:10px; cursor:pointer;" onclick="Game_RPS.play('P')">🖐️</button>
+                    <button style="font-size:40px; padding:10px; border-radius:10px; cursor:pointer;" onclick="Game_RPS.play('S')">✌️</button>
+                </div>
+            `;
+            document.getElementById('gStatus').innerText = "Choose your move!";
+        },
+        play: function(userChoice) {
+            let moves = ['R','P','S']; let icons = {'R':'✊', 'P':'🖐️', 'S':'✌️'};
+            let aiChoice = moves[Math.floor(Math.random()*3)];
+            let res = document.getElementById('rpsRes');
+            
+            res.innerHTML = `${icons[userChoice]} vs ${icons[aiChoice]}`;
+            
+            if(userChoice === aiChoice) document.getElementById('gStatus').innerText = "Draw! Try again.";
+            else if((userChoice==='R'&&aiChoice==='S') || (userChoice==='P'&&aiChoice==='R') || (userChoice==='S'&&aiChoice==='P')) {
+                gameWin(10, 'Won RPS');
+            } else {
+                document.getElementById('gStatus').innerText = "AI Won!"; setTimeout(exitGame, 2000);
+            }
+        }
+    };
+
+    // ==========================================================
+    // 💡 GAMES 6-10 (Simplified Canvas/DOM implementations to fit limits)
+    // ==========================================================
+    // 6. Snake Classic
+    const Game_Snake = {
+        type: 'CANVAS',
+        init: function() { 
+            this.s = 20; this.b = [{x:5,y:5}]; this.d = 'R'; this.food = {x:10,y:10}; this.frame = 0; 
+            canvasArea.ontouchstart = (e) => {
+                let tx = e.touches[0].clientX, ty = e.touches[0].clientY-100;
+                let h = this.b[0]; let dx = tx - h.x*this.s, dy = ty - h.y*this.s;
+                if(Math.abs(dx)>Math.abs(dy)) this.d = dx>0?'R':'L'; else this.d = dy>0?'D':'U';
+            };
+        },
+        loop: function() {
+            this.frame++; if(this.frame%6 !== 0) return;
+            let h = {x:this.b[0].x, y:this.b[0].y};
+            if(this.d==='R') h.x++; if(this.d==='L') h.x--; if(this.d==='D') h.y++; if(this.d==='U') h.y--;
+            this.b.unshift(h);
+            
+            if(h.x===this.food.x && h.y===this.food.y) { gScore+=10; this.food = {x:Math.floor(Math.random()*(canvasArea.width/this.s)), y:Math.floor(Math.random()*(canvasArea.height/this.s))}; document.getElementById('gStatus').innerText=`Score: ${gScore}`; }
+            else this.b.pop();
+
+            if(h.x<0 || h.y<0 || h.x>=canvasArea.width/this.s || h.y>=canvasArea.height/this.s) { gameWin(Math.floor(gScore/10), 'Played Snake'); return; }
+
+            ctx.fillStyle='#0f172a'; ctx.fillRect(0,0,canvasArea.width,canvasArea.height);
+            ctx.fillStyle='#ef4444'; ctx.fillRect(this.food.x*this.s, this.food.y*this.s, this.s, this.s);
+            ctx.fillStyle='#10b981'; this.b.forEach(pt => ctx.fillRect(pt.x*this.s, pt.y*this.s, this.s-1, this.s-1));
+        }
+    };
+
+    // 7. Simon (Color Pattern)
+    const Game_Simon = {
+        type: 'DOM', seq: [], uSeq: [],
+        init: function() {
+            domArea.innerHTML = `
+                <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
+                    <div id="c0" style="width:100px; height:100px; background:#ef4444; border-radius:10px;" onclick="Game_Simon.tap(0)"></div>
+                    <div id="c1" style="width:100px; height:100px; background:#3b82f6; border-radius:10px;" onclick="Game_Simon.tap(1)"></div>
+                    <div id="c2" style="width:100px; height:100px; background:#10b981; border-radius:10px;" onclick="Game_Simon.tap(2)"></div>
+                    <div id="c3" style="width:100px; height:100px; background:#f59e0b; border-radius:10px;" onclick="Game_Simon.tap(3)"></div>
+                </div>
+            `;
+            this.seq=[]; this.uSeq=[]; setTimeout(()=>this.nextLevel(), 1000);
+        },
+        nextLevel: function() {
+            this.uSeq = []; this.seq.push(Math.floor(Math.random()*4));
+            document.getElementById('gStatus').innerText = `Watch... (Level ${this.seq.length})`;
+            let i=0;
+            let t = setInterval(()=>{
+                let id = 'c'+this.seq[i]; let el = document.getElementById(id);
+                el.style.opacity = '0.3'; setTimeout(()=>el.style.opacity='1', 400);
+                i++; if(i>=this.seq.length) { clearInterval(t); document.getElementById('gStatus').innerText = "Your Turn!"; }
+            }, 800);
+        },
+        tap: function(n) {
+            this.uSeq.push(n); let el = document.getElementById('c'+n); el.style.opacity='0.3'; setTimeout(()=>el.style.opacity='1', 200);
+            if(this.uSeq[this.uSeq.length-1] !== this.seq[this.uSeq.length-1]) { gameWin(this.seq.length, 'Played Simon'); return; }
+            if(this.uSeq.length === this.seq.length) setTimeout(()=>this.nextLevel(), 1000);
+        }
+    };
+
+    // 8. Math Genius
+    const Game_Math = {
+        type: 'DOM', ans: 0, score: 0,
+        init: function() {
+            domArea.innerHTML = `
+                <div id="mQ" style="font-size:50px; margin-bottom:20px; font-weight:bold;">2 + 2</div>
+                <div style="display:flex; gap:10px;" id="mOpts"></div>
+            `;
+            this.score = 0; this.next();
+        },
+        next: function() {
+            let a=Math.floor(Math.random()*20), b=Math.floor(Math.random()*20);
+            this.ans = a+b; document.getElementById('mQ').innerText = `${a} + ${b} = ?`;
+            let opts = [this.ans, this.ans+1, this.ans-2].sort(()=>Math.random()-0.5);
+            let h = ''; opts.forEach(o => h+=`<button style="font-size:24px; padding:15px; border-radius:8px; cursor:pointer;" onclick="Game_Math.chk(${o})">${o}</button>`);
+            document.getElementById('mOpts').innerHTML = h;
+            document.getElementById('gStatus').innerText = `Score: ${this.score}`;
+        },
+        chk: function(v) { if(v===this.ans) { this.score++; this.next(); } else { gameWin(this.score, 'Math Genius'); } }
+    };
+
+    // 9. Fast Tap
+    const Game_Tap = {
+        type: 'DOM', score: 0, t: 10, int: null,
+        init: function() {
+            this.score=0; this.t=10;
+            domArea.innerHTML = `<button style="width:200px; height:200px; border-radius:50%; font-size:40px; background:#ef4444; color:#fff; border:none;" onclick="Game_Tap.tap()">TAP!</button>`;
+            this.int = setInterval(()=>{ this.t--; document.getElementById('gStatus').innerText = `Time: ${this.t}s | Taps: ${this.score}`; if(this.t<=0) { clearInterval(this.int); gameWin(Math.floor(this.score/5), 'Fast Tap'); } }, 1000);
+        },
+        tap: function() { if(this.t>0) this.score++; }
+    };
+
+    // 10. Coin Catcher
+    const Game_Catch = {
+        type: 'CANVAS',
+        init: function() { this.x=canvasArea.width/2; this.c=[]; canvasArea.ontouchmove=(e)=>this.x=e.touches[0].clientX; gScore=0; },
+        loop: function() {
+            if(Math.random()<0.05) this.c.push({x:Math.random()*(canvasArea.width-20), y:0});
+            ctx.fillStyle='#0f172a'; ctx.fillRect(0,0,canvasArea.width,canvasArea.height);
+            ctx.fillStyle='#38bdf8'; ctx.fillRect(this.x-30, canvasArea.height-30, 60, 20); // Basket
+            ctx.fillStyle='#f59e0b';
+            for(let i=0; i<this.c.length; i++) {
+                let c = this.c[i]; c.y+=5; ctx.beginPath(); ctx.arc(c.x, c.y, 10, 0, Math.PI*2); ctx.fill();
+                if(c.y>canvasArea.height-30 && Math.abs(c.x-this.x)<30) { gScore++; this.c.splice(i,1); i--; document.getElementById('gStatus').innerText=`Caught: ${gScore}`; }
+                else if(c.y>canvasArea.height) { gameWin(Math.floor(gScore/2), 'Coin Catcher'); return; }
+            }
+        }
+    };
 </script>
 </body>
 </html>
