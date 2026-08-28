@@ -3,196 +3,184 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Nexus Gaming Hub | Premium</title>
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;800;900&family=Press+Start+2P&display=swap" rel="stylesheet">
+    <title>Nexus Gaming OS | 20 Active Games</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;700;900&family=Press+Start+2P&display=swap" rel="stylesheet">
     <style>
         /* =========================================================================
-           1. PREMIUM GLOBAL STYLES & GLASSMORPHISM
+           1. PREMIUM STYLISH UI (Dark Neon Glassmorphism)
         ========================================================================= */
         * { margin: 0; padding: 0; box-sizing: border-box; user-select: none; font-family: 'Outfit', sans-serif; -webkit-tap-highlight-color: transparent; }
         body { background: #020617; color: #f8fafc; display: flex; justify-content: center; height: 100vh; overflow: hidden; }
         
-        .app-container { width: 100%; max-width: 480px; height: 100%; background: radial-gradient(circle at top right, #1e1b4b, #020617); display: flex; flex-direction: column; position: relative; box-shadow: 0 0 50px rgba(0,0,0,0.9); overflow: hidden; }
+        .app { width: 100%; max-width: 480px; height: 100%; background: radial-gradient(circle at top right, #1e1b4b, #020617); display: flex; flex-direction: column; position: relative; box-shadow: 0 0 50px rgba(0,0,0,0.9); overflow: hidden; }
 
-        /* Top Header */
-        .top-bar { display: flex; justify-content: space-between; align-items: center; padding: 20px; background: rgba(15, 23, 42, 0.6); backdrop-filter: blur(15px); border-bottom: 1px solid rgba(255,255,255,0.05); z-index: 20; }
-        .logo { font-size: 22px; font-weight: 900; background: linear-gradient(90deg, #38bdf8, #818cf8); -webkit-background-clip: text; -webkit-text-fill-color: transparent; letter-spacing: 1px; }
-        .coin-pill { background: rgba(0,0,0,0.5); border: 1px solid #f59e0b; padding: 6px 16px; border-radius: 30px; font-weight: 800; font-size: 15px; color: #fcd34d; display: flex; align-items: center; gap: 6px; box-shadow: 0 0 15px rgba(245, 158, 11, 0.2); }
+        /* Header */
+        .header { display: flex; justify-content: space-between; align-items: center; padding: 20px; background: rgba(15, 23, 42, 0.7); backdrop-filter: blur(20px); border-bottom: 1px solid rgba(255,255,255,0.05); z-index: 20; }
+        .logo { font-size: 22px; font-weight: 900; background: linear-gradient(90deg, #10b981, #38bdf8); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .coin-box { background: rgba(0,0,0,0.6); border: 1px solid #f59e0b; padding: 6px 15px; border-radius: 20px; font-weight: 900; font-size: 15px; color: #fcd34d; box-shadow: 0 0 10px rgba(245, 158, 11, 0.3); }
 
         /* Screens */
-        .screen { display: none; flex: 1; overflow-y: auto; padding: 20px; padding-bottom: 90px; animation: fadeUp 0.4s cubic-bezier(0.16, 1, 0.3, 1); }
+        .screen { display: none; flex: 1; overflow-y: auto; padding: 20px; padding-bottom: 90px; animation: slideUp 0.3s ease; }
         .screen.active { display: block; }
-        @keyframes fadeUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
 
-        .sec-title { font-size: 20px; font-weight: 900; margin-bottom: 20px; color: #fff; display: flex; align-items: center; gap: 10px; }
-        .sec-title::before { content: ''; display: block; width: 6px; height: 24px; background: #38bdf8; border-radius: 4px; }
-
-        /* =========================================================================
-           2. GAMES GRID (20 Games)
-        ========================================================================= */
-        .game-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; }
-        .game-card { background: rgba(30, 41, 59, 0.5); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.05); border-radius: 20px; overflow: hidden; position: relative; transition: 0.3s; cursor: pointer; }
-        .game-card:hover { transform: translateY(-5px); border-color: #38bdf8; box-shadow: 0 10px 25px rgba(56, 189, 248, 0.2); }
-        .g-thumb { height: 110px; display: flex; justify-content: center; align-items: center; font-size: 50px; position: relative; }
-        .g-info { padding: 12px; text-align: center; background: rgba(0,0,0,0.3); }
-        .g-title { font-size: 14px; font-weight: 800; color: #e2e8f0; }
-        .g-tag { position: absolute; top: 10px; left: 10px; background: rgba(0,0,0,0.6); color: #10b981; font-size: 10px; padding: 4px 8px; border-radius: 12px; font-weight: bold; }
-        .g-locked { position: absolute; top:0; left:0; width:100%; height:100%; background: rgba(2,6,23,0.85); display: flex; flex-direction: column; justify-content: center; align-items: center; color: #94a3b8; font-weight: bold; font-size: 12px; z-index: 5; }
+        .title { font-size: 20px; font-weight: 900; margin-bottom: 20px; display: flex; align-items: center; gap: 10px; }
+        .title::before { content: ''; width: 6px; height: 24px; background: #38bdf8; border-radius: 4px; }
 
         /* =========================================================================
-           3. SHOP, TASKS, HISTORY, PROFILE UI
+           2. 20 GAMES GRID
         ========================================================================= */
+        .game-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; }
+        .g-card { background: rgba(30, 41, 59, 0.6); border: 1px solid rgba(255,255,255,0.05); border-radius: 16px; overflow: hidden; transition: 0.2s; cursor: pointer; position: relative; }
+        .g-card:hover { transform: translateY(-5px); border-color: #10b981; box-shadow: 0 10px 20px rgba(16, 185, 129, 0.3); }
+        .g-icon { height: 100px; display: flex; justify-content: center; align-items: center; font-size: 50px; }
+        .g-info { padding: 10px; text-align: center; background: rgba(0,0,0,0.5); }
+        .g-name { font-size: 13px; font-weight: 800; color: #e2e8f0; }
+        .g-tag { position: absolute; top: 8px; left: 8px; background: rgba(0,0,0,0.7); color: #fff; font-size: 9px; padding: 4px 8px; border-radius: 10px; font-weight: bold; border: 1px solid rgba(255,255,255,0.2); }
+
+        /* =========================================================================
+           3. UI CARDS (Tasks, Shop, History, Profile)
+        ========================================================================= */
+        .card { background: linear-gradient(145deg, rgba(30,41,59,0.8), rgba(15,23,42,0.8)); border: 1px solid rgba(255,255,255,0.05); padding: 15px; border-radius: 16px; margin-bottom: 12px; }
+        
         /* Tasks */
-        .task-card { background: linear-gradient(145deg, rgba(30,41,59,0.8), rgba(15,23,42,0.8)); border: 1px solid rgba(255,255,255,0.05); padding: 15px; border-radius: 16px; margin-bottom: 12px; }
-        .t-head { display: flex; justify-content: space-between; margin-bottom: 10px; font-weight: 800; font-size: 15px; }
+        .t-head { display: flex; justify-content: space-between; font-weight: 800; font-size: 14px; margin-bottom: 10px; }
         .t-rew { color: #f59e0b; }
-        .t-bar-bg { background: #0f172a; height: 8px; border-radius: 4px; overflow: hidden; margin-bottom: 8px; }
-        .t-bar-fill { background: linear-gradient(90deg, #38bdf8, #818cf8); height: 100%; width: 0%; transition: 0.5s; }
-        .btn-claim { background: linear-gradient(90deg, #f59e0b, #d97706); width: 100%; border: none; padding: 10px; border-radius: 8px; color: #fff; font-weight: bold; display: none; cursor: pointer; }
-        
+        .bar-bg { background: #0f172a; height: 8px; border-radius: 4px; overflow: hidden; margin-bottom: 5px; }
+        .bar-fill { background: linear-gradient(90deg, #10b981, #38bdf8); height: 100%; width: 0%; transition: 0.5s; }
+        .btn-claim { width: 100%; background: #f59e0b; color: #000; border: none; padding: 10px; border-radius: 8px; font-weight: 900; margin-top: 10px; cursor: pointer; display: none; }
+
         /* Shop */
-        .shop-card { display: flex; align-items: center; background: rgba(30,41,59,0.5); border: 1px solid rgba(255,255,255,0.05); padding: 15px; border-radius: 16px; margin-bottom: 12px; }
-        .s-icon { font-size: 36px; margin-right: 15px; }
-        .s-info { flex: 1; }
-        .s-info h4 { font-size: 15px; margin-bottom: 4px; }
-        .s-info p { font-size: 11px; color: #94a3b8; margin-bottom: 6px; }
-        .btn-buy { background: #10b981; border: none; padding: 8px 16px; border-radius: 8px; color: #fff; font-weight: bold; cursor: pointer; }
-        .btn-buy:disabled { background: #334155; color: #64748b; }
+        .s-item { display: flex; align-items: center; gap: 15px; }
+        .s-icon { font-size: 35px; }
+        .btn-buy { background: #38bdf8; color: #000; border: none; padding: 8px 15px; border-radius: 8px; font-weight: 900; cursor: pointer; }
+        .btn-buy:disabled { background: #334155; color: #94a3b8; }
 
-        /* History */
-        .hist-card { display: flex; justify-content: space-between; align-items: center; background: rgba(15,23,42,0.6); padding: 12px 15px; border-radius: 12px; margin-bottom: 10px; border-left: 4px solid #38bdf8; }
-        .hist-card.spent { border-left-color: #ef4444; }
-        .h-date { font-size: 10px; color: #64748b; margin-top: 4px; }
-        .h-amt { font-size: 16px; font-weight: 800; }
-
-        /* Leaderboard & Profile */
-        .rank-card { display: flex; align-items: center; padding: 12px; background: rgba(30,41,59,0.4); border-radius: 12px; margin-bottom: 8px; }
-        .r-num { font-size: 18px; font-weight: 900; color: #94a3b8; width: 40px; }
-        .r-name { flex: 1; font-weight: bold; font-size: 14px; }
-        .r-score { color: #38bdf8; font-weight: 800; }
-        .r-top1 { border: 1px solid #f59e0b; background: rgba(245,158,11,0.1); } .r-top1 .r-num { color: #f59e0b; }
+        /* History & Ranks */
+        .h-row { display: flex; justify-content: space-between; align-items: center; border-left: 4px solid #10b981; padding-left: 10px; }
+        .h-row.minus { border-left-color: #ef4444; }
+        .h-amt { font-size: 16px; font-weight: 900; }
         
-        .prof-box { text-align: center; padding: 30px; background: rgba(30,41,59,0.5); border-radius: 20px; border: 1px solid rgba(255,255,255,0.05); }
-        .p-av { font-size: 60px; margin-bottom: 10px; }
-        .p-stat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 20px; }
-        .p-stat { background: #0f172a; padding: 15px; border-radius: 12px; }
-        .p-val { font-size: 24px; font-weight: 900; color: #818cf8; }
+        .r-row { display: flex; align-items: center; gap: 15px; }
+        .r-num { font-size: 18px; font-weight: 900; color: #64748b; width: 25px; }
+
+        /* Profile */
+        .prof-hdr { text-align: center; margin-bottom: 20px; }
+        .prof-av { font-size: 60px; margin-bottom: 10px; }
+        .stat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+        .stat-box { background: #0f172a; padding: 15px; border-radius: 12px; text-align: center; }
+        .stat-val { font-size: 24px; font-weight: 900; color: #10b981; }
 
         /* =========================================================================
            4. BOTTOM NAVIGATION
         ========================================================================= */
-        .bottom-nav { position: absolute; bottom: 0; left: 0; width: 100%; height: 75px; background: rgba(15, 23, 42, 0.85); backdrop-filter: blur(20px); border-top: 1px solid rgba(255,255,255,0.05); display: flex; justify-content: space-around; align-items: center; z-index: 20; padding-bottom: 10px; }
-        .nav-item { display: flex; flex-direction: column; align-items: center; gap: 5px; color: #64748b; font-size: 11px; font-weight: 700; cursor: pointer; transition: 0.2s; width: 16%; }
-        .nav-icon { font-size: 22px; transition: 0.3s; }
-        .nav-item.active { color: #38bdf8; }
-        .nav-item.active .nav-icon { transform: translateY(-4px); filter: drop-shadow(0 0 8px rgba(56,189,248,0.8)); }
+        .nav-bar { position: absolute; bottom: 0; left: 0; width: 100%; height: 70px; background: rgba(15, 23, 42, 0.9); backdrop-filter: blur(20px); border-top: 1px solid rgba(255,255,255,0.05); display: flex; justify-content: space-around; align-items: center; z-index: 20; }
+        .nav-btn { display: flex; flex-direction: column; align-items: center; gap: 4px; color: #64748b; font-size: 10px; font-weight: 800; cursor: pointer; transition: 0.2s; }
+        .nav-btn.active { color: #10b981; }
+        .nav-btn.active .n-ico { transform: translateY(-3px); filter: drop-shadow(0 0 5px #10b981); }
+        .n-ico { font-size: 20px; transition: 0.3s; }
 
         /* =========================================================================
            5. GAME ENGINE OVERLAY
         ========================================================================= */
-        #gameOverlay { display: none; position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: #000; z-index: 100; flex-direction: column; }
-        .g-header { display: flex; justify-content: space-between; align-items: center; padding: 15px 20px; background: #0f172a; border-bottom: 1px solid #1e293b; z-index: 101; }
+        #gameArea { display: none; position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: #000; z-index: 100; flex-direction: column; }
+        .g-hud { display: flex; justify-content: space-between; align-items: center; padding: 15px; background: #0f172a; border-bottom: 2px solid #1e293b; z-index: 101; }
         .g-score { font-family: 'Press Start 2P', monospace; font-size: 12px; color: #f59e0b; }
-        .btn-exit { background: #ef4444; color: white; border: none; padding: 8px 16px; border-radius: 8px; font-weight: bold; cursor: pointer; }
+        .btn-exit { background: #ef4444; color: white; border: none; padding: 8px 20px; border-radius: 8px; font-weight: 900; cursor: pointer; }
         canvas { flex: 1; width: 100%; display: block; }
 
-        #countdown { display: none; position: absolute; top:0; left:0; width:100%; height:100%; background: rgba(0,0,0,0.8); z-index: 105; justify-content: center; align-items: center; }
-        .cd-text { font-family: 'Press Start 2P'; font-size: 80px; color: #fff; text-shadow: 0 0 20px #38bdf8; animation: pulse 1s infinite; }
-        @keyframes pulse { 50% { transform: scale(1.2); } }
+        #overlayMsg { display: none; position: absolute; top:0; left:0; width:100%; height:100%; background: rgba(0,0,0,0.85); z-index: 105; justify-content: center; align-items: center; flex-direction: column; text-align: center; }
+        .msg-text { font-family: 'Press Start 2P'; font-size: 60px; color: #38bdf8; text-shadow: 0 0 20px #38bdf8; animation: pulse 0.8s infinite; }
+        @keyframes pulse { 50% { transform: scale(1.1); } }
 
-        #resultScreen { display: none; position: absolute; top:0; left:0; width:100%; height:100%; background: rgba(2,6,23,0.95); z-index: 110; flex-direction: column; justify-content: center; align-items: center; padding: 20px; text-align: center; }
-        .res-title { font-size: 32px; font-weight: 900; color: #ef4444; margin-bottom: 20px; }
-        .res-box { background: rgba(30,41,59,0.5); padding: 20px; border-radius: 16px; width: 100%; max-width: 300px; margin-bottom: 20px; border: 1px solid rgba(255,255,255,0.05); }
-        .res-btn { background: #38bdf8; color: #000; border: none; width: 100%; padding: 15px; border-radius: 12px; font-size: 16px; font-weight: 900; margin-bottom: 10px; cursor: pointer; }
+        #resBox { display: none; background: rgba(15,23,42,0.95); border: 2px solid #10b981; padding: 30px; border-radius: 16px; width: 85%; }
+        .res-title { font-size: 28px; font-weight: 900; color: #ef4444; margin-bottom: 20px; }
+        .res-btn { width: 100%; padding: 15px; background: #10b981; color: #000; border: none; border-radius: 10px; font-size: 16px; font-weight: 900; margin-bottom: 10px; cursor: pointer; }
     </style>
 </head>
 <body>
 
-<div class="app-container">
+<div class="app">
 
-    <!-- Top Header -->
-    <div class="top-bar">
-        <div class="logo">NEXUS</div>
-        <div class="coin-pill">🟡 <span id="uiCoins">0</span></div>
+    <!-- HEADER -->
+    <div class="header">
+        <div class="logo">NEXUS PRO</div>
+        <div class="coin-box">🟡 <span id="uiCoins">0</span></div>
     </div>
 
-    <!-- ================= SCREENS ================= -->
-    
-    <!-- 1. GAMES HUB (20 Games) -->
+    <!-- 1. GAMES HUB -->
     <div id="tab-games" class="screen active">
-        <div class="sec-title">Featured Games</div>
-        <div class="game-grid" id="gamesGrid">
-            <!-- Injected via JS -->
-        </div>
+        <div class="title">All 20 Active Games</div>
+        <div class="game-grid" id="gamesGrid"></div>
     </div>
 
-    <!-- 2. DAILY TASKS -->
+    <!-- 2. TASKS -->
     <div id="tab-tasks" class="screen">
-        <div class="sec-title">Daily Missions</div>
+        <div class="title">Daily Missions</div>
         <div id="tasksList"></div>
     </div>
 
     <!-- 3. SHOP -->
     <div id="tab-shop" class="screen">
-        <div class="sec-title">Premium Shop</div>
+        <div class="title">Premium Shop</div>
         <div id="shopList"></div>
     </div>
 
     <!-- 4. HISTORY -->
     <div id="tab-history" class="screen">
-        <div class="sec-title">Transaction Ledger</div>
+        <div class="title">Wallet Ledger</div>
         <div id="historyList"></div>
     </div>
 
     <!-- 5. LEADERBOARD -->
-    <div id="tab-leaderboard" class="screen">
-        <div class="sec-title">Global Top 10</div>
-        <div id="leaderboardList"></div>
+    <div id="tab-ranks" class="screen">
+        <div class="title">Global Top 10</div>
+        <div id="ranksList"></div>
     </div>
 
     <!-- 6. PROFILE -->
     <div id="tab-profile" class="screen">
-        <div class="sec-title">My Profile</div>
-        <div class="prof-box">
-            <div class="p-av">😎</div>
-            <h2>Nexus Player</h2>
-            <p style="color:#94a3b8; font-size:14px;">Rank: Platinum Tier</p>
-            <div class="p-stat-grid">
-                <div class="p-stat"><div class="p-val" id="statGames">0</div><div style="font-size:11px; color:#64748b;">GAMES PLAYED</div></div>
-                <div class="p-stat"><div class="p-val" id="statCoins">0</div><div style="font-size:11px; color:#64748b;">TOTAL EARNED</div></div>
-            </div>
+        <div class="title">My Profile</div>
+        <div class="prof-hdr">
+            <div class="prof-av">😎</div>
+            <h2>Nexus Master</h2>
+            <div style="color:#10b981; font-weight:bold; font-size:14px;">VIP Status: Active</div>
+        </div>
+        <div class="stat-grid">
+            <div class="stat-box"><div class="stat-val" id="stGames">0</div><div style="font-size:10px; color:#64748b; font-weight:bold;">GAMES PLAYED</div></div>
+            <div class="stat-box"><div class="stat-val" id="stEarned">0</div><div style="font-size:10px; color:#64748b; font-weight:bold;">TOTAL COINS</div></div>
         </div>
     </div>
 
-    <!-- Bottom Navigation -->
-    <div class="bottom-nav">
-        <div class="nav-item active" onclick="switchTab('tab-games', this)"><div class="nav-icon">🎮</div>Games</div>
-        <div class="nav-item" onclick="switchTab('tab-tasks', this)"><div class="nav-icon">📋</div>Tasks</div>
-        <div class="nav-item" onclick="switchTab('tab-shop', this)"><div class="nav-icon">🛒</div>Shop</div>
-        <div class="nav-item" onclick="switchTab('tab-history', this)"><div class="nav-icon">🧾</div>History</div>
-        <div class="nav-item" onclick="switchTab('tab-leaderboard', this)"><div class="nav-icon">🏆</div>Ranks</div>
-        <div class="nav-item" onclick="switchTab('tab-profile', this)"><div class="nav-icon">👤</div>Profile</div>
+    <!-- BOTTOM NAV -->
+    <div class="nav-bar">
+        <div class="nav-btn active" onclick="nav('tab-games', this)"><div class="n-ico">🎮</div>Games</div>
+        <div class="nav-btn" onclick="nav('tab-tasks', this)"><div class="n-ico">📋</div>Tasks</div>
+        <div class="nav-btn" onclick="nav('tab-shop', this)"><div class="n-ico">🛒</div>Shop</div>
+        <div class="nav-btn" onclick="nav('tab-history', this)"><div class="n-ico">🧾</div>History</div>
+        <div class="nav-btn" onclick="nav('tab-ranks', this)"><div class="n-ico">🏆</div>Ranks</div>
+        <div class="nav-btn" onclick="nav('tab-profile', this)"><div class="n-ico">👤</div>Profile</div>
     </div>
 
-    <!-- ================= GAME ENGINE OVERLAY ================= -->
-    <div id="gameOverlay">
-        <div class="g-header">
+    <!-- GAME ENGINE OVERLAY -->
+    <div id="gameArea">
+        <div class="g-hud">
             <div class="g-score">SCORE: <span id="liveScore">0</span></div>
-            <button class="btn-exit" onclick="forceExit()">EXIT</button>
+            <button class="btn-exit" onclick="forceExit()">QUIT</button>
         </div>
         <canvas id="gameCanvas"></canvas>
         
-        <div id="countdown"><div class="cd-text" id="cdText">3</div></div>
-        
-        <div id="resultScreen">
-            <div class="res-title">GAME OVER</div>
-            <div class="res-box">
+        <div id="overlayMsg">
+            <div class="msg-text" id="cdText">3</div>
+            
+            <div id="resBox">
+                <div class="res-title">GAME OVER</div>
                 <div style="font-size:14px; color:#94a3b8; margin-bottom:5px;">Final Score</div>
-                <div style="font-size:36px; font-weight:900; color:#fff; margin-bottom:15px;" id="resScore">0</div>
-                <div style="font-size:16px; font-weight:bold; color:#10b981;">Reward: +<span id="resCoins">0</span> 🟡</div>
+                <div style="font-size:40px; font-weight:900; color:#fff; margin-bottom:15px;" id="resScore">0</div>
+                <div style="font-size:16px; font-weight:bold; color:#f59e0b; margin-bottom:20px;">Earned: +<span id="resCoins">0</span> 🟡</div>
+                <button class="res-btn" onclick="retryGame()">PLAY AGAIN</button>
+                <button class="res-btn" style="background:#334155; color:#fff;" onclick="closeGame()">HUB MENU</button>
             </div>
-            <button class="res-btn" onclick="retryGame()">PLAY AGAIN</button>
-            <button class="res-btn" style="background:#1e293b; color:#fff;" onclick="closeGame()">BACK TO HUB</button>
         </div>
     </div>
 
@@ -200,231 +188,188 @@
 
 <script>
     // =========================================================================
-    // 1. DATA MANAGEMENT (LocalStorage)
+    // 1. DATA MANAGEMENT & TASKS
     // =========================================================================
-    let user = JSON.parse(localStorage.getItem('nexusData')) || {
-        coins: 0, totalEarned: 0, gamesPlayed: 0,
-        items: [], history: [],
-        tasks: [
-            { id: 't1', title: 'Play 5 Games', goal: 5, prog: 0, rew: 100, claimed: false },
-            { id: 't2', title: 'Score 500 Total', goal: 500, prog: 0, rew: 150, claimed: false },
-            { id: 't3', title: 'Earn 100 Coins', goal: 100, prog: 0, rew: 50, claimed: false }
-        ],
-        taskDate: new Date().toDateString()
+    let usr = JSON.parse(localStorage.getItem('nxData')) || {
+        coins: 0, tot: 0, plays: 0, items: [], hist: [], date: new Date().toDateString(),
+        tasks: [ {id:'t1', n:'Play 5 Games', g:5, p:0, r:100, c:false}, {id:'t2', n:'Score 500 Pts', g:500, p:0, r:150, c:false}, {id:'t3', n:'Earn 50 Coins', g:50, p:0, r:50, c:false} ]
     };
 
-    // Reset tasks daily
-    if(user.taskDate !== new Date().toDateString()) {
-        user.tasks.forEach(t => { t.prog = 0; t.claimed = false; });
-        user.taskDate = new Date().toDateString();
-        saveData();
-    }
+    if(usr.date !== new Date().toDateString()) { usr.tasks.forEach(t => {t.p=0; t.c=false;}); usr.date = new Date().toDateString(); save(); }
 
-    function saveData() { localStorage.setItem('nexusData', JSON.stringify(user)); updateUI(); }
+    function save() { localStorage.setItem('nxData', JSON.stringify(usr)); updateUI(); }
     
-    function addCoins(amt, reason) {
-        user.coins += amt; if(amt > 0) { user.totalEarned += amt; updateTask('t3', amt); }
-        user.history.unshift({ r: reason, a: amt, d: new Date().toLocaleTimeString() });
-        if(user.history.length > 30) user.history.pop();
-        saveData();
+    function addCoins(amt, rsn) {
+        usr.coins += amt; if(amt>0){ usr.tot += amt; updateTask('t3', amt); }
+        usr.hist.unshift({ r: rsn, a: amt, d: new Date().toLocaleTimeString() });
+        if(usr.hist.length>30) usr.hist.pop();
+        save();
     }
 
-    function updateTask(id, amt) {
-        let t = user.tasks.find(x => x.id === id);
-        if(t && !t.claimed && t.prog < t.goal) { t.prog = Math.min(t.goal, t.prog + amt); saveData(); }
-    }
+    function updateTask(id, amt) { let t = usr.tasks.find(x=>x.id===id); if(t && !t.c && t.p<t.g) { t.p = Math.min(t.g, t.p+amt); save(); } }
 
     function updateUI() {
-        document.getElementById('uiCoins').innerText = user.coins;
-        document.getElementById('statGames').innerText = user.gamesPlayed;
-        document.getElementById('statCoins').innerText = user.totalEarned;
+        document.getElementById('uiCoins').innerText = usr.coins;
+        document.getElementById('stGames').innerText = usr.plays;
+        document.getElementById('stEarned').innerText = usr.tot;
     }
     updateUI();
 
-    // =========================================================================
-    // 2. UI NAVIGATION & RENDERING
-    // =========================================================================
-    function switchTab(tabId, el) {
+    function nav(id, el) {
         document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-        document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
-        document.getElementById(tabId).classList.add('active');
-        el.classList.add('active');
-
-        if(tabId === 'tab-tasks') renderTasks();
-        if(tabId === 'tab-shop') renderShop();
-        if(tabId === 'tab-history') renderHistory();
-        if(tabId === 'tab-leaderboard') renderLeaderboard();
+        document.querySelectorAll('.nav-btn').forEach(n => n.classList.remove('active'));
+        document.getElementById(id).classList.add('active'); el.classList.add('active');
+        if(id==='tab-tasks') renderTasks(); if(id==='tab-shop') renderShop(); if(id==='tab-history') renderHist(); if(id==='tab-ranks') renderRanks();
     }
 
-    // --- 20 GAMES DATA ---
-    const allGames = [
-        { id: 'train', n: 'Train Rush', t: 'Action', c: ['#ef4444','#b91c1c'], e: '🚂', ready: true },
-        { id: 'rocket', n: 'Galaxy Fly', t: 'Arcade', c: ['#8b5cf6','#4c1d95'], e: '🚀', ready: true },
-        { id: 'racer', n: 'Neon Racer', t: 'Racing', c: ['#f59e0b','#b45309'], e: '🏎️', ready: true },
-        { id: 'catcher', n: 'Coin Catch', t: 'Casual', c: ['#10b981','#047857'], e: '💰', ready: true },
-        { id: 'ninja', n: 'Tap Ninja', t: 'Reflex', c: ['#06b6d4','#164e63'], e: '⚔️', ready: true },
-        { id: 'snake', n: 'Snake 2D', t: 'Classic', c: ['#84cc16','#15803d'], e: '🐍', ready: true },
-        { id: 'pong', n: 'Ping Pong', t: 'Sports', c: ['#f43f5e','#9f1239'], e: '🏓', ready: true },
-        { id: 'shooter', n: 'Space Pew', t: 'Shooter', c: ['#6366f1','#312e81'], e: '👾', ready: true },
-        // 12 Placeholders to make it 20!
-        { id: 'g9', n: 'Jump Cube', t: 'Platform', e: '🧊', ready: false }, { id: 'g10', n: 'Drift King', t: 'Racing', e: '🚙', ready: false },
-        { id: 'g11', n: 'Ludo Pro', t: 'Board', e: '🎲', ready: false }, { id: 'g12', n: 'Chess 3D', t: 'Brain', e: '♟️', ready: false },
-        { id: 'g13', n: 'Zombies', t: 'Survival', e: '🧟', ready: false }, { id: 'g14', n: 'Fruit Cut', t: 'Action', e: '🍉', ready: false },
-        { id: 'g15', n: '8 Ball Pool', t: 'Sports', e: '🎱', ready: false }, { id: 'g16', n: 'Bowling', t: 'Sports', e: '🎳', ready: false },
-        { id: 'g17', n: 'Word Guess', t: 'Puzzle', e: '🔠', ready: false }, { id: 'g18', n: 'Sudoku', t: 'Brain', e: '🔢', ready: false },
-        { id: 'g19', n: 'Darts 3D', t: 'Sports', e: '🎯', ready: false }, { id: 'g20', n: 'Golf Strike', t: 'Sports', e: '⛳', ready: false }
+    // =========================================================================
+    // 2. THE 20 FULLY ACTIVE GAMES CONFIGURATION
+    // (5 Master Engines mapped to 20 different themes)
+    // =========================================================================
+    const games = [
+        // Engine 1: Lane Dodge (Swipe L/R)
+        { id:'g1', n:'Neon Highway', eng:'lane', t:'Racing', bg:['#0f172a','#1e1b4b'], e:{p:'🏎️', g:'💎', b:'🛑'} },
+        { id:'g2', n:'Train Rush', eng:'lane', t:'Action', bg:['#1e293b','#0f172a'], e:{p:'🚂', g:'🟡', b:'🚧'} },
+        { id:'g3', n:'River Boat', eng:'lane', t:'Adventure', bg:['#082f49','#0c4a6e'], e:{p:'🚤', g:'⭐', b:'🐊'} },
+        { id:'g4', n:'Cyber Run', eng:'lane', t:'Arcade', bg:['#2e1065','#1e1b4b'], e:{p:'🏃', g:'⚡', b:'🕳️'} },
+        
+        // Engine 2: Gravity Fly/Jump (Tap to rise)
+        { id:'g5', n:'Flappy Plane', eng:'grav', t:'Classic', bg:['#0ea5e9','#0369a1'], e:{p:'🛩️', g:'☁️', b:'⛰️'} },
+        { id:'g6', n:'Galaxy Fly', eng:'grav', t:'Sci-Fi', bg:['#312e81','#1e1b4b'], e:{p:'🚀', g:'⭐', b:'☄️'} },
+        { id:'g7', n:'Heli Cave', eng:'grav', t:'Action', bg:['#78350f','#451a03'], e:{p:'🚁', g:'💎', b:'🦇'} },
+        { id:'g8', n:'Dino Jump', eng:'grav', t:'Retro', bg:['#14532d','#064e3b'], e:{p:'🦖', g:'🥩', b:'🌵'}, ground:true },
+
+        // Engine 3: Catcher (Drag L/R to catch)
+        { id:'g9', n:'Apple Drop', eng:'catch', t:'Casual', bg:['#831843','#4c0519'], e:{p:'🧺', g:'🍎', b:'💣'} },
+        { id:'g10', n:'Coin Miner', eng:'catch', t:'Puzzle', bg:['#713f12','#422006'], e:{p:'🛒', g:'💰', b:'🐍'} },
+        { id:'g11', n:'Star Catcher', eng:'catch', t:'Magic', bg:['#701a75','#4a044e'], e:{p:'🛸', g:'⭐', b:'☄️'} },
+        { id:'g12', n:'Gem Hunt', eng:'catch', t:'Adventure', bg:['#164e63','#083344'], e:{p:'👷', g:'💎', b:'🪨'} },
+
+        // Engine 4: Tapper/Shooter (Tap targets to destroy)
+        { id:'g13', n:'Ninja Slash', eng:'tap', t:'Action', bg:['#064e3b','#022c22'], e:{g:'🍉', b:'💣'} },
+        { id:'g14', n:'Bug Smasher', eng:'tap', t:'Reflex', bg:['#4c1d95','#2e1065'], e:{g:'🐜', b:'🐝'} },
+        { id:'g15', n:'Asteroids', eng:'tap', t:'Sci-Fi', bg:['#7c2d12','#431407'], e:{g:'☄️', b:'🛸'} },
+        { id:'g16', n:'Balloon Pop', eng:'tap', t:'Kids', bg:['#9d174d','#4c0519'], e:{g:'🎈', b:'📌'} },
+
+        // Engine 5: Survival (Drag anywhere to avoid chasing enemies)
+        { id:'g17', n:'Zombie Survive', eng:'surv', t:'Horror', bg:['#3f6212','#1a2e05'], e:{p:'🧍', b:'🧟'} },
+        { id:'g18', n:'Shark Escape', eng:'surv', t:'Ocean', bg:['#075985','#082f49'], e:{p:'🐟', b:'🦈'} },
+        { id:'g19', n:'UFO Dodge', eng:'surv', t:'Space', bg:['#1e1b4b','#000000'], e:{p:'🛰️', b:'🛸'} },
+        { id:'g20', n:'Ghost Manor', eng:'surv', t:'Spooky', bg:['#1e293b','#020617'], e:{p:'👦', b:'👻'} }
     ];
 
     function renderGames() {
-        let html = '';
-        allGames.forEach(g => {
-            if(g.ready) {
-                html += `<div class="game-card" onclick="openGame('${g.id}')">
-                    <div class="g-tag">${g.t}</div>
-                    <div class="g-thumb" style="background: linear-gradient(135deg, ${g.c[0]}, ${g.c[1]})">${g.e}</div>
-                    <div class="g-info"><div class="g-title">${g.n}</div></div>
-                </div>`;
-            } else {
-                html += `<div class="game-card">
-                    <div class="g-locked">🔒 Unlock Lvl 5</div>
-                    <div class="g-thumb" style="background: #1e293b">${g.e}</div>
-                    <div class="g-info"><div class="g-title">${g.n}</div></div>
-                </div>`;
-            }
+        let h = '';
+        games.forEach(g => {
+            h += `<div class="g-card" onclick="openGame('${g.id}')">
+                <div class="g-tag">${g.eng.toUpperCase()} ENG</div>
+                <div class="g-icon" style="background:linear-gradient(135deg,${g.bg[0]},${g.bg[1]})">${g.e.p || g.e.g}</div>
+                <div class="g-info"><div class="g-name">${g.n}</div></div>
+            </div>`;
         });
-        document.getElementById('gamesGrid').innerHTML = html;
+        document.getElementById('gamesGrid').innerHTML = h;
     }
     renderGames();
 
+    // --- UI Renders ---
     function renderTasks() {
         let h = '';
-        user.tasks.forEach(t => {
-            let pct = (t.prog / t.goal) * 100;
-            let done = t.prog >= t.goal;
-            h += `<div class="task-card">
-                <div class="t-head"><span>${t.title}</span><span class="t-rew">🟡 ${t.rew}</span></div>
-                <div class="t-bar-bg" style="display:${t.claimed?'none':'block'}"><div class="t-bar-fill" style="width:${pct}%"></div></div>
-                <div style="font-size:11px; color:#94a3b8; text-align:right; margin-bottom:8px; display:${t.claimed?'none':'block'}">${t.prog}/${t.goal}</div>
-                <button class="btn-claim" style="display:${done&&!t.claimed?'block':'none'}" onclick="claimTask('${t.id}')">CLAIM REWARD</button>
-                <div style="color:#10b981; font-weight:bold; font-size:12px; text-align:center; display:${t.claimed?'block':'none'}">✅ Completed</div>
-            </div>`;
+        usr.tasks.forEach(t => {
+            let pct = (t.p/t.g)*100; let done = t.p>=t.g;
+            h += `<div class="card"><div class="t-head"><span>${t.n}</span><span class="t-rew">🟡 ${t.r}</span></div>
+            <div class="bar-bg" style="display:${t.c?'none':'block'}"><div class="bar-fill" style="width:${pct}%"></div></div>
+            <div style="font-size:10px; color:#94a3b8; text-align:right; display:${t.c?'none':'block'}">${t.p}/${t.g}</div>
+            <button class="btn-claim" style="display:${done&&!t.c?'block':'none'}" onclick="claimT('${t.id}')">CLAIM</button>
+            <div style="color:#10b981; font-weight:900; font-size:12px; text-align:center; display:${t.c?'block':'none'}">✅ DONE</div></div>`;
         });
         document.getElementById('tasksList').innerHTML = h;
     }
-    function claimTask(id) {
-        let t = user.tasks.find(x => x.id===id);
-        if(t && !t.claimed && t.prog>=t.goal) { t.claimed = true; addCoins(t.rew, `Task: ${t.title}`); renderTasks(); }
-    }
+    function claimT(id) { let t = usr.tasks.find(x=>x.id===id); if(t && t.p>=t.g && !t.c) { t.c=true; addCoins(t.r, `Task: ${t.n}`); renderTasks(); } }
 
-    const shopItems = [
-        { id:'s1', n:'Golden Train', d:'Yellow skin for Train Rush', p:300, e:'🚅' },
-        { id:'s2', n:'Neon Rocket', d:'Laser skin for Galaxy Fly', p:300, e:'🛸' },
-        { id:'s3', n:'Bat Mobile', d:'Dark skin for Neon Racer', p:400, e:'🦇' },
-        { id:'s4', n:'VIP 2x Pass', d:'Double coins in all games forever!', p:1500, e:'👑' }
+    const shop = [
+        { id:'s1', n:'VIP 2x Coins', d:'Double rewards in ALL 20 games!', p:1000, i:'👑' },
+        { id:'s2', n:'Pro Gamer Badge', d:'Show off on Leaderboard', p:500, i:'🏅' }
     ];
     function renderShop() {
         let h = '';
-        shopItems.forEach(s => {
-            let owned = user.items.includes(s.id);
-            let afford = user.coins >= s.p;
-            h += `<div class="shop-card">
-                <div class="s-icon">${s.e}</div>
-                <div class="s-info"><h4>${s.n}</h4><p>${s.d}</p><div style="color:#f59e0b; font-weight:bold; font-size:12px;">🟡 ${s.p}</div></div>
-                <button class="btn-buy" ${owned||!afford?'disabled':''} onclick="buyItem('${s.id}',${s.p},'${s.n}')">${owned?'OWNED':'BUY'}</button>
-            </div>`;
+        shop.forEach(s => {
+            let owned = usr.items.includes(s.id); let afford = usr.coins >= s.p;
+            h += `<div class="card s-item"><div class="s-icon">${s.i}</div><div style="flex:1">
+            <div style="font-weight:900; font-size:14px;">${s.n}</div><div style="font-size:10px; color:#94a3b8; margin-bottom:5px;">${s.d}</div>
+            <div style="color:#f59e0b; font-weight:900; font-size:12px;">🟡 ${s.p}</div></div>
+            <button class="btn-buy" ${owned||!afford?'disabled':''} onclick="buyS('${s.id}',${s.p},'${s.n}')">${owned?'OWNED':'BUY'}</button></div>`;
         });
         document.getElementById('shopList').innerHTML = h;
     }
-    function buyItem(id, price, name) {
-        if(user.coins >= price) { addCoins(-price, `Bought ${name}`); user.items.push(id); saveData(); renderShop(); }
-    }
+    function buyS(id, p, n) { if(usr.coins>=p) { addCoins(-p, `Bought ${n}`); usr.items.push(id); save(); renderShop(); } }
 
-    function renderHistory() {
-        let h = '';
-        if(user.history.length===0) h = '<p style="color:#64748b; text-align:center; font-size:12px;">No transactions yet.</p>';
-        user.history.forEach(x => {
-            let plus = x.a > 0;
-            h += `<div class="hist-card ${plus?'':'spent'}">
-                <div><div style="font-weight:bold; font-size:13px;">${x.r}</div><div class="h-date">${x.d}</div></div>
-                <div class="h-amt" style="color:${plus?'#10b981':'#ef4444'}">${plus?'+':''}${x.a}</div>
-            </div>`;
-        });
+    function renderHist() {
+        let h = ''; if(usr.hist.length===0) h='<p style="text-align:center; color:#64748b; font-size:12px;">No records.</p>';
+        usr.hist.forEach(x => { let plus = x.a>0; h += `<div class="card h-row ${plus?'':'minus'}"><div><div style="font-weight:bold; font-size:13px;">${x.r}</div><div style="font-size:10px; color:#64748b;">${x.d}</div></div><div class="h-amt" style="color:${plus?'#10b981':'#ef4444'}">${plus?'+':''}${x.a}</div></div>`; });
         document.getElementById('historyList').innerHTML = h;
     }
 
-    function renderLeaderboard() {
-        const bots = [ {n:'ShadowSlayer', s:45200}, {n:'ProGamer99', s:38100}, {n:'NinjaX', s:29400}, {n:'TechBoss', s:18500}, {n:'CoolDude', s:12000} ];
-        let h = '';
-        bots.forEach((b, i) => {
-            h += `<div class="rank-card ${i===0?'r-top1':''}">
-                <div class="r-num">#${i+1}</div><div class="r-name">${b.n}</div><div class="r-score">${b.s}</div>
-            </div>`;
-        });
-        // Add User
-        h += `<div class="rank-card" style="border: 1px solid #38bdf8; background:rgba(56,189,248,0.1); margin-top:20px;">
-            <div class="r-num">#84</div><div class="r-name">You (Nexus Player)</div><div class="r-score">${user.totalEarned}</div>
-        </div>`;
-        document.getElementById('leaderboardList').innerHTML = h;
+    function renderRanks() {
+        const bots = [{n:'ShadowKing',s:85000},{n:'NinjaX',s:62000},{n:'ProGamer',s:45000},{n:'NoobMaster',s:21000}];
+        let h = ''; bots.forEach((b,i) => { h += `<div class="card r-row"><div class="r-num">#${i+1}</div><div style="flex:1; font-weight:bold;">${b.n}</div><div style="color:#38bdf8; font-weight:900;">${b.s}</div></div>`; });
+        h += `<div class="card r-row" style="border: 2px solid #10b981; background:rgba(16,185,129,0.1);"><div class="r-num">#5</div><div style="flex:1; font-weight:bold; color:#10b981;">YOU (Nexus Master)</div><div style="color:#10b981; font-weight:900;">${usr.tot}</div></div>`;
+        document.getElementById('ranksList').innerHTML = h;
     }
 
     // =========================================================================
-    // 3. MASTER GAME ENGINE (8 WORKING GAMES)
+    // 3. MASTER GAME ENGINE (Handles 5 sub-engines for 20 games)
     // =========================================================================
     const canvas = document.getElementById('gameCanvas');
     const ctx = canvas.getContext('2d');
-    let cw, ch, req, gState = 0; // 0=Wait, 1=Play
-    let curGame = '', frames = 0, score = 0, speed = 5;
-    let p = {}, ents = [], ents2 = [];
+    let cw, ch, req, gState = 0; 
+    let cGame = null, frames = 0, score = 0, speed = 5;
+    let p = {}, ents = []; // Player and Entities
+    let touchX = 0, touchY = 0, isTouching = false;
 
-    function resizeCanvas() { cw = window.innerWidth; ch = window.innerHeight - 60; canvas.width=cw; canvas.height=ch; }
+    function resizeCanvas() { cw = window.innerWidth; ch = window.innerHeight - 55; canvas.width=cw; canvas.height=ch; }
     window.addEventListener('resize', resizeCanvas);
 
     function openGame(id) {
-        curGame = id; document.getElementById('gameOverlay').style.display = 'flex';
-        document.getElementById('resultScreen').style.display = 'none';
+        cGame = games.find(g => g.id === id);
+        document.getElementById('gameArea').style.display = 'flex';
+        document.getElementById('overlayMsg').style.display = 'flex';
+        document.getElementById('resBox').style.display = 'none';
+        document.getElementById('cdText').style.display = 'block';
         document.getElementById('liveScore').innerText = '0';
         resizeCanvas();
         startCountdown();
     }
 
     function startCountdown() {
-        let cd = document.getElementById('countdown'); let txt = document.getElementById('cdText');
-        cd.style.display = 'flex'; let c = 3; txt.innerText = c;
-        let t = setInterval(() => {
-            c--; if(c>0) txt.innerText = c; else if(c===0) txt.innerText = "GO!";
-            else { clearInterval(t); cd.style.display = 'none'; initEngine(); }
-        }, 1000);
+        let txt = document.getElementById('cdText'); let c = 3; txt.innerText = c;
+        let t = setInterval(() => { c--; if(c>0) txt.innerText = c; else if(c===0) txt.innerText = "START!"; else { clearInterval(t); document.getElementById('overlayMsg').style.display = 'none'; initEngine(); } }, 1000);
     }
 
     function initEngine() {
-        gState = 1; frames = 0; score = 0; ents = []; ents2 = []; speed = 5;
+        gState = 1; frames = 0; score = 0; ents = []; speed = 6;
         
-        // Setup Players
-        if(curGame === 'train') { p = { l: 1, w: 40, h: 70, y: ch - 90 }; speed = 7; }
-        if(curGame === 'rocket') { p = { y: ch/2, v: 0, g: 0.6, j: -8, r: 15 }; }
-        if(curGame === 'racer') { p = { x: cw/2 - 20, y: ch - 80, w: 40, h: 70 }; speed = 8; }
-        if(curGame === 'catcher') { p = { x: cw/2 - 30, y: ch - 40, w: 60, h: 20 }; speed = 4; }
-        if(curGame === 'ninja') { speed = 1; score = 0; }
-        if(curGame === 'snake') { p = { b: [{x:10, y:10}], d: 'R', s: 20 }; ents.push({x:5,y:5}); speed = 1; }
-        if(curGame === 'pong') { p = { y: ch/2-40, w: 10, h: 80 }; ents = {x:cw/2, y:ch/2, vx:6, vy:6, r:8}; ents2 = {y: ch/2-40}; }
-        if(curGame === 'shooter') { p = { x: cw/2-15, y: ch-60, w:30, h:40 }; }
+        // Init player based on engine type
+        if(cGame.eng === 'lane') { p = { l: 1, y: ch - 100, s: 60 }; } // 3 lanes
+        if(cGame.eng === 'grav') { p = { y: ch/2, v: 0, g: 0.5, j: -8, s: 40 }; }
+        if(cGame.eng === 'catch') { p = { x: cw/2, y: ch - 80, s: 60 }; }
+        if(cGame.eng === 'tap') { p = { s: 50 }; speed = 3; } // No player object needed, just speed
+        if(cGame.eng === 'surv') { p = { x: cw/2, y: ch/2, s: 50 }; speed = 4; }
 
-        user.gamesPlayed++; updateTask('t1', 1); saveData();
+        usr.plays++; updateTask('t1', 1); save();
         gameLoop();
     }
 
     function gameLoop() {
         if(gState === 0) return;
-        ctx.clearRect(0,0,cw,ch); frames++;
+        ctx.fillStyle = cGame.bg[0]; ctx.fillRect(0,0,cw,ch); // Background
+        frames++;
 
-        if(curGame==='train') runTrain();
-        else if(curGame==='rocket') runRocket();
-        else if(curGame==='racer') runRacer();
-        else if(curGame==='catcher') runCatcher();
-        else if(curGame==='ninja') runNinja();
-        else if(curGame==='snake') runSnake();
-        else if(curGame==='pong') runPong();
-        else if(curGame==='shooter') runShooter();
+        // Route to sub-engine
+        if(cGame.eng === 'lane') runLane();
+        if(cGame.eng === 'grav') runGrav();
+        if(cGame.eng === 'catch') runCatch();
+        if(cGame.eng === 'tap') runTap();
+        if(cGame.eng === 'surv') runSurv();
 
         document.getElementById('liveScore').innerText = score;
         req = requestAnimationFrame(gameLoop);
@@ -433,142 +378,157 @@
     function gameOver() {
         gState = 0; cancelAnimationFrame(req);
         let coins = Math.floor(score / 10);
-        if(user.items.includes('s4')) coins *= 2; // VIP 2x
+        if(usr.items.includes('s1')) coins *= 2; // VIP pass
         
         updateTask('t2', score);
-        if(coins > 0) addCoins(coins, `Reward: ${curGame}`);
+        if(coins > 0) addCoins(coins, `Won in ${cGame.n}`);
 
+        document.getElementById('cdText').style.display = 'none';
         document.getElementById('resScore').innerText = score;
         document.getElementById('resCoins').innerText = coins;
-        document.getElementById('resultScreen').style.display = 'flex';
+        document.getElementById('resBox').style.display = 'block';
+        document.getElementById('overlayMsg').style.display = 'flex';
     }
 
-    function forceExit() { gState = 0; cancelAnimationFrame(req); document.getElementById('gameOverlay').style.display = 'none'; }
-    function closeGame() { document.getElementById('gameOverlay').style.display = 'none'; }
-    function retryGame() { document.getElementById('resultScreen').style.display = 'none'; startCountdown(); }
+    function forceExit() { gState = 0; cancelAnimationFrame(req); document.getElementById('gameArea').style.display = 'none'; }
+    function closeGame() { document.getElementById('gameArea').style.display = 'none'; }
+    function retryGame() { document.getElementById('overlayMsg').style.display = 'flex'; document.getElementById('resBox').style.display = 'none'; document.getElementById('cdText').style.display = 'block'; startCountdown(); }
 
-    /* --- MINIGAME LOGICS --- */
-    
-    function runTrain() {
+    /* =========================================================================
+       SUB-ENGINES (The Core Math for 20 Games)
+    ========================================================================= */
+    ctx.textAlign = "center"; ctx.textBaseline = "middle";
+
+    // 1. LANE ENGINE (Train, Racing, Boat)
+    function runLane() {
         let lW = cw/3; let ls = [lW/2, lW+lW/2, lW*2+lW/2];
-        ctx.strokeStyle = "#334155"; ctx.lineWidth = 2;
+        ctx.strokeStyle = cGame.bg[1]; ctx.lineWidth = 4;
         for(let i=1; i<3; i++) { ctx.beginPath(); ctx.moveTo(i*lW, 0); ctx.lineTo(i*lW, ch); ctx.stroke(); }
         
-        ctx.fillStyle = user.items.includes("s1") ? "#fcd34d" : "#ef4444"; 
-        ctx.fillRect(ls[p.l] - p.w/2, p.y, p.w, p.h);
+        // Draw Player
+        ctx.font = `${p.s}px sans-serif`; ctx.fillText(cGame.e.p, ls[p.l], p.y);
 
-        if(frames%40===0) ents.push({ l: Math.floor(Math.random()*3), y: -50, t: Math.random()>0.7?'c':'b' });
+        // Spawn logic
+        if(frames % Math.max(20, 60 - Math.floor(speed*2)) === 0) ents.push({ l: Math.floor(Math.random()*3), y: -50, t: Math.random()>0.7?'g':'b' });
+        
         for(let i=0; i<ents.length; i++) {
-            let e = ents[i]; e.y += speed; let ex = ls[e.l];
-            if(e.t==='b') { ctx.fillStyle="#1e293b"; ctx.fillRect(ex-20, e.y, 40, 50); }
-            else { ctx.fillStyle="#f59e0b"; ctx.beginPath(); ctx.arc(ex, e.y+25, 12, 0, Math.PI*2); ctx.fill(); }
+            let e = ents[i]; e.y += speed;
+            ctx.font = `40px sans-serif`; ctx.fillText(e.t==='b' ? cGame.e.b : cGame.e.g, ls[e.l], e.y);
             
-            if(e.l===p.l && e.y+40>p.y && e.y<p.y+p.h) { if(e.t==='b') gameOver(); else { score+=20; ents.splice(i,1); i--; } }
-            else if(e.y>ch) { if(e.t==='b') { score+=10; speed+=0.05; } ents.splice(i,1); i--; }
-        }
-    }
-
-    function runRocket() {
-        p.v += p.g; p.y += p.v;
-        ctx.fillStyle = user.items.includes("s2") ? "#10b981" : "#8b5cf6"; ctx.beginPath(); ctx.arc(cw/3, p.y, p.r, 0, Math.PI*2); ctx.fill();
-        if(frames%90===0) { let gap=140; let t = Math.random()*(ch-gap-100)+50; ents.push({x:cw, t:t, b:t+gap, pass:false}); }
-        ctx.fillStyle = "#334155";
-        for(let i=0; i<ents.length; i++) {
-            let e = ents[i]; e.x -= 4;
-            ctx.fillRect(e.x, 0, 40, e.t); ctx.fillRect(e.x, e.b, 40, ch-e.b);
-            if(cw/3+p.r>e.x && cw/3-p.r<e.x+40 && (p.y-p.r<e.t || p.y+p.r>e.b)) gameOver();
-            if(e.x+40<cw/3 && !e.pass) { e.pass=true; score+=10; }
-            if(e.x<-50) { ents.splice(i,1); i--; }
-        }
-        if(p.y>ch || p.y<0) gameOver();
-    }
-
-    function runRacer() {
-        ctx.fillStyle = user.items.includes("s3") ? "#020617" : "#f59e0b"; ctx.fillRect(p.x, p.y, p.w, p.h);
-        if(frames%30===0) ents.push({x: Math.random()*(cw-40), y: -80, w:40, h:70});
-        ctx.fillStyle = "#ef4444";
-        for(let i=0; i<ents.length; i++) {
-            let e = ents[i]; e.y += speed; ctx.fillRect(e.x, e.y, e.w, e.h);
-            if(p.x<e.x+e.w && p.x+p.w>e.x && p.y<e.y+e.h && p.y+p.h>e.y) gameOver();
-            if(e.y>ch) { score+=10; speed+=0.1; ents.splice(i,1); i--; }
-        }
-    }
-
-    function runCatcher() {
-        ctx.fillStyle = "#10b981"; ctx.fillRect(p.x, p.y, p.w, p.h);
-        if(frames%40===0) ents.push({x: Math.random()*(cw-20), y: -20, t: Math.random()>0.2?'c':'b'});
-        for(let i=0; i<ents.length; i++) {
-            let e = ents[i]; e.y+=speed;
-            ctx.fillStyle = e.t==='b' ? "#ef4444" : "#f59e0b"; ctx.beginPath(); ctx.arc(e.x+10, e.y, 10, 0, Math.PI*2); ctx.fill();
-            if(e.x+20>p.x && e.x<p.x+p.w && e.y+10>p.y) { if(e.t==='b') gameOver(); else { score+=10; speed+=0.05; ents.splice(i,1); i--; continue; } }
-            if(e.y>ch) { ents.splice(i,1); i--; }
-        }
-    }
-
-    function runNinja() {
-        if(frames%40===0) ents.push({x: Math.random()*(cw-40)+20, y: Math.random()*(ch-100)+50, r: 25, a:0});
-        for(let i=0; i<ents.length; i++) {
-            let e = ents[i]; e.a++;
-            ctx.fillStyle = "#06b6d4"; ctx.beginPath(); ctx.arc(e.x, e.y, e.r, 0, Math.PI*2); ctx.fill();
-            ctx.strokeStyle="#fff"; ctx.lineWidth=2; ctx.beginPath(); ctx.arc(e.x, e.y, e.r*(1-e.a/100), 0, Math.PI*2); ctx.stroke();
-            if(e.a>100) gameOver();
-        }
-    }
-
-    function runSnake() {
-        if(frames%10===0) {
-            let h = {x: p.b[0].x, y: p.b[0].y};
-            if(p.d==='R') h.x++; if(p.d==='L') h.x--; if(p.d==='U') h.y--; if(p.d==='D') h.y++;
-            p.b.unshift(h);
-            if(h.x===ents[0].x && h.y===ents[0].y) { score+=10; ents[0]={x:Math.floor(Math.random()*(cw/p.s)), y:Math.floor(Math.random()*(ch/p.s))}; } else p.b.pop();
-            if(h.x<0||h.x>=cw/p.s||h.y<0||h.y>=ch/p.s) gameOver();
-            for(let i=1;i<p.b.length;i++) if(h.x===p.b[i].x && h.y===p.b[i].y) gameOver();
-        }
-        ctx.fillStyle="#ef4444"; ctx.fillRect(ents[0].x*p.s, ents[0].y*p.s, p.s, p.s);
-        ctx.fillStyle="#84cc16"; p.b.forEach(b => ctx.fillRect(b.x*p.s, b.y*p.s, p.s-1, p.s-1));
-    }
-
-    function runPong() {
-        let b = ents; let c = ents2;
-        ctx.fillStyle="#fff"; ctx.fillRect(10, p.y, p.w, p.h); ctx.fillRect(cw-20, c.y, p.w, p.h);
-        ctx.beginPath(); ctx.arc(b.x, b.y, b.r, 0, Math.PI*2); ctx.fill();
-        b.x+=b.vx; b.y+=b.vy; if(b.y<0||b.y>ch) b.vy*=-1;
-        if(c.y+p.h/2 < b.y) c.y+=5; else c.y-=5;
-        if(b.x<10+p.w && b.y>p.y && b.y<p.y+p.h) { b.vx*=-1; score+=10; b.x=10+p.w; }
-        if(b.x>cw-20 && b.y>c.y && b.y<c.y+p.h) { b.vx*=-1; b.x=cw-20; }
-        if(b.x<0) gameOver();
-    }
-
-    function runShooter() {
-        ctx.fillStyle="#6366f1"; ctx.fillRect(p.x, p.y, p.w, p.h);
-        if(frames%40===0) ents.push({x:Math.random()*(cw-30), y:-30, w:30, h:30});
-        ctx.fillStyle="#fcd34d";
-        for(let i=0; i<ents2.length; i++) { let b=ents2[i]; b.y-=10; ctx.fillRect(b.x, b.y, 4, 10); if(b.y<0) { ents2.splice(i,1); i--; } }
-        ctx.fillStyle="#ef4444";
-        for(let i=0; i<ents.length; i++) {
-            let e=ents[i]; e.y+=4; ctx.fillRect(e.x, e.y, e.w, e.h);
-            if(e.y>ch) gameOver();
-            for(let j=0; j<ents2.length; j++) {
-                let b=ents2[j]; if(b.x>e.x && b.x<e.x+e.w && b.y<e.y+e.h) { ents.splice(i,1); i--; ents2.splice(j,1); j--; score+=10; break; }
+            if(e.l === p.l && Math.abs(e.y - p.y) < p.s/2 + 20) {
+                if(e.t==='b') gameOver(); else { score+=20; ents.splice(i,1); i--; }
+            } else if(e.y > ch+50) {
+                if(e.t==='b') { score+=10; speed+=0.05; } ents.splice(i,1); i--;
             }
         }
     }
 
-    /* --- CONTROLS --- */
-    canvas.addEventListener("touchstart", e => {
-        if(gState===0) return; let tx = e.touches[0].clientX, ty = e.touches[0].clientY;
-        if(curGame==='train') { if(tx<cw/2 && p.l>0) p.l--; else if(tx>cw/2 && p.l<2) p.l++; }
-        if(curGame==='rocket') p.v = p.j;
-        if(curGame==='ninja') { for(let i=0;i<ents.length;i++) { if(Math.hypot(tx-ents[i].x, ty-ents[i].y)<ents[i].r+20) { ents.splice(i,1); score+=10; break; } } }
-        if(curGame==='snake') { let dx=tx-p.b[0].x*p.s, dy=ty-p.b[0].y*p.s; if(Math.abs(dx)>Math.abs(dy)) { if(dx>0 && p.d!=='L') p.d='R'; else if(dx<0 && p.d!=='R') p.d='L'; } else { if(dy>0 && p.d!=='U') p.d='D'; else if(dy<0 && p.d!=='D') p.d='U'; } }
-        if(curGame==='shooter') ents2.push({x:p.x+p.w/2-2, y:p.y});
-    });
+    // 2. GRAVITY ENGINE (Flappy, Heli, Dino)
+    function runGrav() {
+        p.v += p.g; p.y += p.v;
+        if(cGame.ground && p.y > ch-80) { p.y = ch-80; p.v = 0; } // Dino logic
+        
+        ctx.font = `${p.s}px sans-serif`; ctx.fillText(cGame.e.p, cw/3, p.y);
 
-    canvas.addEventListener("touchmove", e => {
-        if(gState===0) return; let tx = e.touches[0].clientX, ty = e.touches[0].clientY;
-        if(curGame==='racer' || curGame==='catcher' || curGame==='shooter') { p.x = tx - p.w/2; if(p.x<0) p.x=0; if(p.x>cw-p.w) p.x=cw-p.w; }
-        if(curGame==='pong') p.y = ty - p.h/2;
+        if(frames % 80 === 0) {
+            if(cGame.ground) { ents.push({ x: cw, y: ch-80, t: 'b', pass: false }); } // Ground obst
+            else {
+                let gap = 160; let topH = Math.random()*(ch-gap-100)+50;
+                ents.push({ x: cw, top: topH, bot: topH+gap, pass: false, t: 'pipe' });
+            }
+        }
+        if(frames % 120 === 0) ents.push({ x: cw, y: Math.random()*(ch-100)+50, t: 'g' }); // Collectibles
+
+        for(let i=0; i<ents.length; i++) {
+            let e = ents[i]; e.x -= speed;
+            if(e.t === 'pipe') {
+                ctx.fillStyle = cGame.bg[1]; ctx.fillRect(e.x-30, 0, 60, e.top); ctx.fillRect(e.x-30, e.bot, 60, ch-e.bot);
+                ctx.font = `30px sans-serif`; ctx.fillText(cGame.e.b, e.x, e.top-20); ctx.fillText(cGame.e.b, e.x, e.bot+20);
+                if(Math.abs((cw/3)-e.x) < 40 && (p.y-p.s/2 < e.top || p.y+p.s/2 > e.bot)) gameOver();
+                if(e.x < cw/3 && !e.pass) { e.pass=true; score+=10; speed+=0.05; }
+            } else if (e.t === 'b') {
+                ctx.font = `50px sans-serif`; ctx.fillText(cGame.e.b, e.x, e.y);
+                if(Math.abs((cw/3)-e.x) < 40 && Math.abs(p.y-e.y) < 40) gameOver();
+                if(e.x < cw/3 && !e.pass) { e.pass=true; score+=10; speed+=0.05; }
+            } else if (e.t === 'g') {
+                ctx.font = `40px sans-serif`; ctx.fillText(cGame.e.g, e.x, e.y);
+                if(Math.abs((cw/3)-e.x) < 40 && Math.abs(p.y-e.y) < 40) { score+=20; ents.splice(i,1); i--; continue; }
+            }
+            if(e.x < -100) { ents.splice(i,1); i--; }
+        }
+        if(!cGame.ground && (p.y > ch || p.y < 0)) gameOver();
+    }
+
+    // 3. CATCHER ENGINE (Basket, Coin miner)
+    function runCatch() {
+        p.x = isTouching ? touchX : p.x;
+        p.x = Math.max(p.s/2, Math.min(cw-p.s/2, p.x));
+        ctx.font = `${p.s}px sans-serif`; ctx.fillText(cGame.e.p, p.x, p.y);
+
+        if(frames % Math.max(20, 50 - Math.floor(speed)) === 0) ents.push({ x: Math.random()*(cw-40)+20, y: -40, t: Math.random()>0.2?'g':'b' });
+
+        for(let i=0; i<ents.length; i++) {
+            let e = ents[i]; e.y += speed;
+            ctx.font = `40px sans-serif`; ctx.fillText(e.t==='b' ? cGame.e.b : cGame.e.g, e.x, e.y);
+            if(Math.abs(e.x - p.x) < p.s/2+20 && Math.abs(e.y - p.y) < p.s/2) {
+                if(e.t==='b') gameOver(); else { score+=10; speed+=0.05; ents.splice(i,1); i--; continue; }
+            }
+            if(e.y > ch+50) { ents.splice(i,1); i--; }
+        }
+    }
+
+    // 4. TAPPER/SHOOTER ENGINE (Ninja, Bugs)
+    function runTap() {
+        if(frames % Math.max(30, 80 - Math.floor(speed*5)) === 0) ents.push({ x: Math.random()*(cw-80)+40, y: Math.random()*(ch-100)+50, r: 0, maxR: 40, t: Math.random()>0.3?'g':'b', state: 'grow' });
+
+        for(let i=0; i<ents.length; i++) {
+            let e = ents[i];
+            if(e.state === 'grow') { e.r += speed*0.2; if(e.r >= e.maxR) e.state = 'shrink'; }
+            else { e.r -= speed*0.2; if(e.r <= 0) { if(e.t==='g') gameOver(); else { ents.splice(i,1); i--; continue; } } }
+            
+            ctx.font = `${e.r*1.5}px sans-serif`; ctx.fillText(e.t==='b' ? cGame.e.b : cGame.e.g, e.x, e.y);
+        }
+    }
+
+    // 5. SURVIVAL ENGINE (Avoid chasing enemies)
+    function runSurv() {
+        if(isTouching) { p.x += (touchX - p.x)*0.1; p.y += (touchY - p.y)*0.1; }
+        p.x = Math.max(p.s/2, Math.min(cw-p.s/2, p.x)); p.y = Math.max(p.s/2, Math.min(ch-p.s/2, p.y));
+        
+        ctx.font = `${p.s}px sans-serif`; ctx.fillText(cGame.e.p, p.x, p.y);
+
+        if(frames % 120 === 0) { // Spawn enemy at edges
+            let ex = Math.random()>0.5 ? 0 : cw; let ey = Math.random()*ch;
+            ents.push({ x: ex, y: ey, s: Math.random()*2 + speed*0.5 });
+        }
+        if(frames % 60 === 0) { score+=5; speed+=0.05; } // Survival points
+
+        for(let i=0; i<ents.length; i++) {
+            let e = ents[i];
+            let dx = p.x - e.x; let dy = p.y - e.y; let ang = Math.atan2(dy, dx);
+            e.x += Math.cos(ang) * e.s; e.y += Math.sin(ang) * e.s;
+            ctx.font = `40px sans-serif`; ctx.fillText(cGame.e.b, e.x, e.y);
+            if(Math.hypot(dx, dy) < p.s/2 + 10) gameOver();
+        }
+    }
+
+    /* --- INPUT HANDLING --- */
+    canvas.addEventListener("touchstart", e => {
+        if(gState===0) return; isTouching = true;
+        touchX = e.touches[0].clientX; touchY = e.touches[0].clientY - 60; // Offset for header
+        
+        if(cGame.eng === 'lane') { if(touchX < cw/2 && p.l>0) p.l--; else if(touchX > cw/2 && p.l<2) p.l++; }
+        if(cGame.eng === 'grav') p.v = p.j;
+        if(cGame.eng === 'tap') {
+            for(let i=0; i<ents.length; i++) {
+                if(Math.hypot(touchX - ents[i].x, touchY - ents[i].y) < ents[i].r + 20) {
+                    if(ents[i].t === 'b') gameOver(); else { score+=10; speed+=0.1; ents.splice(i,1); break; }
+                }
+            }
+        }
     });
+    canvas.addEventListener("touchmove", e => { if(gState!==0) { touchX = e.touches[0].clientX; touchY = e.touches[0].clientY - 60; } });
+    canvas.addEventListener("touchend", () => isTouching = false);
 
 </script>
 </body>
